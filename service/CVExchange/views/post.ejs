@@ -1,8 +1,17 @@
 <h1><%= post.title %></h1>
 <p><%= post.text %></p>
 
-<h2>Comments</h2>
+<h2>-Comment Section-</h2>
+  <form method="POST" action="/posts/comment">
+    <input type="hidden" name="postId" value="<%= post.id %>">
+    <label for="comment">Add a Comment:</label><br>
+    <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br>
+    <input type="submit" value="Submit">
+  </form>
   <div>
-    <p>comments will go here</p>
-    <p>and here too</p>
+    <% for (let comment of comments) { %>
+      <div class="comment">
+        <p><%= comment.text %></p>
+      </div>
+    <% } %>
   </div>

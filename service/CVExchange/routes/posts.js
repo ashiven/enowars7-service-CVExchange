@@ -75,17 +75,37 @@ router.post('/delete/:id', auth,  (req, res) => {
 
 router.get('/:id', (req, res) => {
     const postId = req.params.id
+    let post, comments
     
-    const query = `SELECT * FROM posts WHERE id = ${postId}`
-    req.database.query(query, (error, results) => {
+    const post_query = `SELECT * FROM posts WHERE id = ${postId}`
+    req.database.query(post_query, (error, post_results) => {
         if(error) throw error
         
-        if(results.length === 0) {
+        if(post_results.length === 0) {
             res.status(404).send('Post not found')
             return
         }
-        const post = results[0]
-        res.render('post', {post})
+        post = post_results[0]
+
+        const comment_query = `SELECT * FROM comments WHERE post_id = ${postId}`
+        req.database.query(comment_query, (error, comment_results) => {
+            if(error) throw error
+
+            comments = comment_results
+            res.render('post', {post, comments})
+        })
+    })
+})
+
+router.post('/comment' , auth, (req, res) => {
+    const comment = req.body.comment
+    const postId = req.body.postId
+    const creatorId = req.userId
+
+    const query = `INSERT INTO comments (text, post_id, creator_id, rating, datetime) VALUES ('${comment}', '${postId}', '${creatorId}', '1',  NOW() )`
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        res.redirect(`./${postId}`)
     })
 })
 
