@@ -1,0 +1,2 @@
+-create endpoint for editing posts
+-might be good to use a separate file for the authentication so i don't need to redefine it in every router file
