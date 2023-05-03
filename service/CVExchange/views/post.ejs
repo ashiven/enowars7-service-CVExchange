@@ -13,6 +13,15 @@
       <div class="comment">
         <p><%= comment.creator_name %> commented on: <%= comment.datetime %></p>
         <p><%= comment.text %></p>
+        <% if(comment.creator_id === req.userId) { %>
+          <form method="GET" action="/comments/edit/<%= comment.id %>">
+            <input type="submit" value="Edit">
+          </form>
+          <form method="POST" action="/comments/delete/<%= comment.id %>">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <input type="submit" value="Delete">
+          </form>
+        <% } %>
       </div>
     <% } %>
   </div>

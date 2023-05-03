@@ -25,7 +25,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.use((req, res, next) => {
+app.use((req, res, next) => { //make DB accessible through req
     req.database = database
     next()
 })
@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
 const userRouter = require('./routes/users.js')
-app.use('/users', userRouter)
+app.use('/user', userRouter)
 const commentRouter = require('./routes/comments.js')
 app.use('/comments', commentRouter)
 //--------------------------------
@@ -41,8 +41,15 @@ app.use('/comments', commentRouter)
 
 //define the main page GET
 app.get('/', (req, res) => {
-    res.send('main page')
-});
+    const pagelimit = 10
+    const query = `SELECT * FROM posts ORDER BY datetime DESC LIMIT ${pagelimit}`
+
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        
+        res.render('posts', { posts: results })
+    })
+})
 //--------------------------------
 
 

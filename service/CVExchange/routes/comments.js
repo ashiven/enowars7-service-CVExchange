@@ -19,28 +19,54 @@ router.post('/new' , auth, getusername, (req, res) => {
     })
 })
 
-//TODO: add functionality to these routes 
-router.post('/edit' , auth, (req, res) => {
-    const comment = req.body.comment
-    const postId = req.body.postId
-    const creatorId = req.userId
+router.get('/edit/:id' , auth, (req, res) => {
+    const commentId = req.params.id
+    const userId = req.userId
+    
+    const query = `SELECT * FROM comments WHERE id = ${commentId} AND creator_id = ${userId}`
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        if(results.length > 0) {
+            res.render('editcomment', { comment: results[0], commentId })
+        }
+        else {
+            res.status(404).send('Comment not found')
+        }
+    })
+})
 
-    const query = `INSERT INTO comments (text, post_id, creator_id, rating, datetime) VALUES ('${comment}', '${postId}', '${creatorId}', '1',  NOW() )`
+router.post('/edit/:id' , auth, (req, res) => {
+    const text = req.body.text
+    const postId = req.body.postId
+    const commentId = req.params.id
+    const userId = req.userId
+
+    const query = `UPDATE comments SET text = '${text}' WHERE id = ${commentId} AND creator_id = ${userId}`
     req.database.query(query, (error, results) => {
         if(error) throw error
         res.redirect(`/posts/${postId}`)
     })
 })
 
-router.post('/delete' , auth, (req, res) => {
-    const comment = req.body.comment
+router.post('/delete/:id', auth,  (req, res) => {
+    const commentId = req.params.id
+    const userId = req.userId
     const postId = req.body.postId
-    const creatorId = req.userId
 
-    const query = `INSERT INTO comments (text, post_id, creator_id, rating, datetime) VALUES ('${comment}', '${postId}', '${creatorId}', '1',  NOW() )`
-    req.database.query(query, (error, results) => {
+    const find_query = `SELECT * FROM comments WHERE id = ${commentId} AND creator_id = ${userId}`
+    req.database.query(find_query, (error, results) => {
         if(error) throw error
-        res.redirect(`/posts/${postId}`)
+
+        if(results.length > 0) {
+            const delete_query = `DELETE FROM comments WHERE id = ${commentId}`
+            req.database.query(delete_query, (error, results) => {
+                if(error) throw error
+                res.redirect(`/posts/${postId}`)
+            })
+        }
+        else {
+            res.status(401).send('You are not authorized to delete this comment')
+        }
     })
 })
 

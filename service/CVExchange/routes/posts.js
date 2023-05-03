@@ -6,19 +6,6 @@ const auth = auth_middleware.auth
 
 //define all of the routes
 
-router.get('/', (req, res) => {
-    const pagelimit = 10
-    const query = `SELECT * FROM posts ORDER BY datetime DESC LIMIT ${pagelimit}`
-    let posts
-
-    req.database.query(query, (error, results) => {
-        if(error) throw error
-        
-        posts = results
-        res.render('posts', { posts })
-    })
-})
-
 router.get('/new', auth,  (req, res) => {
     res.render('newpost')
 })
@@ -36,7 +23,7 @@ router.post('/new', auth, getusername,  (req, res) => {
     })
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id',auth, (req, res) => {
     const postId = req.params.id
     let post, comments
     
@@ -55,7 +42,7 @@ router.get('/:id', (req, res) => {
             if(error) throw error
 
             comments = comment_results
-            res.render('post', {post, comments})
+            res.render('post', {req, post, comments})
         })
     })
 })
