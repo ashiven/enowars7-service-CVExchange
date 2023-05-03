@@ -2,9 +2,11 @@ const express = require('express')
 const router = express.Router()
 const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
+const middleware = require('../middleware/other')
+const getusername = middleware.getusername
 
 
-//define all of the routes
+// Route definitions
 
 router.get('/new', auth,  (req, res) => {
     res.render('newpost')
@@ -96,22 +98,6 @@ router.post('/edit/:id', auth,  (req, res) => {
         res.redirect('/users/myposts')
     })
 })
-
-//--------------------------------
-
-
-//define middleware
-
-//middleware to get the username for the request
-function getusername(req, res, next) {
-    const userId = req.userId
-    const query = `SELECT * FROM users WHERE id = ${userId}`
-    req.database.query(query, (error, results) => {
-        if(error) throw error
-        req.username = results[0].name
-        next()
-    })
-}
 
 //--------------------------------
 

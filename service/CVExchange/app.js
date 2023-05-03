@@ -47,17 +47,9 @@ app.get('/', (req, res) => {
     req.database.query(query, (error, results) => {
         if(error) throw error
         
-        res.render('posts', { posts: results })
+        res.render('frontpage', { posts: results })
     })
 })
-//--------------------------------
-
-
-//define middleware
-function logger(req, res, next) {
-    console.log(req.originalUrl)
-    next()
-}
 //--------------------------------
 
 
