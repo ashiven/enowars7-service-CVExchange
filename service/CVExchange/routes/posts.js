@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const jwt = require('jsonwebtoken')
 const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 
+
 //define all of the routes
+
 router.get('/', (req, res) => {
     const pagelimit = 10
     const query = `SELECT * FROM posts ORDER BY datetime DESC LIMIT ${pagelimit}`

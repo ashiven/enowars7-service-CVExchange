@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const jwt = require('jsonwebtoken')
 const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 
