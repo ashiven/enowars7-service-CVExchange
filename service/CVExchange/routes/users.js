@@ -5,7 +5,6 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const jwtSecret = auth_middleware.jwtSecret
 
-//--------------------------------
 
 //define all of the routes
 router.get('/login', (req, res) => {
@@ -25,7 +24,7 @@ router.post('/login', (req, res) => {
         if(results.length > 0) {
             const userId = results[0].id
             const username = results[0].username
-            const token = jwt.sign({userId, username}, jwtSecret)
+            const token = jwt.sign({userId}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
             res.status(200).send('Login successful')
         }

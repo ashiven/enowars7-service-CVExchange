@@ -10,7 +10,6 @@ function auth(req, res, next) {
                 res.status(401).send('Unauthenticated') 
             }
             req.userId = decoded.userId
-            req.username = decoded.username
             next()
         })
     }
