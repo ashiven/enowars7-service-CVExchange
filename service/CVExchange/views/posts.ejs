@@ -7,7 +7,7 @@
     <h1>CVExchange Where we exchange the V's and E's</h1>
     <% for (let post of posts) { %>
       <div class="post">
-        <a href="./<%= post.id %>"><%= post.title %></a>
+        <a href="/posts/<%= post.id %>"><%= post.title %></a>
       </div>
     <% } %>
   </body>

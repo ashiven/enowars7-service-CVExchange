@@ -34,6 +34,8 @@ const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
 const userRouter = require('./routes/users.js')
 app.use('/users', userRouter)
+const commentRouter = require('./routes/comments.js')
+app.use('/comments', commentRouter)
 //--------------------------------
 
 

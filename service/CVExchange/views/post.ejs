@@ -2,7 +2,7 @@
 <p><%= post.text %></p>
 
 <h2>-Comment Section-</h2>
-  <form method="POST" action="/posts/comment">
+  <form method="POST" action="/comments/new">
     <input type="hidden" name="postId" value="<%= post.id %>">
     <label for="comment">Add a Comment:</label><br>
     <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br>

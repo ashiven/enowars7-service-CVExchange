@@ -89,6 +89,19 @@ router.get('/profile', auth, (req, res) => {
     })
 })
 
+router.get('/myposts', auth, (req, res) => {
+    const pagelimit = 10
+    const query = `SELECT * FROM posts WHERE creator_id = ${req.userId} ORDER BY datetime DESC LIMIT ${pagelimit}`
+    let posts
+
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        
+        posts = results
+        res.render('myposts', { posts })
+    })
+})
+
 //--------------------------------
 
 //middleware definitions
