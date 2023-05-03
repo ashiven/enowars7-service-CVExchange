@@ -11,8 +11,9 @@
   <div>
     <% for (let comment of comments) { %>
       <div class="comment">
-        <p><%= comment.creator_name %> commented on: <%= comment.datetime %></p>
         <p><%= comment.text %></p>
+        <p><%= comment.creator_name %> commented on: <%= comment.datetime %></p>
+        <p>Upvotes: <%= comment.rating %></p>
         <% if(comment.creator_id === req.userId) { %>
           <form method="GET" action="/comments/edit/<%= comment.id %>">
             <input type="submit" value="Edit">

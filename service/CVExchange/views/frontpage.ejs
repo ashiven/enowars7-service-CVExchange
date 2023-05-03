@@ -8,7 +8,30 @@
     <% for (let post of posts) { %>
       <div class="post">
         <a href="/posts/<%= post.id %>"><%= post.title %></a>
-      </div>
+        <p>Posted by: <%= post.creator_name %></p>
+        <p>Upvotes: <%= post.rating %></p>
+      </div><br>
     <% } %>
+    <br><br>
+      <div class="login">
+        <form method="GET" action="/user/login">
+          <input type="submit" value="Login">
+        </form>
+      </div>
+      <div class="register">
+        <form method="GET" action="/user/register">
+          <input type="submit" value="Register">
+        </form>
+      </div>
+      <div class="profile">
+        <form method="GET" action="/user/profile">
+          <input type="submit" value="Profile">
+        </form>
+      </div>
+      <div class="myposts">
+        <form method="GET" action="/user/myposts">
+          <input type="submit" value="My Posts">
+        </form>
+      </div>
   </body>
 </html>
