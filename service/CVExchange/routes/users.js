@@ -15,15 +15,13 @@ router.post('/login', (req, res) => {
     const email = req.body.email
     const password = req.body.password
 
-    const subquery = 'SELECT users.id, users.name, passwords.password FROM users JOIN passwords ON users.id = passwords.id'
-    const query = `${subquery} WHERE email = '${email}' AND password = '${password}'`
+    const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
 
     req.database.query(query, (error, results) => {
         if(error) throw error
 
         if(results.length > 0) {
             const userId = results[0].id
-            const username = results[0].username
             const token = jwt.sign({userId}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
             res.status(200).send('Login successful')
@@ -60,14 +58,9 @@ router.post('/register', (req, res) => {
             res.status(409).send('User already exists')
         }
 
-        const insert_query_users = `INSERT INTO users (name, email) VALUES ('${name}', '${email}')`
-        const insert_query_passwords = `INSERT INTO passwords (password) VALUES ('${password}')`
-        req.database.query(insert_query_users, (error, results) => {
+        const insert_query = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${password}')`
+        req.database.query(insert_query, (error, results) => {
             if(error) throw error
-        })
-        req.database.query(insert_query_passwords, (error, results) => {
-            if(error) throw error
-
             res.status(200).send('User created successfully')
         })
     })

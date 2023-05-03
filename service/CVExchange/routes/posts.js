@@ -35,27 +35,6 @@ router.post('/new', auth, (req, res) => {
     })
 })
 
-router.post('/delete/:id', auth,  (req, res) => {
-    const postId = req.params.id
-    const userId = req.userId
-
-    const find_query = `SELECT * FROM posts WHERE id = ${postId} AND creator_id = ${userId}`
-    req.database.query(find_query, (error, results) => {
-        if(error) throw error
-
-        if(results.length > 0) {
-            const delete_query = `DELETE FROM posts WHERE id = ${postId}`
-            req.database.query(delete_query, (error, results) => {
-                if(error) throw error
-                res.status(200).send('Post deleted successfully!')
-            })
-        }
-        else {
-            res.status(401).send('You are not authorized to delete this post')
-        }
-    })
-})
-
 router.get('/:id', (req, res) => {
     const postId = req.params.id
     let post, comments
@@ -77,6 +56,56 @@ router.get('/:id', (req, res) => {
             comments = comment_results
             res.render('post', {post, comments})
         })
+    })
+})
+
+router.post('/delete/:id', auth,  (req, res) => {
+    const postId = req.params.id
+    const userId = req.userId
+
+    const find_query = `SELECT * FROM posts WHERE id = ${postId} AND creator_id = ${userId}`
+    req.database.query(find_query, (error, results) => {
+        if(error) throw error
+
+        if(results.length > 0) {
+            const delete_query = `DELETE FROM posts WHERE id = ${postId}`
+            req.database.query(delete_query, (error, results) => {
+                if(error) throw error
+                res.status(200).send('Post deleted successfully!')
+            })
+        }
+        else {
+            res.status(401).send('You are not authorized to delete this post')
+        }
+    })
+})
+
+router.get('/edit/:id', auth,  (req, res) => {
+    const postId = req.params.id
+    const userId = req.userId
+    
+    const query = `SELECT * FROM posts WHERE id = ${postId} AND creator_id = ${userId}`
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        if(results.length > 0) {
+            res.render('editpost', { post: results[0], postId })
+        }
+        else {
+            res.status(404).send('Post not found')
+        }
+    })
+})
+
+router.post('/edit/:id', auth,  (req, res) => {
+    const title = req.body.title
+    const text = req.body.text
+    const postId = req.params.id
+    const userId = req.userId
+
+    const query = `UPDATE posts SET title = '${title}', text = '${text}' WHERE id = ${postId} AND creator_id = ${userId}`
+    req.database.query(query, (error, results) => {
+        if(error) throw error
+        res.status(200).send('Post edited successfully!')
     })
 })
 
