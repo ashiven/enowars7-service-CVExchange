@@ -1,10 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-
-//define constants and stuff
-
-const jwtSecret = 'SuperS3cret'
+const auth_middleware = require('../middleware/auth')
+const auth = auth_middleware.auth
+const jwtSecret = auth_middleware.jwtSecret
 
 //--------------------------------
 
@@ -25,7 +24,8 @@ router.post('/login', (req, res) => {
 
         if(results.length > 0) {
             const userId = results[0].id
-            const token = jwt.sign({userId}, jwtSecret)
+            const username = results[0].username
+            const token = jwt.sign({userId, username}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
             res.status(200).send('Login successful')
         }
@@ -33,7 +33,6 @@ router.post('/login', (req, res) => {
             res.status(401).send('Invalid email or password')
         }
     })
-
 })
 
 router.post('/logout', (req, res) => {
@@ -98,29 +97,9 @@ router.get('/myposts', auth, (req, res) => {
         if(error) throw error
         
         posts = results
-        res.render('myposts', { posts })
+        res.render('myposts', { req, posts })
     })
 })
-
-//--------------------------------
-
-//middleware definitions
-function auth(req, res, next) {
-    const token = req.cookies.jwtToken
-
-    if(token) {
-        jwt.verify(token, jwtSecret, (error, decoded) => {
-            if(error) {
-                res.status(401).send('Unauthenticated') 
-            }
-            req.userId = decoded.userId
-            next()
-        })
-    }
-    else {
-        res.status(401).send('Unauthenticated') 
-    }
-}
 
 //--------------------------------
 

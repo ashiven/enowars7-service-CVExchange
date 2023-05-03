@@ -4,7 +4,7 @@
     <title>CVExchange</title>
   </head>
   <body>
-    <h1>Overview for the posts of the user with ID: <%= posts[0].creator_id %></h1>
+    <h1>Overview for the posts of the user with ID: <%= req.username %></h1>
     <% for (let post of posts) { %>
       <div class="post">
         <h2><%= post.title %></h2>
