@@ -13,6 +13,7 @@
       </div><br>
     <% } %>
     <br><br>
+    <% if(!req.cookies.jwtToken) { %>
       <div class="login">
         <form method="GET" action="/user/login">
           <input type="submit" value="Login">
@@ -23,6 +24,8 @@
           <input type="submit" value="Register">
         </form>
       </div>
+    <% } %>
+    <% if(req.cookies.jwtToken) { %>
       <div class="profile">
         <form method="GET" action="/user/profile">
           <input type="submit" value="Profile">
@@ -33,5 +36,6 @@
           <input type="submit" value="My Posts">
         </form>
       </div>
+    <% } %>
   </body>
 </html>

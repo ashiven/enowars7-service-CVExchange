@@ -15,6 +15,10 @@ router.post('/login', (req, res) => {
     const email = req.body.email
     const password = req.body.password
 
+    if(!email || !password) {
+        return res.status(400).send('Please provide all required fields')
+    }
+
     const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
 
     req.database.query(query, (error, results) => {
@@ -24,7 +28,7 @@ router.post('/login', (req, res) => {
             const userId = results[0].id
             const token = jwt.sign({userId}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
-            res.status(200).send('Login successful')
+            res.redirect('/')
         }
         else {
             res.status(401).send('Invalid email or password')
@@ -34,7 +38,7 @@ router.post('/login', (req, res) => {
 
 router.post('/logout', (req, res) => {
     res.clearCookie('jwtToken')
-    res.redirect('./login')
+    res.redirect('/')
 })
 
 router.get('/register', (req, res) => {
@@ -61,7 +65,18 @@ router.post('/register', (req, res) => {
         const insert_query = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${password}')`
         req.database.query(insert_query, (error, results) => {
             if(error) throw error
-            res.status(200).send('User created successfully')
+            
+            const login_query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
+            req.database.query(login_query, (error, results) => {
+                if(error) throw error
+        
+                if(results.length > 0) {
+                    const userId = results[0].id
+                    const token = jwt.sign({userId}, jwtSecret)
+                    res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
+                    res.redirect('/')
+                }
+            })
         })
     })
 })
@@ -83,13 +98,16 @@ router.get('/profile', auth, (req, res) => {
 router.get('/myposts', auth, (req, res) => {
     const pagelimit = 10
     const query = `SELECT * FROM posts WHERE creator_id = ${req.userId} ORDER BY datetime DESC LIMIT ${pagelimit}`
-    let posts
 
     req.database.query(query, (error, results) => {
         if(error) throw error
         
-        posts = results
-        res.render('myposts', { req, posts })
+        if(results.length > 0) {
+            res.render('myposts', { req, posts: results })
+        }
+        else {
+            res.send('You havent posted anything yet.')
+        }
     })
 })
 

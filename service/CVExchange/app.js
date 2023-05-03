@@ -25,8 +25,8 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.use((req, res, next) => { //make DB accessible through req
-    req.database = database
+app.use((req, res, next) => { 
+    req.database = database //make DB accessible through req
     next()
 })
 
@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
     req.database.query(query, (error, results) => {
         if(error) throw error
         
-        res.render('frontpage', { posts: results })
+        res.render('frontpage', { req, posts: results })
     })
 })
 //--------------------------------
