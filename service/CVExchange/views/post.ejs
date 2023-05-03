@@ -11,6 +11,7 @@
   <div>
     <% for (let comment of comments) { %>
       <div class="comment">
+        <p><%= comment.creator_name %> commented on: <%= comment.datetime %></p>
         <p><%= comment.text %></p>
       </div>
     <% } %>
