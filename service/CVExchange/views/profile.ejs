@@ -3,3 +3,9 @@ My Profile (I am user: <%= username %>)
 <form action="./logout" method="POST">
     <button type="submit">Logout</button>
 </form>
+
+<form method="POST" enctype="multipart/form-data" action="/files/upload">
+    <label for="profilePicture">Profile Picture:</label><br>
+    <input type="file" name="profilePicture">
+    <button type="submit">Upload</button>
+</form>

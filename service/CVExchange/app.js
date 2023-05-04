@@ -36,6 +36,8 @@ const userRouter = require('./routes/users.js')
 app.use('/user', userRouter)
 const commentRouter = require('./routes/comments.js')
 app.use('/comments', commentRouter)
+const fileRouter = require('./routes/files.js')
+app.use('/files', fileRouter)
 //--------------------------------
 
 
