@@ -27,7 +27,7 @@ router.post('/upload', auth, upload.single('profilePicture') , (req, res) => {
                 if(error) throw error
             })
         }
-        
+
         //rename the file to upload and update profile pic in DB
         fs.rename(filepath, `uploads/${filename}`, (error) => {
             if(error) throw error
@@ -43,6 +43,37 @@ router.post('/upload', auth, upload.single('profilePicture') , (req, res) => {
     })
 })
 
+router.post('/delete', auth, (req, res) => {
+    const userId = req.userId
+
+    const find_query = `SELECT profile_picture FROM users WHERE id = ${userId}`
+    req.database.query(find_query, (error, results) => {
+        if(error) throw error
+
+        const currentPic = results[0].profile_picture
+        if(currentPic) {
+            fs.unlink(path.join(__dirname, '..', currentPic), (error) => {
+                if(error) throw error
+            })
+
+            const delete_query = `UPDATE users SET profile_picture = NULL WHERE id = ${userId}`
+            req.database.query(delete_query, (error, results) => {
+                if(error) throw error
+                
+                res.redirect('/user/profile')
+            })
+        }
+    })
+})
+
+//--------------------------------
+
+
+// Function definitions
+
+function randomName(string) {
+    console.log(string)
+}
 
 //--------------------------------
 

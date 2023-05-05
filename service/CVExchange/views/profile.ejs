@@ -11,6 +11,9 @@ My Profile (I am user: <%= user.name %>)
       <% } else { %>
         <p>No profile picture found.</p><br>
     <% } %>
-    <input type="file" name="profilePicture">
+    <input type="file" name="profilePicture"><br><br>
     <button type="submit">Upload</button>
+</form>
+<form method="POST" action="/files/delete">
+<button type="submit">Delete</button>
 </form>
