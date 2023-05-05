@@ -1,4 +1,4 @@
-My Profile (I am user: <%= username %>)
+My Profile (I am user: <%= user.name %>)
 
 <form action="./logout" method="POST">
     <button type="submit">Logout</button>
@@ -6,6 +6,11 @@ My Profile (I am user: <%= username %>)
 
 <form method="POST" enctype="multipart/form-data" action="/files/upload">
     <label for="profilePicture">Profile Picture:</label><br>
+    <% if (user.profile_picture) { %>
+        <img src="<%= user.profile_picture %>" alt="Profile picture"><br>
+      <% } else { %>
+        <p>No profile picture found.</p><br>
+    <% } %>
     <input type="file" name="profilePicture">
     <button type="submit">Upload</button>
 </form>

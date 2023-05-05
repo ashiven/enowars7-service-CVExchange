@@ -90,7 +90,7 @@ router.get('/profile', auth, (req, res) => {
         if(error) throw error
 
         if(results.length > 0) {
-            res.render('profile', { username: results[0].name })
+            res.render('profile', { user: results[0] })
         }
     })
 })

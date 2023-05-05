@@ -10,7 +10,6 @@ const auth = auth_middleware.auth
 // Route definitions
 
 
-//TODO: Review this stuff and make sure the picture is also stored in the database
 router.post('/upload', auth, upload.single('profilePicture') , (req, res) => {
     const file = req.file
     const filename = file.originalname
@@ -18,10 +17,15 @@ router.post('/upload', auth, upload.single('profilePicture') , (req, res) => {
 
     fs.rename(path, `uploads/${filename}`, (err) => {
         if(err) throw err
-        console.log(`File saved as uploads/${filename}`)
-    })
 
-    res.send('File uploaded succesfully')
+        const userId = req.userId
+        const query = `UPDATE users SET profile_picture = '/uploads/${filename}' WHERE id = ${userId}`
+        req.database.query(query, (error, results) => {
+            if(error) throw error
+            
+            res.redirect('/user/profile')
+        })
+    })
 })
 
 

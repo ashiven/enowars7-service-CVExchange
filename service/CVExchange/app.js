@@ -30,6 +30,7 @@ app.use((req, res, next) => {
     next()
 })
 
+app.use('/uploads', express.static('uploads'))
 const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
 const userRouter = require('./routes/users.js')
