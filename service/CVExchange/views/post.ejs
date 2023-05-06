@@ -1,5 +1,18 @@
 <h1><%= post.title %></h1>
 <p><%= post.text %></p>
+<p>Rating: <%= post.rating %></p>
+<form method="POST" action="/votes/ratepost">
+  <input type="hidden" name="postId" value="<%= post.id %>">
+  <input type="hidden" name="rating" value=1>
+  <input type="hidden" name="page" value="/posts/<%= post.id %>">
+  <input type="submit" value="Upvote">
+</form>
+<form method="POST" action="/votes/ratepost">
+  <input type="hidden" name="postId" value="<%= post.id %>">
+  <input type="hidden" name="rating" value=-1>
+  <input type="hidden" name="page" value="/posts/<%= post.id %>">
+  <input type="submit" value="Downvote">
+</form>
 
 <h2>-Comment Section-</h2>
   <form method="POST" action="/comments/new">
@@ -13,7 +26,21 @@
       <div class="comment">
         <p><%= comment.text %></p>
         <p><%= comment.creator_name %> commented on: <%= comment.datetime %></p>
-        <p>Upvotes: <%= comment.rating %></p>
+        <p>Rating: <%= comment.rating %></p>
+        <form method="POST" action="/votes/ratecomment">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <input type="hidden" name="commentId" value="<%= comment.id %>">
+          <input type="hidden" name="rating" value=1>
+          <input type="hidden" name="page" value="/posts/<%= post.id %>">
+          <input type="submit" value="Upvote">
+        </form>
+        <form method="POST" action="/votes/ratecomment">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <input type="hidden" name="commentId" value="<%= comment.id %>">
+          <input type="hidden" name="rating" value=-1>
+          <input type="hidden" name="page" value="/posts/<%= post.id %>">
+          <input type="submit" value="Downvote">
+        </form>
         <% if(comment.creator_id === req.userId) { %>
           <form method="GET" action="/comments/edit/<%= comment.id %>">
             <input type="submit" value="Edit">

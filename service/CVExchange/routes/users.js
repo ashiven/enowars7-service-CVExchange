@@ -6,7 +6,9 @@ const auth = auth_middleware.auth
 const jwtSecret = auth_middleware.jwtSecret
 
 
-//define all of the routes
+//Route definitions
+
+
 router.get('/login', (req, res) => {
     res.render('login')
 })
@@ -110,6 +112,7 @@ router.get('/myposts', auth, (req, res) => {
         }
     })
 })
+
 
 //--------------------------------
 

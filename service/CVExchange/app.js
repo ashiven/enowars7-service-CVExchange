@@ -39,13 +39,15 @@ const commentRouter = require('./routes/comments.js')
 app.use('/comments', commentRouter)
 const fileRouter = require('./routes/files.js')
 app.use('/files', fileRouter)
+const voteRouter = require('./routes/votes.js')
+app.use('/votes', voteRouter)
 //--------------------------------
 
 
 //define the main page GET
 app.get('/', (req, res) => {
     const pagelimit = 10
-    const query = `SELECT * FROM posts ORDER BY datetime DESC LIMIT ${pagelimit}`
+    const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ${pagelimit}`
 
     req.database.query(query, (error, results) => {
         if(error) throw error

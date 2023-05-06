@@ -9,7 +9,19 @@
       <div class="post">
         <a href="/posts/<%= post.id %>"><%= post.title %></a>
         <p>Posted by: <%= post.creator_name %></p>
-        <p>Upvotes: <%= post.rating %></p>
+        <p>Rating: <%= post.rating %></p>
+        <form method="POST" action="/votes/ratepost">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <input type="hidden" name="rating" value=1>
+          <input type="hidden" name="page" value="/">
+          <input type="submit" value="Upvote">
+        </form>
+        <form method="POST" action="/votes/ratepost">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <input type="hidden" name="rating" value=-1>
+          <input type="hidden" name="page" value="/">
+          <input type="submit" value="Downvote">
+        </form>
       </div><br>
     <% } %>
     <br><br>

@@ -13,7 +13,7 @@ router.post('/new' , auth, getusername, (req, res) => {
     const creatorId = req.userId
     const creatorName = req.username
 
-    const query = `INSERT INTO comments (text, post_id, creator_id, creator_name,  rating, datetime) VALUES ('${comment}', '${postId}', '${creatorId}', '${creatorName}',  '1',  NOW() )`
+    const query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime) VALUES ('${comment}', '${postId}', '${creatorId}', '${creatorName}',  0,  NOW() )`
     req.database.query(query, (error, results) => {
         if(error) throw error
         res.redirect(`/posts/${postId}`)

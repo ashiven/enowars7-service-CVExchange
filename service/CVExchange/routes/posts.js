@@ -18,7 +18,7 @@ router.post('/new', auth, getusername,  (req, res) => {
     const creatorId = req.userId
     const creatorName = req.username
 
-    const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES ('${title}', '${text}', '1', '${creatorId}', '${creatorName}', NOW() )`
+    const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES ('${title}', '${text}', 0, '${creatorId}', '${creatorName}', NOW() )`
     req.database.query(query, (error, results) => {
         if(error) throw error
         res.status(200).send('Post created successfully')
@@ -39,7 +39,7 @@ router.get('/:id',auth, (req, res) => {
         }
         post = post_results[0]
 
-        const comment_query = `SELECT * FROM comments WHERE post_id = ${postId}`
+        const comment_query = `SELECT * FROM comments WHERE post_id = ${postId} ORDER BY rating DESC`
         req.database.query(comment_query, (error, comment_results) => {
             if(error) throw error
 
