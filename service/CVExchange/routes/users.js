@@ -10,7 +10,7 @@ const jwtSecret = auth_middleware.jwtSecret
 
 
 router.get('/login', (req, res) => {
-    res.render('login')
+    res.render('login', {title: 'Login'})
 })
 
 router.post('/login', (req, res) => {
@@ -44,7 +44,7 @@ router.post('/logout', (req, res) => {
 })
 
 router.get('/register', (req, res) => {
-    res.render('register')
+    res.render('register', {title: 'Register'})
 })
 
 router.post('/register', (req, res) => {
@@ -92,7 +92,7 @@ router.get('/profile', auth, (req, res) => {
         if(error) throw error
 
         if(results.length > 0) {
-            res.render('profile', { user: results[0] })
+            res.render('profile', { user: results[0], title: 'My Profile' })
         }
     })
 })
@@ -105,7 +105,7 @@ router.get('/myposts', auth, (req, res) => {
         if(error) throw error
         
         if(results.length > 0) {
-            res.render('myposts', { req, posts: results })
+            res.render('myposts', { req, posts: results, title: 'My Posts' })
         }
         else {
             res.send('You havent posted anything yet.')

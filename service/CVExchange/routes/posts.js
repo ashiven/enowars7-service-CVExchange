@@ -9,7 +9,7 @@ const getusername = middleware.getusername
 // Route definitions
 
 router.get('/new', auth,  (req, res) => {
-    res.render('newpost')
+    res.render('newpost', {title: 'New Post'})
 })
 
 router.post('/new', auth, getusername,  (req, res) => {
@@ -44,7 +44,7 @@ router.get('/:id',auth, (req, res) => {
             if(error) throw error
 
             comments = comment_results
-            res.render('post', {req, post, comments})
+            res.render('post', {req, post, comments, title: `${post.title}`})
         })
     })
 })
@@ -78,7 +78,7 @@ router.get('/edit/:id', auth,  (req, res) => {
     req.database.query(query, (error, results) => {
         if(error) throw error
         if(results.length > 0) {
-            res.render('editpost', { post: results[0], postId })
+            res.render('editpost', { post: results[0], postId, title: 'Edit Post' })
         }
         else {
             res.status(404).send('Post not found')

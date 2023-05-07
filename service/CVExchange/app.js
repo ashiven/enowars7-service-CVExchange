@@ -1,4 +1,5 @@
 const express = require('express')
+const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql2')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -21,6 +22,9 @@ database.connect((err) => {
 //initialize the app and routers
 const app = express();
 app.set('view engine', 'ejs')
+app.set('layout', './layouts/standard')
+
+app.use(expressLayouts)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
@@ -30,7 +34,11 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use('/uploads', express.static('uploads'))
+app.use(express.static('./public'))
+app.use('/css', express.static('./public/css'))
+app.use('/js', express.static('./public/js'))
+app.use('/uploads', express.static('./uploads'))
+
 const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
 const userRouter = require('./routes/users.js')
@@ -52,7 +60,7 @@ app.get('/', (req, res) => {
     req.database.query(query, (error, results) => {
         if(error) throw error
         
-        res.render('frontpage', { req, posts: results })
+        res.render('frontpage', { req, posts: results, title: 'Home Page', layout: './layouts/sidebar' })
     })
 })
 //--------------------------------
