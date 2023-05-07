@@ -24,7 +24,10 @@ router.post('/login', (req, res) => {
     const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
 
     req.database.query(query, (error, results) => {
-        if(error) throw error
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
 
         if(results.length > 0) {
             const userId = results[0].id
@@ -58,7 +61,10 @@ router.post('/register', (req, res) => {
 
     const search_query = `SELECT * FROM users WHERE email = '${email}'`
     req.database.query(search_query, (error, results) => {
-        if(error) throw error
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
 
         if(results.length > 0) {
             res.status(409).send('User already exists')
@@ -66,11 +72,17 @@ router.post('/register', (req, res) => {
 
         const insert_query = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${password}')`
         req.database.query(insert_query, (error, results) => {
-            if(error) throw error
+            if(error) {
+                console.error(error)
+                return res.status(500).send('<h1>Internal Server Error</h1>')
+            }
             
             const login_query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
             req.database.query(login_query, (error, results) => {
-                if(error) throw error
+                if(error) {
+                    console.error(error)
+                    return res.status(500).send('<h1>Internal Server Error</h1>')
+                }
         
                 if(results.length > 0) {
                     const userId = results[0].id
@@ -89,7 +101,10 @@ router.get('/profile', auth, (req, res) => {
     const query = `SELECT * FROM users WHERE id = '${userId}'`
 
     req.database.query(query, (error, results) => {
-        if(error) throw error
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
 
         if(results.length > 0) {
             res.render('profile', { user: results[0], title: 'My Profile' })
@@ -102,7 +117,10 @@ router.get('/myposts', auth, (req, res) => {
     const query = `SELECT * FROM posts WHERE creator_id = ${req.userId} ORDER BY datetime DESC LIMIT ${pagelimit}`
 
     req.database.query(query, (error, results) => {
-        if(error) throw error
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
         
         if(results.length > 0) {
             res.render('myposts', { req, posts: results, title: 'My Posts' })

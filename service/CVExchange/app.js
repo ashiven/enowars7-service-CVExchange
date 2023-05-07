@@ -12,8 +12,12 @@ const database = mysql.createConnection({
     database: 'basedbase'
 });
 
-database.connect((err) => {
-    if(err) throw err;
+database.connect((error) => {
+    if(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+
     console.log('Connected to MySQL Server!')
 })
 
@@ -58,7 +62,10 @@ app.get('/', (req, res) => {
     const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ${pagelimit}`
 
     req.database.query(query, (error, results) => {
-        if(error) throw error
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
         
         res.render('frontpage', { req, posts: results, title: 'Home Page', layout: './layouts/sidebar' })
     })
