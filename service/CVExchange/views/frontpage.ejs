@@ -1,53 +1,24 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>CVExchange</title>
-  </head>
-  <body>
-    <h1>CVExchange - The Front Page of the Underground</h1>
-    <% for (let post of posts) { %>
-      <div class="post">
-        <a href="/posts/<%= post.id %>"><%= post.title %></a>
-        <p>Posted by: <%= post.creator_name %></p>
-        <p>Rating: <%= post.rating %></p>
-        <form method="POST" action="/votes/ratepost">
-          <input type="hidden" name="postId" value="<%= post.id %>">
-          <input type="hidden" name="rating" value=1>
-          <input type="hidden" name="page" value="/">
-          <input type="submit" value="Upvote">
-        </form>
-        <form method="POST" action="/votes/ratepost">
-          <input type="hidden" name="postId" value="<%= post.id %>">
-          <input type="hidden" name="rating" value=-1>
-          <input type="hidden" name="page" value="/">
-          <input type="submit" value="Downvote">
-        </form>
-      </div><br>
-    <% } %>
-    <br><br>
-    <% if(!req.cookies.jwtToken) { %>
-      <div class="login">
-        <form method="GET" action="/user/login">
-          <input type="submit" value="Login">
-        </form>
-      </div>
-      <div class="register">
-        <form method="GET" action="/user/register">
-          <input type="submit" value="Register">
-        </form>
-      </div>
-    <% } %>
-    <% if(req.cookies.jwtToken) { %>
-      <div class="profile">
-        <form method="GET" action="/user/profile">
-          <input type="submit" value="Profile">
-        </form>
-      </div>
-      <div class="myposts">
-        <form method="GET" action="/user/myposts">
-          <input type="submit" value="My Posts">
-        </form>
-      </div>
-    <% } %>
-  </body>
-</html>
+<div class="title">
+  <h1>CVExchange - The Front Page of the Underground</h1>
+</div>
+<% for (let post of posts) { %>
+  <div class="post">
+    <a href="/posts/<%= post.id %>"><%= post.title %></a>
+    <p>Posted by: <%= post.creator_name %></p>
+    <p>Rating: <%= post.rating %></p>
+    <form method="POST" action="/votes/ratepost">
+      <input type="hidden" name="postId" value="<%= post.id %>">
+      <input type="hidden" name="rating" value=1>
+      <input type="hidden" name="page" value="/">
+      <input type="submit" value="Upvote">
+    </form>
+    <form method="POST" action="/votes/ratepost">
+      <input type="hidden" name="postId" value="<%= post.id %>">
+      <input type="hidden" name="rating" value=-1>
+      <input type="hidden" name="page" value="/">
+      <input type="submit" value="Downvote">
+    </form>
+  </div><br>
+<% } %>
+
+

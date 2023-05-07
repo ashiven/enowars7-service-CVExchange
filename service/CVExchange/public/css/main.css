@@ -24,4 +24,17 @@ main {
     display: grid;
     gap: 10px;
     grid-template-columns: 2fr 1fr;
+    background-color:khaki;
+}
+
+.post {
+    width: 600px;
+    padding: 10px;
+    background-color: lightsalmon;
+}
+
+.title {
+    width: 700px;
+    padding: 10px;
+    background-color: coral;
 }
