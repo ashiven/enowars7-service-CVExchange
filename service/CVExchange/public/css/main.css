@@ -4,13 +4,18 @@ body {
 }
 
 .wrapper{
-    width: 1200px;
+    width: 2500px;
     margin: 0 auto;
     background-color: lavender;
     padding: 10px;
 }
 
-header, footer {
+header {
+    background-color: ghostwhite;
+    padding: 10px;
+}
+
+footer {
     background-color: ghostwhite;
     padding: 20px;
 }
@@ -23,18 +28,18 @@ main {
 .layout-sidebar {
     display: grid;
     gap: 10px;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr;
     background-color:khaki;
 }
 
 .post {
-    width: 600px;
+    width: 1500px;
     padding: 10px;
     background-color: lightsalmon;
 }
 
 .title {
-    width: 700px;
+    width: 1500px;
     padding: 10px;
     background-color: coral;
 }

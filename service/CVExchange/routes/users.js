@@ -21,9 +21,9 @@ router.post('/login', (req, res) => {
         return res.status(400).send('Please provide all required fields')
     }
 
-    const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
-
-    req.database.query(query, (error, results) => {
+    const query = `SELECT * FROM users WHERE email = ? AND password = ?`
+    const params = [email, password]
+    req.database.query(query, params, (error, results) => {
         if(error) {
             console.error(error)
             return res.status(500).send('<h1>Internal Server Error</h1>')
@@ -33,21 +33,21 @@ router.post('/login', (req, res) => {
             const userId = results[0].id
             const token = jwt.sign({userId}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
-            res.redirect('/')
+            return res.redirect('/')
         }
         else {
-            res.status(401).send('Invalid email or password')
+            return res.status(401).send('Invalid email or password')
         }
     })
 })
 
 router.post('/logout', (req, res) => {
     res.clearCookie('jwtToken')
-    res.redirect('/')
+    return res.redirect('/')
 })
 
 router.get('/register', (req, res) => {
-    res.render('register', {title: 'Register'})
+    return res.render('register', {title: 'Register'})
 })
 
 router.post('/register', (req, res) => {
@@ -59,26 +59,29 @@ router.post('/register', (req, res) => {
         return res.status(400).send('Please provide all required fields')
     }
 
-    const search_query = `SELECT * FROM users WHERE email = '${email}'`
-    req.database.query(search_query, (error, results) => {
+    const search_query = `SELECT * FROM users WHERE email = ?`
+    const search_params = [email]
+    req.database.query(search_query, search_params, (error, results) => {
         if(error) {
             console.error(error)
             return res.status(500).send('<h1>Internal Server Error</h1>')
         }
 
         if(results.length > 0) {
-            res.status(409).send('User already exists')
+            return res.status(409).send('User already exists')
         }
 
-        const insert_query = `INSERT INTO users (name, email, password) VALUES ('${name}', '${email}', '${password}')`
-        req.database.query(insert_query, (error, results) => {
+        const insert_query = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`
+        const insert_params = [name, email, password]
+        req.database.query(insert_query, insert_params, (error, results) => {
             if(error) {
                 console.error(error)
                 return res.status(500).send('<h1>Internal Server Error</h1>')
             }
             
-            const login_query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`
-            req.database.query(login_query, (error, results) => {
+            const login_query = `SELECT * FROM users WHERE email = ? AND password = ?`
+            const login_params = [email, password]
+            req.database.query(login_query, login_params,  (error, results) => {
                 if(error) {
                     console.error(error)
                     return res.status(500).send('<h1>Internal Server Error</h1>')
@@ -88,7 +91,7 @@ router.post('/register', (req, res) => {
                     const userId = results[0].id
                     const token = jwt.sign({userId}, jwtSecret)
                     res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
-                    res.redirect('/')
+                    return res.redirect('/')
                 }
             })
         })
@@ -98,35 +101,38 @@ router.post('/register', (req, res) => {
 router.get('/profile', auth, (req, res) => {
     const userId = req.userId
 
-    const query = `SELECT * FROM users WHERE id = '${userId}'`
-
-    req.database.query(query, (error, results) => {
+    const query = `SELECT * FROM users WHERE id = ?`
+    const params = [userId]
+    req.database.query(query, params,  (error, results) => {
         if(error) {
             console.error(error)
             return res.status(500).send('<h1>Internal Server Error</h1>')
         }
 
         if(results.length > 0) {
-            res.render('profile', { user: results[0], title: 'My Profile' })
+            return res.render('profile', { user: results[0], title: 'My Profile' })
         }
     })
 })
 
 router.get('/myposts', auth, (req, res) => {
     const pagelimit = 10
-    const query = `SELECT * FROM posts WHERE creator_id = ${req.userId} ORDER BY datetime DESC LIMIT ${pagelimit}`
+    const userId = req.userId
 
-    req.database.query(query, (error, results) => {
+    const query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
+    const params = [userId, pagelimit]
+
+    req.database.query(query, params, (error, results) => {
         if(error) {
             console.error(error)
             return res.status(500).send('<h1>Internal Server Error</h1>')
         }
         
         if(results.length > 0) {
-            res.render('myposts', { req, posts: results, title: 'My Posts' })
+            return res.render('myposts', { req, posts: results, title: 'My Posts' })
         }
         else {
-            res.send('You havent posted anything yet.')
+            return res.send('You havent posted anything yet.')
         }
     })
 })
