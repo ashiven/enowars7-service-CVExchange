@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
             return res.status(500).send('<h1>Internal Server Error</h1>')
         }
         
-        res.render('frontpage', { req, posts: results, title: 'Home Page', layout: './layouts/sidebar' })
+        res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
     })
 })
 //--------------------------------
