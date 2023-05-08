@@ -109,7 +109,8 @@ router.get('/edit/:id', auth, async (req, res) => {
 
         if (results.length > 0) {
             return res.render('editpost', { post: results[0], postId, title: 'Edit Post' })
-        } else {
+        } 
+        else {
             return res.status(404).send('Post not found')
         }
     } 
