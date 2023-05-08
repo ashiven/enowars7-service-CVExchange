@@ -8,123 +8,115 @@ const getusername = middleware.getusername
 
 // Route definitions
 
-router.get('/new', auth,  (req, res) => {
+router.get('/new', auth, async (req, res) => {
     return res.render('newpost', {title: 'New Post'})
 })
 
-router.post('/new', auth, getusername,  (req, res) => {
-    const title = req.body.title
-    const text = req.body.text
-    const creatorId = req.userId
-    const creatorName = req.username
+router.post('/new', auth, getusername, async (req, res) => {
+    try {
+        const title = req.body.title
+        const text = req.body.text
+        const creatorId = req.userId
+        const creatorName = req.username
 
-    const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 0, ?, ?, NOW() )`
-    const params = [title, text, creatorId, creatorName]
-    req.database.query(query, params, (error, results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
+        const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 0, ?, ?, NOW() )`
+        const params = [title, text, creatorId, creatorName]
+        await req.database.query(query, params)
         return res.redirect('/')
-    })
+    } 
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
-router.get('/:id',auth, (req, res) => {
-    const postId = req.params.id
-    
-    const post_query = `SELECT * FROM posts WHERE id = ?`
-    const post_params = [postId]
-    req.database.query(post_query, post_params, (error, post_results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
-        
-        if(post_results.length === 0) {
+router.get('/:id', auth, async (req, res) => {
+    try {
+        const postId = req.params.id
+
+        const post_query = `SELECT * FROM posts WHERE id = ?`
+        const post_params = [postId]
+        const [post_results] = await req.database.query(post_query, post_params)
+
+        if (post_results.length === 0) {
             return res.status(404).send('Post not found')
         }
-        const post = post_results[0]
 
         const comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
         const comment_params = [postId]
-        req.database.query(comment_query, comment_params, (error, comment_results) => {
-            if(error) {
-                console.error(error)
-                return res.status(500).send('<h1>Internal Server Error</h1>')
-            }
-
-            return res.render('post', {req, post, comments: comment_results, title: `${post.title}`})
-        })
-    })
+        const [comment_results] = await req.database.query(comment_query, comment_params)
+        return res.render('post', { req, post: post_results[0], comments: comment_results, title: `${post_results[0].title}` })
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
-router.post('/delete/:id', auth,  (req, res) => {
-    const postId = req.params.id
-    const userId = req.userId
+router.post('/delete/:id', auth, async (req, res) => {
+    try {
+        const postId = req.params.id
+        const userId = req.userId
 
-    const find_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
-    const find_params = [postId, userId]
-    req.database.query(find_query, find_params, (error, results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
+        const find_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
+        const find_params = [postId, userId]
+        const [results] = await req.database.query(find_query, find_params)
 
-        if(results.length > 0) {
+        if (results.length > 0) {
             const delete_query = `DELETE FROM posts WHERE id = ?`
             const delete_params = [postId]
-            req.database.query(delete_query, delete_params, (error, results) => {
-                if(error) {
-                    console.error(error)
-                    return res.status(500).send('<h1>Internal Server Error</h1>')
-                }
+            await req.database.query(delete_query, delete_params)
 
-                return res.redirect('/user/myposts')
-            })
+            return res.redirect('/user/myposts')
         }
         else {
             return res.status(401).send('You are not authorized to delete this post or the post doesnt exist')
         }
-    })
+    } 
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
-router.get('/edit/:id', auth,  (req, res) => {
-    const postId = req.params.id
-    const userId = req.userId
-    
-    const query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
-    const params = [postId, userId]
-    req.database.query(query, params, (error, results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
+router.get('/edit/:id', auth, async (req, res) => {
+    try {
+        const postId = req.params.id
+        const userId = req.userId
+        
+        const query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
+        const params = [postId, userId]
+        const [results] = await req.database.query(query, params)
 
-        if(results.length > 0) {
+        if (results.length > 0) {
             return res.render('editpost', { post: results[0], postId, title: 'Edit Post' })
-        }
-        else {
+        } else {
             return res.status(404).send('Post not found')
         }
-    })
+    } 
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
-router.post('/edit/:id', auth,  (req, res) => {
-    const title = req.body.title
-    const text = req.body.text
-    const postId = req.params.id
-    const userId = req.userId
+router.post('/edit/:id', auth, async (req, res) => {
+    try {
+        const title = req.body.title
+        const text = req.body.text
+        const postId = req.params.id
+        const userId = req.userId
 
-    const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
-    const params = [title, text, postId, userId]
-    req.database.query(query, params, (error, results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
-        
+        const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
+        const params = [title, text, postId, userId]
+        await req.database.query(query, params)
+
         return res.redirect('/user/myposts')
-    })
+    } 
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
 //--------------------------------

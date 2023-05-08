@@ -1,26 +1,16 @@
 const express = require('express')
 const expressLayouts = require('express-ejs-layouts')
-const mysql = require('mysql2')
+const mysql = require('mysql2/promise')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 
 //connect to the MySQL Database 
-const database = mysql.createConnection({
+const database = mysql.createPool({
     host: 'localhost',
     user: 'ashiven',
     password: 'Password1',
     database: 'basedbase'
 });
-
-database.connect((error) => {
-    if(error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-
-    console.log('Connected to MySQL Server!')
-})
-
 //--------------------------------
 
 //initialize the app and routers
@@ -57,18 +47,18 @@ app.use('/votes', voteRouter)
 
 
 //define the main page GET
-app.get('/', (req, res) => {
-    const pagelimit = 10
-    const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ${pagelimit}`
-
-    req.database.query(query, (error, results) => {
-        if(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
-        
-        res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
-    })
+app.get('/', async (req, res) => {
+    try {
+        const pagelimit = 10
+        const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ?`
+        const params = [pagelimit]
+        const [results] = await req.database.query(query, params)
+        return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 //--------------------------------
 
