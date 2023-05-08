@@ -611,3 +611,41 @@ function getusername(req, res, next) {
         next()
     })
 }
+
+// old posts/new 
+
+router.post('/new', auth, getusername, async (req, res) => {
+    try {
+        const title = req.body.title
+        const text = req.body.text
+        const creatorId = req.userId
+        const creatorName = req.username
+
+        // begin DB transaction to make sure last_insert_id() is correct
+        await req.database.query('START TRANSACTION')
+
+        const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
+        const params = [title, text, creatorId, creatorName]
+        await req.database.query(query, params)
+
+        const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
+        const [results] = await req.database.query(postId_query)
+        const postId = results[0].id
+
+        const rating_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, 1)`
+        const rating_params = [creatorId, postId]
+        await req.database.query(rating_query, rating_params)
+
+        // end DB transaction
+        await req.database.query('COMMIT')
+
+        return res.redirect('/')
+    } 
+    catch(error) {
+        // roll back DB changes on error
+        await req.database.query('ROLLBACK')
+
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})

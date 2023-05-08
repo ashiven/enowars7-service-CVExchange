@@ -4,6 +4,8 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
+const functions = require('../functions/main')
+const transaction = functions.transaction
 
 
 // Route definitions
@@ -19,30 +21,21 @@ router.post('/new', auth, getusername, async (req, res) => {
         const creatorId = req.userId
         const creatorName = req.username
 
-        // begin DB transaction to make sure last_insert_id() is correct
-        await req.database.query('START TRANSACTION')
-
-        const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
-        const params = [title, text, creatorId, creatorName]
-        await req.database.query(query, params)
-
+        // doing a transaction for these two queries to make sure that last_insert_id() is the correct value
+        const insert_query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
+        const insert_params = [title, text, creatorId, creatorName]
         const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
-        const [results] = await req.database.query(postId_query)
-        const postId = results[0].id
+
+        const [results] = await transaction([insert_query, postId_query], [insert_params, []], req.database)
+        const postId = results[0].insertId
 
         const rating_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, 1)`
         const rating_params = [creatorId, postId]
         await req.database.query(rating_query, rating_params)
 
-        // end DB transaction
-        await req.database.query('COMMIT')
-
         return res.redirect('/')
     } 
     catch(error) {
-        // roll back DB changes on error
-        await req.database.query('ROLLBACK')
-
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
