@@ -4,8 +4,6 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
-const functions = require('../functions/main')
-const transaction = functions.transaction
 
 
 // Route definitions
@@ -15,27 +13,40 @@ router.get('/new', auth, async (req, res) => {
 })
 
 router.post('/new', auth, getusername, async (req, res) => {
-    try {
         const title = req.body.title
         const text = req.body.text
         const creatorId = req.userId
         const creatorName = req.username
 
-        // doing a transaction for these two queries to make sure that last_insert_id() is the correct value
+        const connection = await req.database.getConnection()
+
+    try {
+        // start a transaction
+        await connection.beginTransaction()
+
         const insert_query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
         const insert_params = [title, text, creatorId, creatorName]
-        const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
+        await connection.query(insert_query, insert_params)
 
-        const [results] = await transaction([insert_query, postId_query], [insert_params, []], req.database)
-        const postId = results[0].insertId
+        const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
+        const [results] = await connection.query(postId_query)
+        const postId = results[0].id
 
         const rating_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, 1)`
         const rating_params = [creatorId, postId]
-        await req.database.query(rating_query, rating_params)
+        await connection.query(rating_query, rating_params)
+
+        // commit the transaction and release the connection
+        await connection.commit()
+        await connection.release()
 
         return res.redirect('/')
     } 
     catch(error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
