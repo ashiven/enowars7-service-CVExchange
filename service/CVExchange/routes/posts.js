@@ -19,12 +19,30 @@ router.post('/new', auth, getusername, async (req, res) => {
         const creatorId = req.userId
         const creatorName = req.username
 
-        const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 0, ?, ?, NOW() )`
+        // begin DB transaction to make sure last_insert_id() is correct
+        await req.database.query('START TRANSACTION')
+
+        const query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
         const params = [title, text, creatorId, creatorName]
         await req.database.query(query, params)
+
+        const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
+        const [results] = await req.database.query(postId_query)
+        const postId = results[0].id
+
+        const rating_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, 1)`
+        const rating_params = [creatorId, postId]
+        await req.database.query(rating_query, rating_params)
+
+        // end DB transaction
+        await req.database.query('COMMIT')
+
         return res.redirect('/')
     } 
     catch(error) {
+        // roll back DB changes on error
+        await req.database.query('ROLLBACK')
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
@@ -63,9 +81,17 @@ router.post('/delete/:id', auth, async (req, res) => {
         const [results] = await req.database.query(find_query, find_params)
 
         if (results.length > 0) {
-            const delete_query = `DELETE FROM posts WHERE id = ?`
-            const delete_params = [postId]
-            await req.database.query(delete_query, delete_params)
+            const delete_post_query = `DELETE FROM posts WHERE id = ?`
+            const delete_post_params = [postId]
+            await req.database.query(delete_post_query, delete_post_params)
+
+            const delete_comments_query = `DELETE FROM comments WHERE post_id = ?`
+            const delete_comments_params = [postId]
+            await req.database.query(delete_comments_query, delete_comments_params)
+
+            const delete_ratings_query = `DELETE FROM ratings WHERE post_id = ?`
+            const delete_ratings_params = [postId]
+            await req.database.query(delete_ratings_query, delete_ratings_params)
 
             return res.redirect('/user/myposts')
         }

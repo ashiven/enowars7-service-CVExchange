@@ -9,7 +9,12 @@ const jwtSecret = auth_middleware.jwtSecret
 //Route definitions
 
 router.get('/login', async (req, res) => {
-    res.render('login', {title: 'Login'})
+    if(!req.cookies.jwtToken) {
+        return res.render('login', {title: 'Login'})
+    }
+    else {
+        return res.status(200).send('Please log out first.')
+    }
 })
 
 router.post('/login', async (req, res) => {
@@ -23,6 +28,7 @@ router.post('/login', async (req, res) => {
         const query = `SELECT * FROM users WHERE email = ? AND password = ?`
         const params = [email, password]
         const [results] = await req.database.query(query, params)
+        
         if(results.length > 0) {
             const userId = results[0].id
             const token = jwt.sign({userId}, jwtSecret)
@@ -45,7 +51,12 @@ router.post('/logout', async (req, res) => {
 })
 
 router.get('/register', async (req, res) => {
-    return res.render('register', {title: 'Register'})
+    if(!req.cookies.jwtToken) {
+        return res.render('register', {title: 'Register'})
+    }
+    else {
+        return res.status(200).send('Please log out first.')
+    }
 })
 
 router.post('/register', async (req, res) => {

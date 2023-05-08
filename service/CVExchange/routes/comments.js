@@ -15,13 +15,30 @@ router.post('/new', auth, getusername, async (req, res) => {
         const creatorId = req.userId
         const creatorName = req.username
 
-        const query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime) VALUES (?, ?, ?, ?,  0,  NOW() )`
+        // begin DB transaction to make sure last_insert_id() is correct
+        await req.database.query('START TRANSACTION')
+
+        const query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime) VALUES (?, ?, ?, ?,  1,  NOW() )`
         const params = [comment, postId, creatorId, creatorName]
         await req.database.query(query, params)
         
+        const commentId_query = `SELECT LAST_INSERT_ID() AS id FROM comments`
+        const [results] = await req.database.query(commentId_query)
+        const commentId = results[0].id
+
+        const rating_query = `INSERT INTO ratings (user_id, comment_id, rating) VALUES (?, ?, 1)`
+        const rating_params = [creatorId, commentId]
+        await req.database.query(rating_query, rating_params)
+
+        // end DB transaction
+        await req.database.query('COMMIT')
+
         return res.redirect(`/posts/${postId}`)
     } 
     catch (error) {
+        // roll back DB changes on error
+        await req.database.query('ROLLBACK')
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
