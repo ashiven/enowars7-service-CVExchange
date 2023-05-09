@@ -3,6 +3,11 @@ const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql2/promise')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const auth_middleware = require('./middleware/auth')
+const auth = auth_middleware.auth
+const fileAuth = auth_middleware.fileAuth
+const path = require('path')
+const fs = require('fs')
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -28,6 +33,34 @@ app.use((req, res, next) => {
     next()
 })
 
+//Route definitions
+
+app.get('/', async (req, res) => {
+    try {
+        const pagelimit = 10
+        const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ?`
+        const params = [pagelimit]
+        const [results] = await req.database.query(query, params)
+        return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
+app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
+    try {
+        const filepath = path.join(__dirname, 'uploads', req.params.userId, req.params.filename)
+        await fs.promises.access(filepath)
+        return res.sendFile(filepath)
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 app.use(express.static('./public'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))
@@ -43,23 +76,7 @@ const fileRouter = require('./routes/files.js')
 app.use('/files', fileRouter)
 const voteRouter = require('./routes/votes.js')
 app.use('/votes', voteRouter)
-//--------------------------------
 
-
-//define the main page GET
-app.get('/', async (req, res) => {
-    try {
-        const pagelimit = 10
-        const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ?`
-        const params = [pagelimit]
-        const [results] = await req.database.query(query, params)
-        return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
-    }
-    catch(error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
 //--------------------------------
 
 
