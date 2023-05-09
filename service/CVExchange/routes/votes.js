@@ -125,6 +125,33 @@ router.post('/ratecomment', auth, async (req, res) => {
     }
 })
 
+router.post('/delete/:id', auth, async (req, res) => {
+    try {
+        const ratingId = req.params.id
+        const userId = req.userId
+        const page = req.body.page
+
+        const find_query = `SELECT * FROM ratings WHERE id = ? AND user_id = ?`
+        const find_params = [ratingId, userId]
+        const [find_results] = await req.database.query(find_query, find_params)
+
+        if (find_results.length > 0) {
+            const delete_query = `DELETE FROM ratings WHERE id = ?`
+            const delete_params = [ratingId]
+            await req.database.query(delete_query, delete_params)
+
+            return res.redirect(`${page}`)
+        } 
+        else {
+            return res.status(401).send('You are not authorized to delete this rating or it doesnt exist')
+        }
+    } 
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 //--------------------------------
 
 
