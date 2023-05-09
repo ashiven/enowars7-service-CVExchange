@@ -1,5 +1,4 @@
 const multer = require('multer')
-const upload = multer({ dest: 'uploads/'})
 const fs = require('fs')
 const express = require('express')
 const router = express.Router()
@@ -7,6 +6,33 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const path = require('path')
 
+const storage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        const uploadPath = path.join(__dirname, '..', 'uploads', req.userId.toString())
+        try {
+            await fs.promises.access(uploadPath)
+        }
+        catch(error) { 
+            if(error.code === 'ENOENT') {
+                try {
+                    await fs.promises.mkdir(uploadPath)
+                }
+                catch(error) {
+                    return cb(error)
+                }
+            }
+            else {
+                return cb(error)
+            }
+        }
+        cb(null, uploadPath)
+    },
+    filename: async (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+})
+
+const upload = multer({ storage: storage })
 
 // Route definitions
 
@@ -36,9 +62,9 @@ router.post('/upload', auth, upload.single('profilePicture'), async (req, res) =
         }
     
         // rename the file to upload and update profile pic in DB
-        await fs.promises.rename(filepath, `uploads/${filename}`)
+        await fs.promises.rename(filepath, `uploads/${userId}/${filename}`)
     
-        const profilepic = 'uploads/' + filename;
+        const profilepic = 'uploads/' + userId + '/' + filename;
         const update_query = `UPDATE users SET profile_picture = ? WHERE id = ?`
         const update_params = [profilepic, userId]
         await connection.query(update_query, update_params)
