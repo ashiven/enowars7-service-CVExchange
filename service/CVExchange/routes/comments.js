@@ -9,12 +9,12 @@ const getusername = middleware.getusername
 // Route definitions
 
 router.post('/new', auth, getusername, async (req, res) => {
-        const comment = req.body.comment
-        const postId = req.body.postId
-        const creatorId = req.userId
-        const creatorName = req.username
+    const comment = req.body.comment
+    const postId = req.body.postId
+    const creatorId = req.userId
+    const creatorName = req.username
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction

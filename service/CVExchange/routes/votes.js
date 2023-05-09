@@ -7,16 +7,16 @@ const auth = auth_middleware.auth
 // Route definitions
 
 router.post('/ratepost', auth, async (req, res) => {
-        const userId = req.userId
-        const rating = parseInt(req.body.rating)
-        const postId = req.body.postId
-        const page = req.body.page
+    const userId = req.userId
+    const rating = parseInt(req.body.rating)
+    const postId = req.body.postId
+    const page = req.body.page
 
-        if (!(rating === 1 || rating === -1)) {
-            return res.status(400).send('Yea.. I see what you were trying to do ;)')
-        }
+    if (!(rating === 1 || rating === -1)) {
+        return res.status(400).send('Yea.. I see what you were trying to do ;)')
+    }
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction
@@ -83,16 +83,16 @@ router.post('/ratepost', auth, async (req, res) => {
 })
 
 router.post('/ratecomment', auth, async (req, res) => {
-        const userId = req.userId 
-        const rating = parseInt(req.body.rating)
-        const commentId = req.body.commentId
-        const page = req.body.page
+    const userId = req.userId 
+    const rating = parseInt(req.body.rating)
+    const commentId = req.body.commentId
+    const page = req.body.page
 
-        if(!(rating === 1 || rating === -1)) {
-            return res.status(400).send('Yea.. I see what you were trying to do ;)')
-        }
+    if(!(rating === 1 || rating === -1)) {
+        return res.status(400).send('Yea.. I see what you were trying to do ;)')
+    }
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction

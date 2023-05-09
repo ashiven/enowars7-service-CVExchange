@@ -60,15 +60,15 @@ router.get('/register', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-        const name = req.body.name
-        const email = req.body.email
-        const password = req.body.password
+    const name = req.body.name
+    const email = req.body.email
+    const password = req.body.password
 
-        if(!name || !email || !password) {
-            return res.status(400).send('Please provide all required fields')
-        }
+    if(!name || !email || !password) {
+        return res.status(400).send('Please provide all required fields')
+    }
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction

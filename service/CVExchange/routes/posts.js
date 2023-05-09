@@ -13,12 +13,12 @@ router.get('/new', auth, async (req, res) => {
 })
 
 router.post('/new', auth, getusername, async (req, res) => {
-        const title = req.body.title
-        const text = req.body.text
-        const creatorId = req.userId
-        const creatorName = req.username
+    const title = req.body.title
+    const text = req.body.text
+    const creatorId = req.userId
+    const creatorName = req.username
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction
@@ -76,10 +76,10 @@ router.get('/:id', auth, async (req, res) => {
 })
 
 router.post('/delete/:id', auth, async (req, res) => {
-        const postId = req.params.id
-        const userId = req.userId
+    const postId = req.params.id
+    const userId = req.userId
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction

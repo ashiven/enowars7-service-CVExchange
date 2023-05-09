@@ -12,14 +12,14 @@ const path = require('path')
 
 router.post('/upload', auth, upload.single('profilePicture'), async (req, res) => {
 
-        if (!req.file) {
-            return res.redirect('/user/profile')
-        }
-        const filename = req.file.originalname
-        const filepath = req.file.path
-        const userId = req.userId
-    
-        const connection = await req.database.getConnection()
+    if (!req.file) {
+        return res.redirect('/user/profile')
+    }
+    const filename = req.file.originalname
+    const filepath = req.file.path
+    const userId = req.userId
+
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction
@@ -60,9 +60,9 @@ router.post('/upload', auth, upload.single('profilePicture'), async (req, res) =
 })
 
 router.post('/delete', auth, async (req, res) => {
-        const userId = req.userId
+    const userId = req.userId
 
-        const connection = await req.database.getConnection()
+    const connection = await req.database.getConnection()
 
     try {
         // start a transaction
