@@ -60,7 +60,6 @@ router.get('/register', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-    try {
         const name = req.body.name
         const email = req.body.email
         const password = req.body.password
@@ -69,9 +68,15 @@ router.post('/register', async (req, res) => {
             return res.status(400).send('Please provide all required fields')
         }
 
+        const connection = await req.database.getConnection()
+
+    try {
+        // start a transaction
+        await connection.beginTransaction()
+
         const search_query = `SELECT * FROM users WHERE email = ?`
         const search_params = [email]
-        const [search_results] = await req.database.query(search_query, search_params)
+        const [search_results] = await connection.query(search_query, search_params)
 
         if(search_results.length > 0) {
             return res.status(409).send('User already exists')
@@ -79,20 +84,32 @@ router.post('/register', async (req, res) => {
 
         const insert_query = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`
         const insert_params = [name, email, password]
-        await req.database.query(insert_query, insert_params)
+        await connection.query(insert_query, insert_params)
 
         const login_query = `SELECT * FROM users WHERE email = ? AND password = ?`
         const login_params = [email, password]
-        const [login_results] = await req.database.query(login_query, login_params)
+        const [login_results] = await connection.query(login_query, login_params)
 
         if(login_results.length > 0) {
             const userId = login_results[0].id
             const token = jwt.sign({userId}, jwtSecret)
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
             return res.redirect('/')
         }
-    } 
+        else {
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
+            return res.status(401).send('Invalid email or password')
+        }
+    }
     catch (error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }

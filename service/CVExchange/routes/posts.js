@@ -76,34 +76,51 @@ router.get('/:id', auth, async (req, res) => {
 })
 
 router.post('/delete/:id', auth, async (req, res) => {
-    try {
         const postId = req.params.id
         const userId = req.userId
 
+        const connection = await req.database.getConnection()
+
+    try {
+        // start a transaction
+        await connection.beginTransaction()
+
         const find_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
         const find_params = [postId, userId]
-        const [results] = await req.database.query(find_query, find_params)
+        const [results] = await connection.query(find_query, find_params)
 
         if (results.length > 0) {
             const delete_post_query = `DELETE FROM posts WHERE id = ?`
             const delete_post_params = [postId]
-            await req.database.query(delete_post_query, delete_post_params)
+            await connection.query(delete_post_query, delete_post_params)
 
             const delete_comments_query = `DELETE FROM comments WHERE post_id = ?`
             const delete_comments_params = [postId]
-            await req.database.query(delete_comments_query, delete_comments_params)
+            await connection.query(delete_comments_query, delete_comments_params)
 
             const delete_ratings_query = `DELETE FROM ratings WHERE post_id = ?`
             const delete_ratings_params = [postId]
-            await req.database.query(delete_ratings_query, delete_ratings_params)
+            await connection.query(delete_ratings_query, delete_ratings_params)
+
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
 
             return res.redirect('/user/myposts')
         }
         else {
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
+
             return res.status(401).send('You are not authorized to delete this post or the post doesnt exist')
         }
     } 
     catch (error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }

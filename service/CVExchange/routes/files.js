@@ -11,7 +11,7 @@ const path = require('path')
 // Route definitions
 
 router.post('/upload', auth, upload.single('profilePicture'), async (req, res) => {
-    try {
+
         if (!req.file) {
             return res.redirect('/user/profile')
         }
@@ -19,10 +19,16 @@ router.post('/upload', auth, upload.single('profilePicture'), async (req, res) =
         const filepath = req.file.path
         const userId = req.userId
     
+        const connection = await req.database.getConnection()
+
+    try {
+        // start a transaction
+        await connection.beginTransaction()
+
         // find current profile pic and delete it
         const find_query = `SELECT profile_picture FROM users WHERE id = ?`
         const find_params = [userId]
-        const [results] = await req.database.query(find_query, find_params)
+        const [results] = await connection.query(find_query, find_params)
 
         const currentPic = results[0].profile_picture
         if (currentPic) {
@@ -35,23 +41,36 @@ router.post('/upload', auth, upload.single('profilePicture'), async (req, res) =
         const profilepic = 'uploads/' + filename;
         const update_query = `UPDATE users SET profile_picture = ? WHERE id = ?`
         const update_params = [profilepic, userId]
-        await req.database.query(update_query, update_params)
+        await connection.query(update_query, update_params)
+
+        // commit the transaction and release the connection
+        await connection.commit()
+        await connection.release()
     
         return res.redirect('/user/profile')
     } 
     catch (error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
 
 router.post('/delete', auth, async (req, res) => {
-    try {
         const userId = req.userId
+
+        const connection = await req.database.getConnection()
+
+    try {
+        // start a transaction
+        await connection.beginTransaction()
 
         const find_query = `SELECT profile_picture FROM users WHERE id = ?`
         const find_params = [userId]
-        const [results] = await req.database.query(find_query, find_params)
+        const [results] = await connection.query(find_query, find_params)
         const currentPic = results[0].profile_picture
 
         if (currentPic !== null) {
@@ -60,12 +79,20 @@ router.post('/delete', auth, async (req, res) => {
                 
             const delete_query = `UPDATE users SET profile_picture = NULL WHERE id = ?`
             const delete_params = [userId]
-            await req.database.query(delete_query, delete_params)
+            await connection.query(delete_query, delete_params)
         }
+
+        // commit the transaction and release the connection
+        await connection.commit()
+        await connection.release()
 
         return res.redirect('/user/profile')
     } 
     catch (error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+        
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
