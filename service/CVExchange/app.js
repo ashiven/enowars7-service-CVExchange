@@ -55,7 +55,7 @@ app.get('/', async (req, res) => {
                         LEFT JOIN ratings r ON p.id = r.post_id
                         WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND r.rating = 1
                         GROUP BY p.id
-                        ORDER BY ratecount DESC`
+                        ORDER BY ratecount, p.rating DESC`
             }
         }
 

@@ -64,8 +64,24 @@ router.get('/:id', auth, async (req, res) => {
             return res.status(404).send('Post not found')
         }
 
-        const comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
+        var comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
         const comment_params = [postId]
+
+        if(req.query.sort) {
+            const sort = req.query.sort
+            if(sort === 'new' ) {
+                comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC`
+            }
+            else if(sort === 'hot') {
+                comment_query = `SELECT c.*, COUNT(r.id) as ratecount 
+                        FROM comments c
+                        LEFT JOIN ratings r ON c.id = r.comment_id
+                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND c.post_id = ?
+                        GROUP BY c.id
+                        ORDER BY ratecount, c.rating DESC`
+            }
+        }
+
         const [comment_results] = await req.database.query(comment_query, comment_params)
         return res.render('post', { req, post: post_results[0], comments: comment_results, title: `${post_results[0].title}` })
     }
