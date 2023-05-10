@@ -36,14 +36,14 @@ router.post('/ratepost', auth, async (req, res) => {
             }
             //they are submitting the opposite rating
             else {
-                const update_query = `UPDATE ratings SET rating = ? WHERE user_id = ? AND post_id = ?`
+                const update_query = `UPDATE ratings SET rating = ?, datetime = NOW() WHERE user_id = ? AND post_id = ?`
                 const update_params = [rating, userId, postId]
                 await connection.query(update_query, update_params)
             }
         }
         //if they haven't voted, insert a new rating into the DB
         else {
-            const insert_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, ?)`
+            const insert_query = `INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, ?, NOW())`
             const insert_params = [userId, postId, rating]
             await connection.query(insert_query, insert_params)
         }
@@ -112,7 +112,7 @@ router.post('/ratecomment', auth, async (req, res) => {
             }
             //they are submitting the opposite rating
             else {
-                const update_query = `UPDATE ratings SET rating = ? WHERE user_id = ? AND comment_id = ?`
+                const update_query = `UPDATE ratings SET rating = ?, datetime = NOW() WHERE user_id = ? AND comment_id = ?`
                 const update_params = [rating, userId, commentId]
                 await connection.query(update_query, update_params)
             }
@@ -120,7 +120,7 @@ router.post('/ratecomment', auth, async (req, res) => {
 
         //if they haven't voted, insert a new rating into the DB
         else {
-            const insert_query = `INSERT INTO ratings (user_id, comment_id, rating) VALUES (?, ?, ?)`
+            const insert_query = `INSERT INTO ratings (user_id, comment_id, rating, datetime) VALUES (?, ?, ?, NOW())`
             const insert_params = [userId, commentId, rating]
             await connection.query(insert_query, insert_params)
         }

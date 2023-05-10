@@ -32,7 +32,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         const [results] = await connection.query(postId_query)
         const postId = results[0].id
 
-        const rating_query = `INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, 1)`
+        const rating_query = `INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())`
         const rating_params = [creatorId, postId]
         await connection.query(rating_query, rating_params)
 
@@ -97,6 +97,8 @@ router.post('/delete/:id', auth, async (req, res) => {
             const delete_comments_query = `DELETE FROM comments WHERE post_id = ?`
             const delete_comments_params = [postId]
             await connection.query(delete_comments_query, delete_comments_params)
+
+            // TODO: there is an issue here, we are not deleting the ratings that are paired to each comment
 
             const delete_ratings_query = `DELETE FROM ratings WHERE post_id = ?`
             const delete_ratings_params = [postId]

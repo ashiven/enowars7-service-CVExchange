@@ -41,8 +41,25 @@ app.use((req, res, next) => {
 app.get('/', async (req, res) => {
     try {
         const pagelimit = 10
-        const query = `SELECT * FROM posts ORDER BY rating DESC LIMIT ?`
+        var query = `SELECT * FROM posts ORDER BY rating DESC`
         const params = [pagelimit]
+
+        if(req.query.sort) {
+            const sort = req.query.sort
+            if(sort === 'new' ) {
+                query = `SELECT * FROM posts ORDER BY datetime ASC`
+            }
+            else if(sort === 'hot') {
+                query = `SELECT p.*, COUNT(r.id) as ratecount 
+                        FROM posts p 
+                        LEFT JOIN ratings r ON p.id = r.post_id
+                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND r.rating = 1
+                        GROUP BY p.id
+                        ORDER BY ratecount DESC`
+            }
+        }
+
+        query = query + ` LIMIT ?`
         const [results] = await req.database.query(query, params)
         return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
     }

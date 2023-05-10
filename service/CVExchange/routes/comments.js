@@ -28,7 +28,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         const [results] = await connection.query(commentId_query)
         const commentId = results[0].id
 
-        const rating_query = `INSERT INTO ratings (user_id, comment_id, rating) VALUES (?, ?, 1)`
+        const rating_query = `INSERT INTO ratings (user_id, comment_id, rating, datetime) VALUES (?, ?, 1, NOW())`
         const rating_params = [creatorId, commentId]
         await connection.query(rating_query, rating_params)
 
@@ -90,27 +90,48 @@ router.post('/edit/:id', auth, async (req, res) => {
 })
 
 router.post('/delete/:id', auth, async (req, res) => {
+    const commentId = req.params.id
+    const userId = req.userId
+    const postId = req.body.postId
+
+    const connection = await req.database.getConnection()
+
     try {
-        const commentId = req.params.id
-        const userId = req.userId
-        const postId = req.body.postId
+        // start a transaction
+        await connection.beginTransaction()
 
         const find_query = `SELECT * FROM comments WHERE id = ? AND creator_id = ?`
         const find_params = [commentId, userId]
-        const [find_results] = await req.database.query(find_query, find_params)
+        const [find_results] = await connection.query(find_query, find_params)
 
         if (find_results.length > 0) {
-            const delete_query = `DELETE FROM comments WHERE id = ?`
-            const delete_params = [commentId]
-            await req.database.query(delete_query, delete_params)
+            const delete_comment_query = `DELETE FROM comments WHERE id = ?`
+            const delete_comment_params = [commentId]
+            await connection.query(delete_comment_query, delete_comment_params)
+
+            const delete_ratings_query = `DELETE FROM ratings WHERE comment_id = ?`
+            const delete_ratings_params = [commentId]
+            await connection.query(delete_ratings_query, delete_ratings_params)
+
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
 
             return res.redirect(`/posts/${postId}`)
         } 
         else {
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
+
             return res.status(401).send('You are not authorized to delete this comment or it doesnt exist')
         }
     } 
     catch (error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
