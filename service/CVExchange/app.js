@@ -8,6 +8,8 @@ const auth = auth_middleware.auth
 const fileAuth = auth_middleware.fileAuth
 const path = require('path')
 const fs = require('fs')
+const middleware = require('./middleware/other')
+const errorHandler = middleware.errorHandler
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -27,6 +29,7 @@ app.use(expressLayouts)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use(errorHandler)
 
 app.use((req, res, next) => { 
     req.database = database //make DB accessible through req
