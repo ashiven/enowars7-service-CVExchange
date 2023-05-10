@@ -32,6 +32,8 @@ app.get('/', (req, res) => {
     })
 })
 
+app.use('/uploads', express.static('./uploads'))
+
 
 // posts.js
 

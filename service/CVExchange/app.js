@@ -64,7 +64,6 @@ app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
 app.use(express.static('./public'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))
-app.use('/uploads', express.static('./uploads'))
 
 const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
