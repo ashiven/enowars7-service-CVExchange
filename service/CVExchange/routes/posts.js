@@ -106,16 +106,29 @@ router.post('/delete/:id', auth, async (req, res) => {
         const [results] = await connection.query(find_query, find_params)
 
         if (results.length > 0) {
+            // first delete the post 
             const delete_post_query = `DELETE FROM posts WHERE id = ?`
             const delete_post_params = [postId]
             await connection.query(delete_post_query, delete_post_params)
 
+            // find all comments for the post
+            const search_comments_query = `SELECT * FROM comments WHERE post_id = ?`
+            const search_comments_params = [postId]
+            const [comments] = await connection.query(search_comments_query, search_comments_params)
+
+            // delete the ratings for every comment
+            for(const comment of comments) {
+                const delete_ratings_query = `DELETE FROM ratings WHERE comment_id = ?`
+                const delete_ratings_params = [comment.id]
+                await connection.query(delete_ratings_query, delete_ratings_params)
+            }
+
+            // delete the comments for the post
             const delete_comments_query = `DELETE FROM comments WHERE post_id = ?`
             const delete_comments_params = [postId]
             await connection.query(delete_comments_query, delete_comments_params)
 
-            // TODO: there is an issue here, we are not deleting the ratings that are paired to each comment
-
+            // delete the ratings for the post
             const delete_ratings_query = `DELETE FROM ratings WHERE post_id = ?`
             const delete_ratings_params = [postId]
             await connection.query(delete_ratings_query, delete_ratings_params)
