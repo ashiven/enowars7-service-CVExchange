@@ -37,13 +37,15 @@ const storage = multer.diskStorage({
 // and rename their file so it includes a ".jpg" i.e. "shell.jpg.php" 
 // This way they can bypass the server side upload filters and upload malicious files.
 // They obviously have to bypass the client-side filters aswell.
+// This can be achieved by intercepting the response to the /user/profile GET-request 
+// and deleting the javascript responsible for client-side filtering.
 const fileFilter = async (req, file, cb) => {
-    const regex = /\.jpg/i
-    if(file.mimetype === 'image/jpeg' && regex.test(file.originalname)) {
+    const regex = /\.(jpg|jpeg|png)/i
+    if((file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') && regex.test(file.originalname)) {
         cb(null, true)
     }
     else {
-        cb(new Error('Only .jpg files are allowed'), false)
+        cb(new Error('Only image files are allowed'), false)
     }
 }
 

@@ -5,23 +5,30 @@
 <br>
 
 <script>
-function filterImage() {
-    if (!(/\.(gif|jpg|jpeg|tiff|png)$/i).test(document.uploadForm.profilePicture.value)) {              
-        alert('You must select an image file!')        
-        return false   
+    function filterImage() {
+        const fileInput = document.uploadForm.profilePicture
+    
+        if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
+            alert('Please select an image file')
+            fileInput.value = ''
+        }
+        if(fileInput.files[0].size > 5000000) {
+            alert('Please select a file under 5MB')
+            fileInput.value = ''
+        }
     }
-}
 </script>
 
 <label for="profilePicture">Profile Picture:</label><br>
-<% if (user.profile_picture) { %>
+<%  if (user.profile_picture) { %>
     <img src="/<%= user.profile_picture %>" alt="Profile picture"><br>
-    <% } else { %>
+    <% } 
+    else { %>
     <p>No profile picture found.</p><br>
 <% } %>
 
 <form name="uploadForm" method="POST" enctype="multipart/form-data" action="/files/upload">
-    <input type="file" name="profilePicture" onchange="filterImage();"><br><br>
+    <input type="file" name="profilePicture" onchange="filterImage()"><br><br>
     <button type="submit">Upload</button>
 </form>
 <form method="POST" action="/files/delete">
