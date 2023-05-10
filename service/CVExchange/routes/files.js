@@ -8,7 +8,7 @@ const path = require('path')
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '..', 'uploads', req.userId.toString())
+        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
         try {
             await fs.promises.access(uploadPath)
         }
@@ -61,12 +61,13 @@ router.post('/upload', auth, upload.single('profilePicture'), async (req, res) =
             await fs.promises.unlink(path.join(__dirname, '..', currentPic))
         }
     
-        // rename the file to upload and update profile pic in DB
-        await fs.promises.rename(filepath, `uploads/${userId}/${filename}`)
-    
-        const profilepic = 'uploads/' + userId + '/' + filename;
+        const profilePic = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + filename
+
+        // rename the filepath and update profile pic in DB
+        await fs.promises.rename(filepath, profilePic)
+
         const update_query = `UPDATE users SET profile_picture = ? WHERE id = ?`
-        const update_params = [profilepic, userId]
+        const update_params = [profilePic, userId]
         await connection.query(update_query, update_params)
 
         // commit the transaction and release the connection

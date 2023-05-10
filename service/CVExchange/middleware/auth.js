@@ -19,23 +19,16 @@ function auth(req, res, next) {
 }
 
 // ATTENTION: FIRST VULNERABILITY HERE!!!! (Parameter Tampering/Broken Authentication)
-// An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource
-// with this faulty authentication mechanism an attacker can access files from a user directory not belonging to them
+// An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
+// With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
 const fileAuth = async (req, res, next) => {
-    const userId = req.userId
     const filepath = req.originalUrl
-    //This is where it all goes wrong
-    const Id = req.query.Id
+    var userId = req.userId
     
-    if(Id) {
-        if (filepath.startsWith('/uploads/' + Id + '/')) {
-            next()
-        }
-        else {
-            return res.status(403).send('<h1>You are not allowed to access this users files</h1>')
-        }
+    if(req.query.Id) {
+        userId = req.query.Id
     }
-    else if (filepath.startsWith('/uploads/' + userId + '/')) {
+    if (filepath.startsWith('/uploads/' + Buffer.from(userId.toString()).toString('base64') + '/')) {
         next()
     }
     else {
