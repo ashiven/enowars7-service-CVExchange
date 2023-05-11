@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken')
+const jwtSecret = 'SuperS3cret'
+
 async function logger(req, res, next) {
     console.log(req.originalUrl)
     next()
@@ -41,4 +44,22 @@ async function getuserratings(req, res, next) {
     }
 }
 
-module.exports = {getusername, getuserratings, logger, errorHandler}
+async function getuserid(req, res, next) {
+    const token = req.cookies.jwtToken
+    if(token) {
+        try {
+            const decoded = jwt.decode(token, jwtSecret)
+            req.userId = decoded.userId
+            next()
+        }
+        catch(error) {
+            next(error)
+        }
+    }
+    else {
+        next()
+    }
+}
+
+
+module.exports = {getusername, getuserratings, getuserid, logger, errorHandler}

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const jwtSecret = 'SuperS3cret'
 
-function auth(req, res, next) {
+async function auth(req, res, next) {
     const token = req.cookies.jwtToken
 
     if(token) {
@@ -21,7 +21,7 @@ function auth(req, res, next) {
 // ATTENTION: FIRST VULNERABILITY HERE!!!! (Parameter Tampering/Broken Authentication)
 // An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
 // With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
-const fileAuth = async (req, res, next) => {
+async function fileAuth(req, res, next)  {
     const filepath = req.originalUrl
     var userId = req.userId
     

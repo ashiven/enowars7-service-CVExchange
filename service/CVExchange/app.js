@@ -10,6 +10,7 @@ const path = require('path')
 const fs = require('fs')
 const middleware = require('./middleware/other')
 const errorHandler = middleware.errorHandler
+const getuserid = middleware.getuserid
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -38,7 +39,7 @@ app.use((req, res, next) => {
 
 //Route definitions
 
-app.get('/', async (req, res) => {
+app.get('/', getuserid,  async (req, res) => {
     try {
         const pagelimit = 10
         var query = `SELECT * FROM posts ORDER BY rating DESC`
@@ -60,13 +61,20 @@ app.get('/', async (req, res) => {
         }
 
         query = query + ` LIMIT ?`
-        const [results] = await req.database.query(query, params)
+        const [posts] = await req.database.query(query, params)
 
-        //TODO: retrieve all of the ratings for the user on the posts in results and pass to render
-        //then use that data in the frontpage.ejs to toggle the on property of vote classes
-        //in case there is no user aka there is no jwtToken don't pass any ratings to render
+        // if a logged in user views the frontpage we render their upvotes/downvotes
+        if(req.userId) {
+            const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+            const ratings_params = [posts.map(post => post.id), req.userId]
+            const [ratings] = await req.database.query(ratings_query, ratings_params)
 
-        return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, posts, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+        }
+        // otherwise we just render the frontpage as is
+        else {
+            return res.render('frontpage', { req, posts, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+        }
     }
     catch(error) {
         console.error(error)

@@ -1,48 +1,44 @@
-body {
-    background-color: lightblue;
-    font-size: 26 px;
-}
+/* style for tags */
 
-.wrapper{
-    width: 2500px;
-    margin: 0 auto;
-    background-color: lavender;
-    padding: 10px;
+body {
+    margin: 0;
+    background-color: ghostwhite;
+    font-family: "Noto Sans", sans-serif;
 }
 
 header {
-    background-color: ghostwhite;
+    width: 100%;
+    background-color: #d0e4fc;
     padding: 10px;
 }
 
 footer {
     background-color: ghostwhite;
-    padding: 20px;
+    padding: 10px;
 }
 
 main {
-    background-color: burlywood;
     padding: 20px;
+}
+
+a {
+    text-decoration: none;
+  }
+
+/* style for common classnames */
+
+.title {
+    width: 2450px;
+    padding: 10px;
 }
 
 .layout-sidebar {
     display: grid;
     gap: 10px;
     grid-template-columns: 3fr 1fr;
-    background-color:khaki;
 }
 
-.post {
-    width: 1750px;
-    padding: 10px;
-    background-color: lightsalmon;
-}
-
-.title {
-    width: 2450px;
-    padding: 10px;
-    background-color: coral;
-}
+/* style for up-/downvotes */
 
 .upvote {
     display: inline-block;
@@ -64,4 +60,90 @@ main {
     display: inline-block;
     cursor: pointer;
     color: rgb(58, 58, 197)
+}
+
+/* style for posts */
+
+.post-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.post {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.voting-section {
+    grid-column: 2 / span 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: rgb(152, 148, 148);
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.rank {
+    grid-column: 1 / span 1;
+    color: rgb(152, 148, 148);
+    font-size: 20px;
+    padding: 5px;
+}
+
+.post-body {
+    grid-column: 3 / span 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.post-title {
+    margin: 0;
+    font-size: 20px;
+
+}
+
+.post-tags {
+    color: grey;
+    margin: 0;
+    font-size: 12px;
+}
+
+.post-tags a {
+    color: blue;
+}
+
+.post-tags a:hover {
+    text-decoration: underline;
+}
+
+.post-body ul.post-buttons {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.post-body ul.post-buttons li {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
+.post-body ul.post-buttons li a {
+    color: gray;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.post-body ul.post-buttons li a:hover {
+    text-decoration: underline;
 }
