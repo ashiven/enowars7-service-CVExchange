@@ -43,3 +43,25 @@ main {
     padding: 10px;
     background-color: coral;
 }
+
+.upvote {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+}
+
+.upvote.on {
+    color: #f48024
+}
+
+.downvote {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+}
+
+.downvote.on {
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(58, 58, 197)
+}

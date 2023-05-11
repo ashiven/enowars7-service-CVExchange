@@ -61,6 +61,11 @@ app.get('/', async (req, res) => {
 
         query = query + ` LIMIT ?`
         const [results] = await req.database.query(query, params)
+
+        //TODO: retrieve all of the ratings for the user on the posts in results and pass to render
+        //then use that data in the frontpage.ejs to toggle the on property of vote classes
+        //in case there is no user aka there is no jwtToken don't pass any ratings to render
+
         return res.render('frontpage', { req, posts: results, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
     }
     catch(error) {
@@ -82,6 +87,7 @@ app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
 })
 
 app.use(express.static('./public'))
+app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))
 
