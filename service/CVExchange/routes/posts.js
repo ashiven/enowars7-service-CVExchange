@@ -9,18 +9,24 @@ const getusername = middleware.getusername
 // Route definitions
 
 router.get('/new', auth, async (req, res) => {
-    return res.render('newpost', {title: 'New Post'})
+    try {
+        return res.render('newpost', {title: 'New Post'})
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
 router.post('/new', auth, getusername, async (req, res) => {
-    const title = req.body.title
-    const text = req.body.text
-    const creatorId = req.userId
-    const creatorName = req.username
-
     const connection = await req.database.getConnection()
-
+    
     try {
+        const title = req.body.title
+        const text = req.body.text
+        const creatorId = req.userId
+        const creatorName = req.username
+
         // start a transaction
         await connection.beginTransaction()
 
@@ -58,9 +64,9 @@ router.get('/:id', auth, async (req, res) => {
 
         const post_query = `SELECT * FROM posts WHERE id = ?`
         const post_params = [postId]
-        const [post_results] = await req.database.query(post_query, post_params)
+        const [post] = await req.database.query(post_query, post_params)
 
-        if (post_results.length === 0) {
+        if (post.length === 0) {
             return res.status(404).send('Post not found')
         }
 
@@ -82,8 +88,8 @@ router.get('/:id', auth, async (req, res) => {
             }
         }
 
-        const [comment_results] = await req.database.query(comment_query, comment_params)
-        return res.render('post', { req, post: post_results[0], comments: comment_results, title: `${post_results[0].title}` })
+        const [comments] = await req.database.query(comment_query, comment_params)
+        return res.render('post', { req, post: post[0], comments, title: `${post[0].title}`, layout: './layouts/sidebar' })
     }
     catch (error) {
         console.error(error)
@@ -92,12 +98,12 @@ router.get('/:id', auth, async (req, res) => {
 })
 
 router.post('/delete/:id', auth, async (req, res) => {
-    const postId = req.params.id
-    const userId = req.userId
-
     const connection = await req.database.getConnection()
 
     try {
+        const postId = req.params.id
+        const userId = req.userId
+
         // start a transaction
         await connection.beginTransaction()
 

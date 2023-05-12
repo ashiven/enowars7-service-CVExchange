@@ -40,7 +40,7 @@
       
       <ul class="post-buttons">
         <!--TODO: hier muessen die comments gepasst werden um anzahl der kommentare anzuzeigen-->
-        <li class="comments"><a href="/posts/<%= post.id %>">10 comments</a></li>
+        <li class="comments"><a href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
         <li class="save-button"><a href="/posts/save/<%= post.id %>">save</a></li>
         <li class="hide-button"><a href="/posts/hide/<%= post.id %>">hide</a></li>
       </ul>
@@ -89,48 +89,11 @@ for(const btn of document.querySelectorAll('.downvote')) {
 }
 </script>
 
-<!--
-Ein kommentar auf reddit
-<div class=" thing id-t3_13e552z even  link " id="thing_t3_13e552z" onclick="click_thing(this)" data-fullname="t3_13e552z" data-type="link" data-gildings="0" data-whitelist-status="" data-is-gallery="false" data-author="goddamnitshutupjesus" data-author-fullname="t2_dr8852xi" data-subreddit="fitnesscirclejerk" data-subreddit-prefixed="r/fitnesscirclejerk" data-subreddit-fullname="t5_2rybl" data-subreddit-type="public" data-timestamp="1683757005000" data-url="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-permalink="/r/fitnesscirclejerk/comments/13e552z/weirdo_replies_to_9_month_old_comment_to_tell_me/" data-domain="old.reddit.com" data-rank="6" data-comments-count="14" data-score="17" data-promoted="false" data-nsfw="false" data-spoiler="false" data-oc="false" data-num-crossposts="0" data-context="listing">
-  <p class="parent"></p>
-  Das ranking des posts ganz links
-  <span class="rank">6</span>
-  Die division die up und downvote button und aktuelles voteranking enthaelt
-  <div class="midcol unvoted">
-    <div class="arrow up login-required access-required" data-event-action="upvote" role="button" aria-label="upvote" tabindex="0"></div>
-    <div class="score dislikes" title="16">16</div>
-    <div class="score unvoted" title="17">17</div>
-    <div class="score likes" title="18">18</div>
-    <div class="arrow down login-required access-required" data-event-action="downvote" role="button" aria-label="downvote" tabindex="0"></div>
-  </div>
-  Dieser anchor ist rechts neben der ranking division und enthaelt ein thumbnail welches man anklicken kann
-  <a class="thumbnail invisible-when-pinned default may-blank loggedin outbound" data-event-action="thumbnail" href="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-href-url="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-outbound-url="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-outbound-expiration="0" rel="nofollow ugc"></a>
-  bin mir nicht sicher wieso diese division gebraucht wird weil sie nur die division drunter enthaelt
-  <div class="entry unvoted">
-    Diese division enthaelt alle post-infos (titel, metadaten wie author, submission time und dadrunter eine leiste mit links fuer comments, save report usw. )
-    <div class="top-matter">
-      <p class="title">
-        <a class="title may-blank loggedin outbound" data-event-action="title" href="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" tabindex="1" data-href-url="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-outbound-url="https://old.reddit.com/r/fitnesscirclejerk/comments/w7062j/fyi_i_took_the_sssl_page_down_from_the_wiki_and/jjnv39j/?context=3" data-outbound-expiration="0" rel="nofollow ugc">Weirdo replies to 9 month old comment to tell me he's mad I dumped on an amateur trying to scam people into letting him coach them</a> 
-        <span class="domain">(<a href="/domain/old.reddit.com/">old.reddit.com</a>)</span></p>
-        <p class="tagline ">submitted <time title="Wed May 10 22:16:45 2023 UTC" datetime="2023-05-10T22:16:45+00:00" class="live-timestamp">11 hours ago</time> by <a href="https://www.reddit.com/user/goddamnitshutupjesus" class="author may-blank id-t2_dr8852xi">goddamnitshutupjesus</a><span class="userattrs"></span> to <a href="https://www.reddit.com/r/fitnesscirclejerk/" class="subreddit hover may-blank">r/fitnesscirclejerk</a><span class="awardings-bar" data-subredditpath="/r/fitnesscirclejerk/"></span></p>
-        <ul class="flat-list buttons">
-          <li class="first"><a href="https://www.reddit.com/r/fitnesscirclejerk/comments/13e552z/weirdo_replies_to_9_month_old_comment_to_tell_me/" data-event-action="comments" class="bylink comments may-blank" rel="nofollow">14 comments</a></li>
-          <li class="share"><a class="post-sharing-button" href="javascript: void 0;">share</a></li>
-          <li class="link-save-button save-button login-required"><a href="#">save</a></li>
-          <li><form action="/post/hide" method="post" class="state-button hide-button"><input type="hidden" name="executed" value="hidden"><span><a href="javascript:void(0)" class=" " data-event-action="hide" onclick="change_state(this, 'hide', hide_thing);">hide</a></span></form></li>
-          <li class="give-gold-button"><a href="/gold?goldtype=gift&amp;months=1&amp;thing=t3_13e552z" title="give an award in appreciation of this post." class="give-gold login-required access-required gold-give-gold" data-event-action="gild" data-community-awards-enabled="True" rel="nofollow">give award</a></li>
-          <li class="report-button login-required"><a href="javascript:void(0)" class="reportbtn access-required" data-event-action="report">report</a></li>
-          <li class="crosspost-button"><a class="post-crosspost-button" href="javascript: void 0;" data-crosspost-fullname="t3_13e552z">crosspost</a></li>
-        </ul>
-        <div class="reportform report-t3_13e552z"></div>
-    </div>
-  </div>
-  bin mir nicht sicher wofuer die child und clearleft divs gebraucht werden
-  <div class="child"></div>
-  <div class="clearleft"></div>
-</div>
-<div class="clearleft"></div>
--->
+
+
+
+
+
 
 
 

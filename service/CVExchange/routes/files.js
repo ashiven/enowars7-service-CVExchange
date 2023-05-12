@@ -8,8 +8,8 @@ const path = require('path')
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
         try {
+            const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
             await fs.promises.access(uploadPath)
         }
         catch(error) { 
@@ -25,10 +25,10 @@ const storage = multer.diskStorage({
                 return cb(error)
             }
         }
-        cb(null, uploadPath)
+        return cb(null, uploadPath)
     },
     filename: async (req, file, cb) => {
-        cb(null, file.originalname)
+        return cb(null, file.originalname)
     }
 })
 
@@ -40,12 +40,17 @@ const storage = multer.diskStorage({
 // This can be achieved by intercepting the response to the /user/profile GET-request 
 // and deleting the javascript responsible for client-side filtering.
 const fileFilter = async (req, file, cb) => {
-    const regex = /\.(jpg|jpeg|png)/i
-    if((file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') && regex.test(file.originalname)) {
-        cb(null, true)
+    try {
+        const regex = /\.(jpg|jpeg|png)/i
+        if((file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') && regex.test(file.originalname)) {
+            return cb(null, true)
+        }
+        else {
+            return cb(new Error('Only image files are allowed'), false)
+        }
     }
-    else {
-        cb(new Error('Only image files are allowed'), false)
+    catch(error) {
+        return cb(error)
     }
 }
 
@@ -64,13 +69,13 @@ router.post('/upload', auth, async (req, res) => {
         if (!req.file) {
             return res.redirect('/user/profile')
         }
-        const filename = req.file.originalname
-        const filepath = req.file.path
-        const userId = req.userId
-    
         const connection = await req.database.getConnection()
-    
+
         try {
+            const filename = req.file.originalname
+            const filepath = req.file.path
+            const userId = req.userId
+
             // start a transaction
             await connection.beginTransaction()
     
@@ -111,11 +116,11 @@ router.post('/upload', auth, async (req, res) => {
 })
 
 router.post('/delete', auth, async (req, res) => {
-    const userId = req.userId
-
     const connection = await req.database.getConnection()
 
     try {
+        const userId = req.userId
+
         // start a transaction
         await connection.beginTransaction()
 
@@ -151,14 +156,6 @@ router.post('/delete', auth, async (req, res) => {
 
 //--------------------------------
 
-
-// Function definitions
-
-function randomName(string) {
-    console.log(string)
-}
-
-//--------------------------------
 
 
 module.exports = router 

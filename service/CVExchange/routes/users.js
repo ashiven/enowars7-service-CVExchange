@@ -9,11 +9,17 @@ const jwtSecret = auth_middleware.jwtSecret
 //Route definitions
 
 router.get('/login', async (req, res) => {
-    if(!req.cookies.jwtToken) {
-        return res.render('login', {title: 'Login'})
+    try{ 
+        if(!req.cookies.jwtToken) {
+            return res.render('login', {title: 'Login'})
+        }
+        else {
+            return res.status(200).send('Please log out first.')
+        }
     }
-    else {
-        return res.status(200).send('Please log out first.')
+    catch (error) {
+        console.error(error);
+        return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
 
@@ -46,31 +52,43 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/logout', async (req, res) => {
-    res.clearCookie('jwtToken')
-    return res.redirect('/')
+    try{
+        res.clearCookie('jwtToken')
+        return res.redirect('/')
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
 })
 
 router.get('/register', async (req, res) => {
-    if(!req.cookies.jwtToken) {
-        return res.render('register', {title: 'Register'})
+    try{
+        if(!req.cookies.jwtToken) {
+            return res.render('register', {title: 'Register'})
+        }
+        else {
+            return res.status(200).send('Please log out first.')
+        }
     }
-    else {
-        return res.status(200).send('Please log out first.')
+    catch (error) {
+        console.error(error);
+        return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
 
-router.post('/register', async (req, res) => {
-    const name = req.body.name
-    const email = req.body.email
-    const password = req.body.password
-
-    if(!name || !email || !password) {
-        return res.status(400).send('Please provide all required fields')
-    }
-
+router.post('/register', async (req, res) => { 
     const connection = await req.database.getConnection()
 
     try {
+        const name = req.body.name
+        const email = req.body.email
+        const password = req.body.password
+
+        if(!name || !email || !password) {
+            return res.status(400).send('Please provide all required fields')
+        }
+
         // start a transaction
         await connection.beginTransaction()
 

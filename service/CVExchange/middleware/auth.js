@@ -2,19 +2,24 @@ const jwt = require('jsonwebtoken')
 const jwtSecret = 'SuperS3cret'
 
 async function auth(req, res, next) {
-    const token = req.cookies.jwtToken
-
-    if(token) {
-        jwt.verify(token, jwtSecret, (error, decoded) => {
-            if(error) {
-                res.status(401).send('<h1>Unauthenticated</h1>') 
-            }
-            req.userId = decoded.userId
-            next()
-        })
+    try{
+        const token = req.cookies.jwtToken
+        if(token) {
+            jwt.verify(token, jwtSecret, (error, decoded) => {
+                if(error) {
+                    res.status(401).send('<h1>Unauthenticated</h1>') 
+                }
+                req.userId = decoded.userId
+                next()
+            })
+        }
+        else {
+            return res.status(401).send('<h1>Unauthenticated</h1>') 
+        }
     }
-    else {
-        res.status(401).send('<h1>Unauthenticated</h1>') 
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 }
 

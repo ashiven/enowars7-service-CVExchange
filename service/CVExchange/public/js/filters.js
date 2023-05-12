@@ -1,5 +1,3 @@
-//<script>
-
 function filterImage() {
     const fileInput = document.uploadForm.profilePicture
 
@@ -12,8 +10,6 @@ function filterImage() {
         fileInput.value = ''
     }
 }
-
-//</script>
 
 // works for the following form:
 

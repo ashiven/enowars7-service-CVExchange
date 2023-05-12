@@ -6,14 +6,6 @@ async function logger(req, res, next) {
     next()
 }
 
-async function errorHandler(error, req, res, next) {
-    if(error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-    next()
-}
-
 async function getusername(req, res, next) {
     try {
         const userId = req.userId
@@ -63,4 +55,4 @@ async function getuserid(req, res, next) {
 }
 
 
-module.exports = {getusername, getuserratings, getuserid, logger, errorHandler}
+module.exports = {getusername, getuserratings, getuserid, logger}

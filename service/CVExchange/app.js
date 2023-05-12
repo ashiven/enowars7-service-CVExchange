@@ -9,7 +9,6 @@ const fileAuth = auth_middleware.fileAuth
 const path = require('path')
 const fs = require('fs')
 const middleware = require('./middleware/other')
-const errorHandler = middleware.errorHandler
 const getuserid = middleware.getuserid
 
 //connect to the MySQL Database 
@@ -30,7 +29,6 @@ app.use(expressLayouts)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.use(errorHandler)
 
 app.use((req, res, next) => { 
     req.database = database //make DB accessible through req
@@ -62,18 +60,23 @@ app.get('/', getuserid,  async (req, res) => {
 
         query = query + ` LIMIT ?`
         const [posts] = await req.database.query(query, params)
+        const postIds = posts.map(post => post.id)
+
+        const comment_query = `SELECT * FROM comments WHERE post_id IN (?)`
+        const comment_params = [postIds]
+        const [comments] = await req.database.query(comment_query, comment_params)
 
         // if a logged in user views the frontpage we render their upvotes/downvotes
         if(req.userId) {
             const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
-            const ratings_params = [posts.map(post => post.id), req.userId]
+            const ratings_params = [postIds, req.userId]
             const [ratings] = await req.database.query(ratings_query, ratings_params)
 
-            return res.render('frontpage', { req, posts, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
         }
         // otherwise we just render the frontpage as is
         else {
-            return res.render('frontpage', { req, posts, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
         }
     }
     catch(error) {
@@ -82,7 +85,7 @@ app.get('/', getuserid,  async (req, res) => {
     }
 })
 
-app.get('/uploads/:userId/:filename', auth, fileAuth, errorHandler,  async (req, res) => {
+app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
     try {
         const filepath = path.join(__dirname, 'uploads', req.params.userId, req.params.filename)
         await fs.promises.access(filepath)
