@@ -90,7 +90,7 @@ router.get('/:id', auth, async (req, res) => {
         }
 
         const [comments] = await req.database.query(comment_query, comment_params)
-        return res.render('post', { req, post: post[0], comments, title: `${post[0].title}`, layout: './layouts/sidebar' })
+        return res.render('post', { req, post: post[0], comments, title: `${post[0].title}` })
     }
     catch (error) {
         console.error(error)

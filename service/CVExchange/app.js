@@ -85,11 +85,11 @@ app.get('/', getuserid,  async (req, res) => {
             const ratings_params = [postIds, req.userId]
             const [ratings] = await req.database.query(ratings_query, ratings_params)
 
-            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
         }
         // otherwise we just render the frontpage as is
         else {
-            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
         }
     }
     catch(error) {
