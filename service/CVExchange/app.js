@@ -82,7 +82,7 @@ app.get('/', getuserid,  async (req, res) => {
     }
 })
 
-app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
+app.get('/uploads/:userId/:filename', auth, fileAuth, errorHandler,  async (req, res) => {
     try {
         const filepath = path.join(__dirname, 'uploads', req.params.userId, req.params.filename)
         await fs.promises.access(filepath)

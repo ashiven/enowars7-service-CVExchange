@@ -22,17 +22,22 @@ async function auth(req, res, next) {
 // An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
 // With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
 async function fileAuth(req, res, next)  {
-    const filepath = req.originalUrl
-    var userId = req.userId
-    
-    if(req.query.Id) {
-        userId = req.query.Id
+    try {
+        const filepath = req.originalUrl
+        var userId = req.userId 
+        if(req.query.Id) {
+            userId = req.query.Id
+        }
+        if (filepath.startsWith('/uploads/' + Buffer.from(userId.toString()).toString('base64') + '/')) {
+            next()
+        }
+        else {
+            return res.status(403).send('<h1>You are not allowed to access this users files</h1>')
+        }
     }
-    if (filepath.startsWith('/uploads/' + Buffer.from(userId.toString()).toString('base64') + '/')) {
-        next()
-    }
-    else {
-        return res.status(403).send('<h1>You are not allowed to access this users files</h1>')
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 }
 

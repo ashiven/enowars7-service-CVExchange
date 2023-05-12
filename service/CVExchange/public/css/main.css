@@ -23,12 +23,12 @@ main {
 
 a {
     text-decoration: none;
-  }
+}
 
 /* style for common classnames */
 
 .title {
-    width: 2450px;
+    width: 100%;
     padding: 10px;
 }
 
@@ -76,11 +76,11 @@ a {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .voting-section {
-    grid-column: 2 / span 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -92,14 +92,12 @@ a {
 }
 
 .rank {
-    grid-column: 1 / span 1;
     color: rgb(152, 148, 148);
     font-size: 20px;
     padding: 5px;
 }
 
 .post-body {
-    grid-column: 3 / span 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;

@@ -24,7 +24,7 @@ async function getusername(req, res, next) {
         next()
     } 
     catch (error) {
-        console.error(error);
+        console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 }
@@ -39,25 +39,26 @@ async function getuserratings(req, res, next) {
         next()
     } 
     catch (error) {
-        console.error(error);
+        console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 }
 
 async function getuserid(req, res, next) {
-    const token = req.cookies.jwtToken
-    if(token) {
-        try {
+    try{
+        const token = req.cookies.jwtToken
+        if(token) {
             const decoded = jwt.decode(token, jwtSecret)
             req.userId = decoded.userId
             next()
         }
-        catch(error) {
-            next(error)
+        else {
+            next()
         }
     }
-    else {
-        next()
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 }
 
