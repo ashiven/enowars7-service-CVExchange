@@ -7,14 +7,37 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-  <%- include('../partials/fp-header') %>
 
-  <div class="layout-sidebar">
-      <main><%- body %></main>
-      <side></side>
-  </div>
+<%- include('../partials/fp-header') %>
+<div class="layout-frontpage">
 
-  <%- include('../partials/footer') %>
+    <main><%- body %></main>
+    
+    <side>
+      <div class="space">
+        <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
+      </div>
+    </side>
+    
+</div>
+<%- include('../partials/footer') %>
+
+
+<% if(!req.cookies.jwtToken) { %>
+<script>
+const loginRequiredElements = document.querySelectorAll('.login-required')
+console.log(document.cookie)
+loginRequiredElements.forEach(element => {
+  element.addEventListener('click', event => {
+    if (!document.cookie.includes('jwtToken')) {
+      event.preventDefault()
+      window.location.href = '/user/login'
+    }
+  })
+})
+</script>
+<% } %>
+
 
 </body>
 </html>
