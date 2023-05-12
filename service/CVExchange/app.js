@@ -40,21 +40,34 @@ app.use((req, res, next) => {
 app.get('/', getuserid,  async (req, res) => {
     try {
         const pagelimit = 10
-        var query = `SELECT * FROM posts ORDER BY rating DESC`
+        let query = `SELECT * FROM (
+                        SELECT p.*, COUNT(r.id) as ratecount 
+                        FROM posts p 
+                        LEFT JOIN ratings r ON p.id = r.post_id
+                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND r.rating = 1
+                        GROUP BY p.id
+
+                        UNION
+
+                        SELECT p1.*, 0 as ratecount
+                        FROM posts p1 
+                        WHERE id NOT IN (
+                            SELECT p2.id
+                            FROM posts p2
+                            LEFT JOIN ratings r2 ON p2.id = r2.post_id
+                            WHERE r2.datetime >= NOW() - INTERVAL 1 HOUR AND r2.rating = 1
+                        )
+                    ) AS subquery 
+                    ORDER BY ratecount DESC, rating DESC`
         const params = [pagelimit]
 
         if(req.query.sort) {
             const sort = req.query.sort
             if(sort === 'new' ) {
-                query = `SELECT * FROM posts ORDER BY datetime ASC`
+                query = `SELECT * FROM posts ORDER BY datetime DESC`
             }
-            else if(sort === 'hot') {
-                query = `SELECT p.*, COUNT(r.id) as ratecount 
-                        FROM posts p 
-                        LEFT JOIN ratings r ON p.id = r.post_id
-                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND r.rating = 1
-                        GROUP BY p.id
-                        ORDER BY ratecount, p.rating DESC`
+            else if(sort === 'top') {
+                query = `SELECT * FROM posts ORDER BY rating DESC`
             }
         }
 
@@ -72,11 +85,11 @@ app.get('/', getuserid,  async (req, res) => {
             const ratings_params = [postIds, req.userId]
             const [ratings] = await req.database.query(ratings_query, ratings_params)
 
-            return res.render('frontpage', { req, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
         }
         // otherwise we just render the frontpage as is
         else {
-            return res.render('frontpage', { req, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
+            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/sidebar' })
         }
     }
     catch(error) {

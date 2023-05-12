@@ -79,12 +79,13 @@ router.get('/:id', auth, async (req, res) => {
                 comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC`
             }
             else if(sort === 'hot') {
+                //TODO: change this query to combine with top comments
                 comment_query = `SELECT c.*, COUNT(r.id) as ratecount 
                         FROM comments c
                         LEFT JOIN ratings r ON c.id = r.comment_id
                         WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND c.post_id = ?
                         GROUP BY c.id
-                        ORDER BY ratecount, c.rating DESC`
+                        ORDER BY ratecount DESC, c.rating DESC`
             }
         }
 

@@ -11,31 +11,7 @@
 
   <div class="layout-sidebar">
       <main><%- body %></main>
-      <side><% if(!req.cookies.jwtToken) { %>
-          <div class="login">
-            <form method="GET" action="/user/login">
-              <input type="submit" value="Login">
-            </form>
-          </div>
-          <div class="register">
-            <form method="GET" action="/user/register">
-              <input type="submit" value="Register">
-            </form>
-          </div>
-        <% } %>
-        <% if(req.cookies.jwtToken) { %>
-          <div class="profile">
-            <form method="GET" action="/user/profile">
-              <input type="submit" value="Profile">
-            </form>
-          </div>
-          <div class="myposts">
-            <form method="GET" action="/user/myposts">
-              <input type="submit" value="My Posts">
-            </form>
-          </div>
-        <% } %>
-      </side>
+      <side></side>
   </div>
 
   <%- include('../partials/footer') %>

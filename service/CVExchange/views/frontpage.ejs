@@ -39,7 +39,6 @@
       </p>
       
       <ul class="post-buttons">
-        <!--TODO: hier muessen die comments gepasst werden um anzahl der kommentare anzuzeigen-->
         <li class="comments"><a href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
         <li class="save-button"><a href="/posts/save/<%= post.id %>">save</a></li>
         <li class="hide-button"><a href="/posts/hide/<%= post.id %>">hide</a></li>
@@ -51,8 +50,9 @@
 </div>
 
 <script>
+  
 for(const btn of document.querySelectorAll('.upvote')) {
-    btn.addEventListener('click', async(event) => {
+    btn.addEventListener('click', async (event) => {
         event.currentTarget.classList.toggle('on')
         const postId = btn.getAttribute('data-postid')
         await fetch('/votes/ratepost', {
@@ -70,7 +70,7 @@ for(const btn of document.querySelectorAll('.upvote')) {
     })
 }
 for(const btn of document.querySelectorAll('.downvote')) {
-    btn.addEventListener('click', async(event) => {
+    btn.addEventListener('click', async (event) => {
         event.currentTarget.classList.toggle('on')
         const postId = btn.getAttribute('data-postid')
         await fetch('/votes/ratepost', {
@@ -87,6 +87,7 @@ for(const btn of document.querySelectorAll('.downvote')) {
         location.reload()
     })
 }
+
 </script>
 
 
