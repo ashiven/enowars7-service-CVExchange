@@ -21,7 +21,7 @@ const database = mysql.createPool({
 //--------------------------------
 
 //initialize the app and routers
-const app = express();
+const app = express()
 app.set('view engine', 'ejs')
 app.set('layout', './layouts/standard')
 
@@ -118,6 +118,6 @@ app.use('/votes', voteRouter)
 
 //start the server
 app.listen(1337, function() {
-    console.log('Server listening on port 1337');
-});
+    console.log('Server listening on port 1337')
+})
 //--------------------------------
