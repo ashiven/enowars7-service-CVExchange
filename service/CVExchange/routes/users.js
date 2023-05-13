@@ -6,6 +6,7 @@ const auth = auth_middleware.auth
 const jwtSecret = auth_middleware.jwtSecret
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
+const getuserkarma = middleware.getuserkarma
 
 
 //Route definitions
@@ -135,7 +136,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.get('/profile/:id', auth, getusername, async (req, res) => {
+router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const profileId = req.params.id
         const pagelimit = 10

@@ -8,8 +8,8 @@ const path = require('path')
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
+        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
         try {
-            const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
             await fs.promises.access(uploadPath)
         }
         catch(error) { 
@@ -102,7 +102,7 @@ router.post('/upload', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
         
-            return res.redirect('/user/profile')
+            return res.redirect('back')
         } 
         catch (error) {
             // if there was an error, rollback changes and release the connection
@@ -115,7 +115,7 @@ router.post('/upload', auth, async (req, res) => {
     })
 })
 
-router.post('/delete', auth, async (req, res) => {
+router.get('/delete', auth, async (req, res) => {
     const connection = await req.database.getConnection()
 
     try {
@@ -142,7 +142,7 @@ router.post('/delete', auth, async (req, res) => {
         await connection.commit()
         await connection.release()
 
-        return res.redirect('/user/profile')
+        return res.redirect('back')
     } 
     catch (error) {
         // if there was an error, rollback changes and release the connection

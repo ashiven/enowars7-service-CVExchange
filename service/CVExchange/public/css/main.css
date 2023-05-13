@@ -291,6 +291,29 @@ side {
     color: white;
 }
 
+.side-profile {
+    padding: 20px;
+    display: grid;
+    grid-template-rows: 2fr 1fr;
+}
+
+.side-profile p {
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+}
+.side-profile img {
+    margin-top: 35px;
+}
+
+.fat {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+
 /* style for the profile header */
 
 .profile-sorting {

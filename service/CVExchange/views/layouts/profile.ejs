@@ -10,42 +10,31 @@
 
 <%- include('../partials/profile-header') %>
 <div class="layout-profile">
-
     <main><%- body %> </main>
-    
-    <side>
-        <script>
-            function filterImage() {
-                const fileInput = document.uploadForm.profilePicture
-            
-                if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
-                    alert('Please select an image file')
-                    fileInput.value = ''
-                }
-                if(fileInput.files[0].size > 5000000) {
-                    alert('Please select a file under 5MB')
-                    fileInput.value = ''
-                }
-            }
-        </script>
-
-        <label for="profilePicture">Profile Picture:</label>
-        <%  if (user.profile_picture) { %>
-            <img src="/<%= user.profile_picture %>" alt="Profile picture">
-            <% } 
-            else { %>
-            <p>No profile picture found.</p>
+    <div class="side-profile">
+        <% if (user.profile_picture) { %>
+        <img src="/<%= user.profile_picture %>" alt="Profile picture">
+        <% } 
+        else { %>
+        <img src="/img/default.png" alt="Profile picture">
         <% } %>
-
-        <form name="uploadForm" method="POST" enctype="multipart/form-data" action="/files/upload">
+        <% if( parseInt(req.userId) === parseInt(user.id) ) { %>
+        <div>
+        <form name="uploadForm" method="post" enctype="multipart/form-data" action="/files/upload">
             <input type="file" name="profilePicture" onchange="filterImage()">
             <button type="submit">Upload</button>
         </form>
-        <form method="POST" action="/files/delete">
+        <form method="get" action="/files/delete">
             <button type="submit">Delete</button>
         </form>
-    </side>
-    
+        </div>
+        <% } %>
+        <div class="user-stats">
+            <p> <span class="fat"> <%= user.name %> </span> </p>
+            <p> <span class="fat"> <%= posts.reduce((total, post) => total + post.rating, 0) %> </span> post karma </p>
+            <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
+        </div>
+    </div>
 </div>
 <%- include('../partials/footer') %>
 
@@ -64,6 +53,21 @@ loginRequiredElements.forEach(element => {
 })
 </script>
 <% } %>
+
+<script>
+function filterImage() {
+    const fileInput = document.uploadForm.profilePicture
+
+    if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
+        alert('Please select an image file')
+        fileInput.value = ''
+    }
+    if(fileInput.files[0].size > 5000000) {
+        alert('Please select a file under 5MB')
+        fileInput.value = ''
+    }
+}
+</script>
 
 
 </body>

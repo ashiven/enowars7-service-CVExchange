@@ -25,11 +25,13 @@ async function getusername(req, res, next) {
 
 async function getuserratings(req, res, next) {
     try {
-        const userId = req.userId
-        const query = `SELECT * FROM ratings WHERE user_id = ?`
-        const params = [userId]
-        const [results] = await req.database.query(query, params)
-        req.ratings = results
+        if(req.userId) {
+            const userId = req.userId
+            const query = `SELECT * FROM ratings WHERE user_id = ?`
+            const params = [userId]
+            const [results] = await req.database.query(query, params)
+            req.ratings = results
+        }
         next()
     } 
     catch (error) {
@@ -56,5 +58,29 @@ async function getuserid(req, res, next) {
     }
 }
 
+async function getuserkarma(req, res, next) {
+    try {
+        if(req.userId) {
+            const userId = req.userId
 
-module.exports = {getusername, getuserratings, getuserid, logger}
+            const post_query = `SELECT * FROM posts WHERE creator_id = ?`
+            const post_params = [userId]
+            const [posts] = await req.database.query(post_query, post_params)
+
+            const comment_query = `SELECT * FROM comments WHERE creator_id = ?`
+            const comment_params = [userId]
+            const [comments] = await req.database.query(comment_query, comment_params)
+
+            req.postkarma = posts.reduce((total, post) => total + post.rating, 0)
+            req.commentkarma = comments.reduce((total, comment) => total + comment.rating, 0)
+        }
+        next()
+    } 
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+}
+
+
+module.exports = {getusername, getuserratings, getuserid, getuserkarma, logger}

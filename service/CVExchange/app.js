@@ -11,6 +11,7 @@ const fs = require('fs')
 const middleware = require('./middleware/other')
 const getuserid = middleware.getuserid
 const getusername = middleware.getusername
+const getuserkarma = middleware.getuserkarma
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -38,7 +39,7 @@ app.use((req, res, next) => {
 
 //Route definitions
 
-app.get('/', getuserid, getusername,  async (req, res) => {
+app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
     try {
         const pagelimit = 10
         let query = `SELECT * FROM (

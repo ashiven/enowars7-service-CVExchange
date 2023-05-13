@@ -19,7 +19,7 @@
     <div class="user-info-loggedin">
         <span class="user">
             <!-- TODO: link to user profile and implement karma -->
-            <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma">13</span>)&nbsp;
+            <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
         </span>
         <span class="separator">|</span>&nbsp;
         <form method="POST" action="/user/logout" class="logout">
