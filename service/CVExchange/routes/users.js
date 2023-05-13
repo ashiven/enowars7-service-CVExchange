@@ -11,7 +11,7 @@ const jwtSecret = auth_middleware.jwtSecret
 router.get('/login', async (req, res) => {
     try{ 
         if(!req.cookies.jwtToken) {
-            return res.render('login', {title: 'Login'})
+            return res.render('login', {title: 'Login', layout: './layouts/login'})
         }
         else {
             return res.status(200).send('Please log out first.')
@@ -65,7 +65,7 @@ router.post('/logout', async (req, res) => {
 router.get('/register', async (req, res) => {
     try{
         if(!req.cookies.jwtToken) {
-            return res.render('register', {title: 'Register'})
+            return res.render('register', {title: 'Register', layout: './layouts/login'})
         }
         else {
             return res.status(200).send('Please log out first.')
