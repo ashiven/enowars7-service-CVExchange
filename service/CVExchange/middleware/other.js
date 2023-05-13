@@ -40,7 +40,7 @@ async function getuserid(req, res, next) {
     try{
         const token = req.cookies.jwtToken
         if(token) {
-            const decoded = jwt.decode(token, jwtSecret)
+            const decoded = jwt.verify(token, jwtSecret)
             req.userId = decoded.userId
             next()
         }

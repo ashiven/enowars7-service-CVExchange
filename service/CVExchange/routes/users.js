@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const jwtSecret = auth_middleware.jwtSecret
+const middleware = require('../middleware/other')
+const getusername = middleware.getusername
 
 
 //Route definitions
@@ -133,7 +135,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.get('/profile/:id', auth, async (req, res) => {
+router.get('/profile/:id', auth, getusername, async (req, res) => {
     try {
         const profileId = req.params.id
         const pagelimit = 10
