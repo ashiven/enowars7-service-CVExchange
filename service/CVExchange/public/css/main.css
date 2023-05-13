@@ -39,6 +39,12 @@ a:visited {
     grid-template-columns: 3fr 1fr;
 }
 
+.layout-profile {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 3fr 1fr;
+}
+
 /* style for up-/downvotes */
 
 .upvote {
@@ -283,4 +289,58 @@ side {
     background-color: #92b3d1;
     outline: 1px solid #bdcbd7;
     color: white;
+}
+
+/* style for the profile header */
+
+.profile-sorting {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+.profile-sorting ul.sorting-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-sorting ul.sorting-menu li {
+    margin-right: 10px;
+    width: 80px;
+    height: 17px;
+    font-size: 14px;
+    font-weight: bolder;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eef6ff;
+    border: none;
+}
+
+.profile-sorting ul.sorting-menu li.on {
+    background-color: ghostwhite;
+    outline: 1px solid #5f98ce;
+
+}
+
+.profile-sorting ul.sorting-menu li a {
+    color: #3367a4;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.profile-sorting ul.sorting-menu li a:hover {
+    text-decoration: none;
+}
+
+.profile-sorting ul.sorting-menu li a.on {
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.profile-sorting ul.sorting-menu li a.on:hover {
+    text-decoration: none;
 }

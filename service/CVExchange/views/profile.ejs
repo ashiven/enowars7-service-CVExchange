@@ -1,36 +1,125 @@
-<h2>My Profile (I am user: <%= user.name %>)</h2>
-<form action="./logout" method="POST">
-    <button type="submit">Logout</button>
-</form>
-<br>
+<% if(tab === 'overview') { %>
 
-<script>
-    function filterImage() {
-        const fileInput = document.uploadForm.profilePicture
+    <div class="post-container">
+    <% for (let element of mixed) { %>
+        <% if(element.title) { %>
+            <div class="post">
+                <div class="voting-section">
+                <% if(req.cookies.jwtToken) { %>
+                <div class="upvote <%= ratings.some(r => r.post_id === element.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= element.id %>">
+                <% } else { %>
+                <div class="upvote" data-postid="<%= element.id %>">
+                <% } %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="score"> <%= element.rating %> </div>
+                <% if(req.cookies.jwtToken) { %>
+                <div class="downvote <%= ratings.some(r => r.post_id === element.id && r.rating === -1) ? 'on' : '' %>" data-postid="<%= element.id %>">
+                <% } else { %>
+                <div class="downvote" data-postid="<%= element.id %>">
+                <% } %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+                </div>
+
+                <!--Hier wuerde ein anchor mit dem thumbnail hinkommen-->
+
+                <div class="post-body">
+
+                <p class="post-title"> <a class="title-link login-required" href="/posts/<%= element.id %>"><%= element.title %></a> </p>
+
+                <p class="post-tags">submitted on 
+                    <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time> by 
+                    <a href="/user/profile/<%= element.creator_id %>" class="author login-required"><%= element.creator_name %></a> to 
+                    <a href="/" class="subexchange login-required">c/main</a>
+                </p>
+                
+                <ul class="post-buttons">
+                    <li class="comments"><a class="login-required" href="/posts/<%= element.id %>"><%= comments.filter(c => c.post_id === element.id).length %> comments</a></li>
+                    <li class="save-button"><a class="login-required" href="/posts/save/<%= element.id %>">save</a></li>
+                    <li class="hide-button"><a class="login-required" href="/posts/hide/<%= element.id %>">hide</a></li>
+                </ul>
+                
+                </div>
+            </div>
+        <% }
+        else { %>
+            <div class="comment">
+                <%= element.text %> 
+            </div><br>
+        <% } %>
+    <% } %>
+    </div>
+
+
+<% }
+else if(tab === 'submitted') { %>
+
+    <div class="post-container">
+    <% for (let post of posts) { %>
+    <div class="post">
+        <div class="voting-section">
+        <% if(req.cookies.jwtToken) { %>
+        <div class="upvote <%= ratings.some(r => r.post_id === post.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+        <% } else { %>
+        <div class="upvote" data-postid="<%= post.id %>">
+        <% } %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+            </svg>
+        </div>
+        <div class="score"> <%= post.rating %> </div>
+        <% if(req.cookies.jwtToken) { %>
+        <div class="downvote <%= ratings.some(r => r.post_id === post.id && r.rating === -1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+        <% } else { %>
+        <div class="downvote" data-postid="<%= post.id %>">
+        <% } %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+            </svg>
+        </div>
+        </div>
+
+        <!--Hier wuerde ein anchor mit dem thumbnail hinkommen-->
+
+        <div class="post-body">
+
+        <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
+
+        <p class="post-tags">submitted on 
+            <time datetime="<%= post.datetime %>" class="timestamp"><%= post.datetime.toString().slice(0, -36) %></time> by 
+            <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a> to 
+            <a href="/" class="subexchange login-required">c/main</a>
+        </p>
+        
+        <ul class="post-buttons">
+            <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
+            <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
+            <li class="hide-button"><a class="login-required" href="/posts/hide/<%= post.id %>">hide</a></li>
+        </ul>
+        
+        </div>
+    </div>
+    <% } %>
+    </div>
+
+<% } 
+else if(tab === 'comments') { %>
     
-        if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
-            alert('Please select an image file')
-            fileInput.value = ''
-        }
-        if(fileInput.files[0].size > 5000000) {
-            alert('Please select a file under 5MB')
-            fileInput.value = ''
-        }
-    }
-</script>
-
-<label for="profilePicture">Profile Picture:</label><br>
-<%  if (user.profile_picture) { %>
-    <img src="/<%= user.profile_picture %>" alt="Profile picture"><br>
-    <% } 
-    else { %>
-    <p>No profile picture found.</p><br>
+    <div class="comment-container">
+    <% for (let comment of comments) { %>
+    <div class="comment">
+        <%= comment.text %> 
+    </div><br>
+    <% } %>
+    </div>
+    
 <% } %>
-
-<form name="uploadForm" method="POST" enctype="multipart/form-data" action="/files/upload">
-    <input type="file" name="profilePicture" onchange="filterImage()"><br><br>
-    <button type="submit">Upload</button>
-</form>
-<form method="POST" action="/files/delete">
-<button type="submit">Delete</button>
-</form>

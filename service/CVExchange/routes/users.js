@@ -133,38 +133,39 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.get('/profile', auth, async (req, res) => {
+router.get('/profile/:id', auth, async (req, res) => {
     try {
-        const userId = req.userId
-
-        const query = `SELECT * FROM users WHERE id = ?`
-        const params = [userId]
-        const [results] = await req.database.query(query, params)
-
-        if(results.length > 0) {
-            return res.render('profile', { user: results[0], title: 'My Profile' })
-        }
-    } 
-    catch (error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
-
-router.get('/myposts', auth, async (req, res) => {
-    try {
+        const profileId = req.params.id
         const pagelimit = 10
-        const userId = req.userId
+        let tab = 'overview'
+        if(req.query.tab) {
+            tab = req.query.tab
+        }
 
-        const query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
-        const params = [userId, pagelimit]
-        const [results] = await req.database.query(query, params)
+        const user_query = `SELECT * FROM users WHERE id = ?`
+        const user_params = [profileId]
+        const [user] = await req.database.query(user_query, user_params)
 
-        if(results.length > 0) {
-            return res.render('myposts', { req, posts: results, title: 'My Posts' })
+        const post_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
+        const post_params = [profileId, pagelimit]
+        const [posts] = await req.database.query(post_query, post_params)
+        const postIds = posts.map(post => post.id)
+
+        const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
+        const comment_params = [profileId, pagelimit]
+        const [comments] = await req.database.query(comment_query, comment_params)
+
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId]
+        const [ratings] = await req.database.query(ratings_query, ratings_params)
+
+        const mixed = [...posts, ...comments].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+
+        if(user.length > 0) {
+            return res.render('profile', { tab , req, user: user[0], posts, comments, mixed,  ratings, title: 'My Profile', layout: './layouts/profile' })
         }
         else {
-            return res.send('You havent posted anything yet.')
+            return res.status(404).send('user doesnt exist')
         }
     } 
     catch (error) {

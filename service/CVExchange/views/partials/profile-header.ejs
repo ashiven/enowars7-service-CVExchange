@@ -1,0 +1,52 @@
+<header>
+    <div class="profile-sorting">
+        &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
+        <ul class="sorting-menu">
+            <% if(tab) { %>
+            <li class="li-choice <%= (tab === 'overview') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=overview" class="choice <%= (tab === 'overview') ? 'on' : '' %>">overview</a></li>
+            <li class="li-choice <%= (tab === 'comments') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=comments" class="choice <%= (tab === 'comments') ? 'on' : '' %>">comments</a></li>
+            <li class="li-choice <%= (tab === 'submitted') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=submitted" class="choice <%= (tab === 'submitted') ? 'on' : '' %>">submitted</a></li>
+            <% }
+            else { %>
+            <li class="li-choice on"><a href="/user/profile/<%= req.params.id %>?tab=overview" class="choice on">overview</a></li>
+            <li class="li-choice"><a href="/user/profile/<%= req.params.id %>?tab=comments" class="choice">comments</a></li>
+            <li class="li-choice"><a href="/user/profile/<%= req.params.id %>?tab=submitted" class="choice">submitted</a></li>
+            <% } %>
+        </ul>
+    </div>
+
+<% if(req.cookies.jwtToken) { %>
+    <div class="user-info-loggedin">
+        <span class="user">
+            <!-- TODO: link to user profile and implement karma -->
+            <a href="/user/profile/">admin</a>&nbsp;(<span class="karma">13</span>)&nbsp;
+        </span>
+        <span class="separator">|</span>&nbsp;
+        <form method="POST" action="/user/logout" class="logout">
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit()">logout</a>&nbsp;
+        </form>
+    </div>
+<% } 
+else { %>
+    <div class="user-info-loggedout">
+        <span class="user-loggedout">Want to join? <a href="/user/login">Log in</a> or <a href="/user/register">sign up</a> in seconds.</span>
+    </div>
+<% } %>
+</header>
+
+<script>
+const links = document.querySelectorAll('.choice')
+for(const link of links) {
+    link.addEventListener('click', async (event) => {
+        event.preventDefault()
+        if(!event.currentTarget.classList.contains('on')) {
+            event.currentTarget.classList.toggle('on')
+            event.currentTarget.parentNode.classList.toggle('on')
+            window.location.href = event.currentTarget.href
+        }
+        else {
+            window.location.href = event.currentTarget.href
+        }
+    })
+}
+</script>
