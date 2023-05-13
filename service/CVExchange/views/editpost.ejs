@@ -7,7 +7,7 @@
     <h1>Edit Post</h1>
     <form method="POST" action="/posts/edit/<%= postId %>">
       <label for="title">Title:</label>
-      <input type="text" id="title" name="title" value=<%= post.title %> required><br><br>
+      <input type="text" id="title" name="title" value="<%= post.title %>" required><br><br>
 
       <label for="text">Text:</label><br>
       <textarea id="text" name="text" rows="4" cols="50"><%= post.text %></textarea><br>

@@ -168,9 +168,9 @@ router.get('/profile/:id', auth, getusername, async (req, res) => {
         }
 
         if(commentIds.length > 0) {
-        const comment_ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
-        const comment_ratings_params = [commentIds, userId]
-        const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
+            const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
+            const comment_ratings_params = [commentIds, userId]
+            const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
             ratings = ratings.concat(comment_ratings)
         }
 

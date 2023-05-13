@@ -89,13 +89,12 @@ router.post('/edit/:id', auth, async (req, res) => {
     }
 })
 
-router.post('/delete/:id', auth, async (req, res) => {
+router.get('/delete/:id', auth, async (req, res) => {
     const connection = await req.database.getConnection()
 
     try {
         const commentId = req.params.id
         const userId = req.userId
-        const postId = req.body.postId
 
         // start a transaction
         await connection.beginTransaction()
@@ -105,6 +104,8 @@ router.post('/delete/:id', auth, async (req, res) => {
         const [find_results] = await connection.query(find_query, find_params)
 
         if (find_results.length > 0) {
+            const postId = find_results[0].post_id
+
             const delete_comment_query = `DELETE FROM comments WHERE id = ?`
             const delete_comment_params = [commentId]
             await connection.query(delete_comment_query, delete_comment_params)
@@ -117,7 +118,7 @@ router.post('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.redirect(`/posts/${postId}`)
+            return res.redirect('back')
         } 
         else {
             // commit the transaction and release the connection

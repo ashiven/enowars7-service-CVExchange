@@ -98,7 +98,7 @@ router.get('/:id', auth, async (req, res) => {
     }
 })
 
-router.post('/delete/:id', auth, async (req, res) => {
+router.get('/delete/:id', auth, async (req, res) => {
     const connection = await req.database.getConnection()
 
     try {
@@ -144,7 +144,7 @@ router.post('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.redirect('/user/myposts')
+            return res.redirect('back')
         }
         else {
             // commit the transaction and release the connection
@@ -197,7 +197,7 @@ router.post('/edit/:id', auth, async (req, res) => {
         const params = [title, text, postId, userId]
         await req.database.query(query, params)
 
-        return res.redirect('/user/myposts')
+        return res.redirect(`/user/profile/${userId}`)
     } 
     catch (error) {
         console.error(error)
