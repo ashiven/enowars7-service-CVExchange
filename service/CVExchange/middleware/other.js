@@ -8,11 +8,13 @@ async function logger(req, res, next) {
 
 async function getusername(req, res, next) {
     try {
-        const userId = req.userId
-        const query = `SELECT * FROM users WHERE id = ?`
-        const params = [userId]
-        const [results] = await req.database.query(query, params)
-        req.username = results[0].name
+        if(req.userId) {
+            const userId = req.userId
+            const query = `SELECT * FROM users WHERE id = ?`
+            const params = [userId]
+            const [results] = await req.database.query(query, params)
+            req.username = results[0].name
+        }
         next()
     } 
     catch (error) {

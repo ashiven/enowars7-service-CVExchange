@@ -156,9 +156,12 @@ router.get('/profile/:id', auth, getusername, async (req, res) => {
         const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
         const comment_params = [profileId, pagelimit]
         const [comments] = await req.database.query(comment_query, comment_params)
+        const commentIds = comments.map(comment => comment.id)
 
-        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
-        const ratings_params = [postIds, req.userId]
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?
+                                UNION 
+                                SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId, commentIds, req.userId]
         const [ratings] = await req.database.query(ratings_query, ratings_params)
 
         const mixed = [...posts, ...comments].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))

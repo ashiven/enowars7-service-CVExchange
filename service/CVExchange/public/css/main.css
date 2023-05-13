@@ -344,3 +344,62 @@ side {
 .profile-sorting ul.sorting-menu li a.on:hover {
     text-decoration: none;
 }
+
+/* style for comments */
+
+.comment {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.comment-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.comment-title {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    color: gray;
+}
+
+.comment-title a:hover {
+    text-decoration: underline;
+}
+
+.comment-text {
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+}
+
+.comment-body ul.comment-buttons {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.comment-body ul.comment-buttons li {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
+.comment-body ul.comment-buttons li a {
+    color: gray;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.comment-body ul.comment-buttons li a:hover {
+    text-decoration: underline;
+}
