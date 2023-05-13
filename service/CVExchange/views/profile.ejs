@@ -1,7 +1,7 @@
 <% if(tab === 'overview') { %>
 
 <div class="post-container">
-    <% for (let element of mixed) { %>
+    <% for (let element of [...posts, ...comments].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))) { %>
         <!--wenns ein post ist-->
         <% if(element.title) { %>
             <div class="post">
@@ -40,6 +40,10 @@
                         <li class="comments"><a class="login-required" href="/posts/<%= element.id %>"><%= comments.filter(c => c.post_id === element.id).length %> comments</a></li>
                         <li class="save-button"><a class="login-required" href="/posts/save/<%= element.id %>">save</a></li>
                         <li class="hide-button"><a class="login-required" href="/posts/hide/<%= element.id %>">hide</a></li>
+                        <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                        <li class="edit-button"><a class="login-required" href="/posts/delete/<%= element.id %>">delete</a></li>
+                        <li class="delete-button"><a class="login-required" href="/posts/edit/<%= element.id %>">edit</a></li>
+                        <% } %>
                     </ul>
                 </div>
             </div>
@@ -80,8 +84,12 @@
                         <p><%= element.text %></p>
                     </div>
                     <ul class="comment-buttons">
-                            <li class="save-button"><a class="login-required" href="/comments/save/<%= element.id %>">save</a></li>
-                            <li class="hide-button"><a class="login-required" href="/comments/hide/<%= element.id %>">hide</a></li>
+                        <li class="save-button"><a class="login-required" href="/comments/save/<%= element.id %>">save</a></li>
+                        <li class="hide-button"><a class="login-required" href="/comments/hide/<%= element.id %>">hide</a></li>
+                        <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                        <li class="edit-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
+                        <li class="delete-button"><a class="login-required" href="/comments/edit/<%= element.id %>">edit</a></li>
+                        <% } %>
                     </ul>
                 </div>
             </div>
@@ -130,6 +138,10 @@ else if(tab === 'submitted') { %>
                 <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
                 <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
                 <li class="hide-button"><a class="login-required" href="/posts/hide/<%= post.id %>">hide</a></li>
+                <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
+                <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
+                <% } %>
             </ul>
         </div>
     </div>
@@ -175,8 +187,12 @@ else if(tab === 'comments') { %>
                 <p><%= comment.text %></p>
             </div>
             <ul class="comment-buttons">
-                    <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
-                    <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
+                <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
+                <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
+                <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
+                <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>
+                <% } %>
             </ul>
         </div>
     </div>

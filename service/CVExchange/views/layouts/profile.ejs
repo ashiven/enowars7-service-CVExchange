@@ -29,20 +29,20 @@
             }
         </script>
 
-        <label for="profilePicture">Profile Picture:</label><br>
+        <label for="profilePicture">Profile Picture:</label>
         <%  if (user.profile_picture) { %>
-            <img src="/<%= user.profile_picture %>" alt="Profile picture"><br>
+            <img src="/<%= user.profile_picture %>" alt="Profile picture">
             <% } 
             else { %>
-            <p>No profile picture found.</p><br>
+            <p>No profile picture found.</p>
         <% } %>
 
         <form name="uploadForm" method="POST" enctype="multipart/form-data" action="/files/upload">
-            <input type="file" name="profilePicture" onchange="filterImage()"><br><br>
+            <input type="file" name="profilePicture" onchange="filterImage()">
             <button type="submit">Upload</button>
         </form>
         <form method="POST" action="/files/delete">
-        <button type="submit">Delete</button>
+            <button type="submit">Delete</button>
         </form>
     </side>
     

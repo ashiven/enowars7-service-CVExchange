@@ -139,10 +139,12 @@ router.get('/profile/:id', auth, getusername, async (req, res) => {
     try {
         const profileId = req.params.id
         const pagelimit = 10
+        const userId = req.userId
         let tab = 'overview'
         if(req.query.tab) {
             tab = req.query.tab
         }
+        let ratings = []
 
         const user_query = `SELECT * FROM users WHERE id = ?`
         const user_params = [profileId]
@@ -158,16 +160,22 @@ router.get('/profile/:id', auth, getusername, async (req, res) => {
         const [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
 
-        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?
-                                UNION 
-                                SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
-        const ratings_params = [postIds, req.userId, commentIds, req.userId]
-        const [ratings] = await req.database.query(ratings_query, ratings_params)
+        if(postIds.length > 0) {
+            const post_ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+            const post_ratings_params = [postIds, userId]
+            const [post_ratings] = await req.database.query(post_ratings_query, post_ratings_params)
+            ratings = ratings.concat(post_ratings)
+        }
 
-        const mixed = [...posts, ...comments].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+        if(commentIds.length > 0) {
+        const comment_ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const comment_ratings_params = [commentIds, userId]
+        const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
+            ratings = ratings.concat(comment_ratings)
+        }
 
         if(user.length > 0) {
-            return res.render('profile', { tab , req, user: user[0], posts, comments, mixed,  ratings, title: 'My Profile', layout: './layouts/profile' })
+            return res.render('profile', { tab , req, user: user[0], posts, comments, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
         }
         else {
             return res.status(404).send('user doesnt exist')

@@ -81,7 +81,7 @@ app.get('/', getuserid, getusername,  async (req, res) => {
         const [comments] = await req.database.query(comment_query, comment_params)
 
         // if a logged in user views the frontpage we render their upvotes/downvotes
-        if(req.userId) {
+        if(req.userId && postIds.length > 0) {
             const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
             const ratings_params = [postIds, req.userId]
             const [ratings] = await req.database.query(ratings_query, ratings_params)
