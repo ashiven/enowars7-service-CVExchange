@@ -67,7 +67,7 @@ router.post('/upload', auth, async (req, res) => {
             return res.status(500).send('<h1>Internal Server Error</h1>')
         }
         if (!req.file) {
-            return res.redirect('/user/profile')
+            return res.redirect('back')
         }
         const connection = await req.database.getConnection()
 

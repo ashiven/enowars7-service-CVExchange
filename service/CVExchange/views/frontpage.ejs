@@ -62,8 +62,7 @@ for(const btn of document.querySelectorAll('.upvote')) {
             },
             body: JSON.stringify({
                 postId: postId,
-                rating: 1,
-                page: '/'
+                rating: 1
             })
         })
         location.reload()
@@ -80,8 +79,7 @@ for(const btn of document.querySelectorAll('.downvote')) {
             },
             body: JSON.stringify({
                 postId: postId,
-                rating: -1,
-                page: '/'
+                rating: -1
             })
         })
         location.reload()

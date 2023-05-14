@@ -13,7 +13,6 @@ router.post('/ratepost', auth, async (req, res) => {
         const userId = req.userId
         const rating = parseInt(req.body.rating)
         const postId = req.body.postId
-        const page = req.body.page
 
         if (!(rating === 1 || rating === -1)) {
             return res.status(400).send('Yea.. I see what you were trying to do ;)')
@@ -70,7 +69,7 @@ router.post('/ratepost', auth, async (req, res) => {
         await connection.commit()
         await connection.release()
 
-        return res.redirect(`${page}`)
+        return res.redirect(`back`)
     } 
     catch (error) {
         // if there was an error, rollback changes and release the connection
@@ -89,7 +88,6 @@ router.post('/ratecomment', auth, async (req, res) => {
         const userId = req.userId 
         const rating = parseInt(req.body.rating)
         const commentId = req.body.commentId
-        const page = req.body.page
 
         if(!(rating === 1 || rating === -1)) {
             return res.status(400).send('Yea.. I see what you were trying to do ;)')
@@ -147,7 +145,7 @@ router.post('/ratecomment', auth, async (req, res) => {
         await connection.commit()
         await connection.release()
 
-        return res.redirect(`${page}`)
+        return res.redirect(`back`)
     } 
     catch(error) {
         // if there was an error, rollback changes and release the connection

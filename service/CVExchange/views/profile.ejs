@@ -1,6 +1,6 @@
 <% if(tab === 'overview') { %>
 
-<div class="post-container">
+<div>
     <% for (let element of [...posts, ...comments].sort((a, b) => new Date(b.datetime) - new Date(a.datetime))) { %>
         <!--wenns ein post ist-->
         <% if(element.title) { %>
@@ -50,47 +50,55 @@
         <!--wenns ein kommentar ist-->
         <% }
         else { %>
-            <div class="comment">
-                <div class="voting-section">
-                    <% if(req.cookies.jwtToken) { %>
-                    <div class="upvote <%= ratings.some(r => r.comment_id === element.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= element.id %>">
-                    <% } else { %>
-                    <div class="upvote" data-commentid="<%= element.id %>">
-                    <% } %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <% if(req.cookies.jwtToken) { %>
-                    <div class="downvote <%= ratings.some(r => r.comment_id === element.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= element.id %>">
-                    <% } else { %>
-                    <div class="downvote" data-commentid="<%= element.id %>">
-                    <% } %>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="comment-body">
-                    <div class="comment-title">
-                        <a href="/user/profile/<%= element.creator_id %>" class=""><%= element.creator_name %> </a>&nbsp;
-                        <span class="comment-score"><%= element.rating %> points</span>&nbsp;
-                        <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time>
-                    </div>
-                    <div class="comment-text">
-                        <p><%= element.text %></p>
-                    </div>
-                    <ul class="comment-buttons">
-                        <li class="save-button"><a class="login-required" href="/comments/save/<%= element.id %>">save</a></li>
-                        <li class="hide-button"><a class="login-required" href="/comments/hide/<%= element.id %>">hide</a></li>
-                        <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
-                        <li class="edit-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
-                        <li class="delete-button"><a class="login-required" href="/comments/edit/<%= element.id %>">edit</a></li>
+            <div class="comment-outer">
+                <p class="comment-post-title"> 
+                    <a class="title-link login-required" href="/posts/<%= element.post_id %>"><%= posts.find(post => post.id === element.post_id).title %></a>&nbsp;
+                    <span class="comment-post-title-link"> by
+                    <a href="/user/profile/<%= posts.find(post => post.id === element.post_id).creator_id %>" class="author login-required"> <%= posts.find(post => post.id === element.post_id).creator_name %> </a> 
+                    </span>
+                </p>
+                <div class="comment">
+                    <div class="voting-section">
+                        <% if(req.cookies.jwtToken) { %>
+                        <div class="upvote-comment <%= ratings.some(r => r.comment_id === element.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= element.id %>">
+                        <% } else { %>
+                        <div class="upvote-comment" data-commentid="<%= element.id %>">
                         <% } %>
-                    </ul>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <% if(req.cookies.jwtToken) { %>
+                        <div class="downvote-comment <%= ratings.some(r => r.comment_id === element.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= element.id %>">
+                        <% } else { %>
+                        <div class="downvote-comment" data-commentid="<%= element.id %>">
+                        <% } %>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="comment-body">
+                        <div class="comment-title">
+                            <a href="/user/profile/<%= element.creator_id %>" class=""><%= element.creator_name %> </a>&nbsp;
+                            <span class="comment-score"><%= element.rating %> points</span>&nbsp;
+                            <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time>
+                        </div>
+                        <div class="comment-text">
+                            <%= element.text %>
+                        </div>
+                        <ul class="comment-buttons">
+                            <li class="save-button"><a class="login-required" href="/comments/save/<%= element.id %>">save</a></li>
+                            <li class="hide-button"><a class="login-required" href="/comments/hide/<%= element.id %>">hide</a></li>
+                            <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                            <li class="edit-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
+                            <li class="delete-button"><a class="login-required" href="/comments/edit/<%= element.id %>">edit</a></li>
+                            <% } %>
+                        </ul>
+                    </div>
                 </div>
             </div>
         <% } %>
@@ -100,7 +108,7 @@
 <% }
 else if(tab === 'submitted') { %>
 
-<div class="post-container">
+<div>
     <% for (let post of posts) { %>
     <div class="post">
         <div class="voting-section">
@@ -151,52 +159,132 @@ else if(tab === 'submitted') { %>
 <% } 
 else if(tab === 'comments') { %>
     
-<div class="comment-container">
+<div>
     <% for (let comment of comments) { %>
-    <div class="comment">
-        <div class="voting-section">
-            <% if(req.cookies.jwtToken) { %>
-            <div class="upvote <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-            <% } else { %>
-            <div class="upvote" data-commentid="<%= comment.id %>">
-            <% } %>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
-                </svg>
-            </div>
-            <% if(req.cookies.jwtToken) { %>
-            <div class="downvote <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-            <% } else { %>
-            <div class="downvote" data-commentid="<%= comment.id %>">
-            <% } %>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
-                </svg>
-            </div>
-        </div>
-
-        <div class="comment-body">
-            <div class="comment-title">
-                <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
-                <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
-                <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
-            </div>
-            <div class="comment-text">
-                <p><%= comment.text %></p>
-            </div>
-            <ul class="comment-buttons">
-                <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
-                <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
-                <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
-                <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
-                <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>
+    <div class="comment-outer">
+        <p class="comment-post-title"> 
+            <a class="title-link login-required" href="/posts/<%= comment.post_id %>"><%= posts.find(post => post.id === comment.post_id).title %></a>&nbsp;
+            <span class="comment-post-title-link"> by
+            <a href="/user/profile/<%= posts.find(post => post.id === comment.post_id).creator_id %>" class="author login-required"> <%= posts.find(post => post.id === comment.post_id).creator_name %> </a> 
+            </span>
+        </p>
+        <div class="comment">
+            <div class="voting-section">
+                <% if(req.cookies.jwtToken) { %>
+                <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+                <% } else { %>
+                <div class="upvote-comment" data-commentid="<%= comment.id %>">
                 <% } %>
-            </ul>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+                <% if(req.cookies.jwtToken) { %>
+                <div class="downvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+                <% } else { %>
+                <div class="downvote-comment" data-commentid="<%= comment.id %>">
+                <% } %>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="comment-body">
+                <div class="comment-title">
+                    <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
+                    <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
+                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
+                </div>
+                <div class="comment-text">
+                    <%= comment.text %>
+                </div>
+                <ul class="comment-buttons">
+                    <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
+                    <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
+                    <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                    <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
+                    <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>
+                    <% } %>
+                </ul>
+            </div>
         </div>
     </div>
     <% } %>
 </div>
     
 <% } %>
+
+<script>
+  
+for(const btn of document.querySelectorAll('.upvote')) {
+    btn.addEventListener('click', async (event) => {
+        event.currentTarget.classList.toggle('on')
+        const postId = btn.getAttribute('data-postid')
+        await fetch('/votes/ratepost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                postId: postId,
+                rating: 1
+            })
+        })
+        location.reload()
+    })
+}
+for(const btn of document.querySelectorAll('.downvote')) {
+    btn.addEventListener('click', async (event) => {
+        event.currentTarget.classList.toggle('on')
+        const postId = btn.getAttribute('data-postid')
+        await fetch('/votes/ratepost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                postId: postId,
+                rating: -1
+            })
+        })
+        location.reload()
+    })
+}
+for(const btn of document.querySelectorAll('.upvote-comment')) {
+    btn.addEventListener('click', async (event) => {
+        event.currentTarget.classList.toggle('on')
+        const commentId = btn.getAttribute('data-commentid')
+        await fetch('/votes/ratecomment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                commentId: commentId,
+                rating: 1
+            })
+        })
+        location.reload()
+    })
+}
+for(const btn of document.querySelectorAll('.downvote-comment')) {
+    btn.addEventListener('click', async (event) => {
+        event.currentTarget.classList.toggle('on')
+        const commentId = btn.getAttribute('data-commentid')
+        await fetch('/votes/ratecomment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                commentId: commentId,
+                rating: -1
+            })
+        })
+        location.reload()
+    })
+}
+</script>

@@ -69,13 +69,29 @@ a:visited {
     color: rgb(58, 58, 197)
 }
 
-/* style for posts */
-
-.post-container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: stretch;
+.upvote-comment {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
 }
+
+.upvote-comment.on {
+    color: #f48024
+}
+
+.downvote-comment {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+}
+
+.downvote-comment.on {
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(58, 58, 197)
+}
+
+/* style for posts */
 
 .post {
     width: 100%;
@@ -113,7 +129,6 @@ a:visited {
 .post-title {
     margin: 0;
     font-size: 20px;
-
 }
 
 .post-tags {
@@ -317,6 +332,70 @@ side {
     margin-right: 5px;
 }
 
+.upload-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.uploadForm {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.uploadbutton {
+    background-image: linear-gradient(#f7f8fa ,#e7e9ec);
+    border-color: #adb1b8 #a2a6ac #8d9096;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+    box-shadow: rgba(255,255,255,.6) 0 1px 0 inset;
+    box-sizing: border-box;
+    color: #0f1111;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Amazon Ember",Arial,sans-serif;
+    font-size: 14px;
+    height: 29px;
+    font-size: 13px;
+    outline: 0;
+    overflow: hidden;
+    padding: 0 11px;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    white-space: nowrap;
+}
+
+.uploadbutton:active {
+    border-bottom-color: #a2a6ac;
+}
+
+.uploadbutton:active:hover {
+    border-bottom-color: #a2a6ac;
+}
+
+.uploadbutton:hover {
+    border-color: #a2a6ac #979aa1 #82858a;
+}
+
+.uploadbutton:focus {
+    box-shadow: rgba(26, 148, 223, 0.5) 0 0 3px 2px;
+    outline: 0;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+
 
 /* style for the profile header */
 
@@ -374,12 +453,31 @@ side {
 
 /* style for comments */
 
+.comment-outer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.comment-post-title {
+    margin-left: 14px;
+    margin-bottom: 0px;
+    font-size: 18px;
+}
+
+.comment-post-title-link {
+    font-size: 13px;
+}
+
+.comment-post-title-link a:hover {
+    text-decoration: underline;
+}
+
 .comment {
     width: 100%;
     box-sizing: border-box;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
 }
 
@@ -387,6 +485,7 @@ side {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-start;
     padding: 10px;
 }
 
@@ -406,7 +505,9 @@ side {
 .comment-text {
     margin: 0;
     padding: 0;
-    font-size: 15px;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .comment-body ul.comment-buttons {
