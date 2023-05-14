@@ -307,6 +307,10 @@ side {
     margin-top: 35px;
 }
 
+.user-stats {
+    margin-top: 10px;
+}
+
 .fat {
     font-size: 24px;
     font-weight: bold;

@@ -100,9 +100,10 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
     }
 })
 
-app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
+
+app.get('/uploads/:userId/private/:filename', auth, fileAuth, async (req, res) => {
     try {
-        const filepath = path.join(__dirname, 'uploads', req.params.userId, req.params.filename)
+        const filepath = path.join(__dirname, 'uploads', req.params.userId, 'private', req.params.filename)
         await fs.promises.access(filepath)
         return res.sendFile(filepath)
     }
@@ -113,6 +114,7 @@ app.get('/uploads/:userId/:filename', auth, fileAuth, async (req, res) => {
 })
 
 app.use(express.static('./public'))
+app.use('/uploads', express.static('./uploads'))
 app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))

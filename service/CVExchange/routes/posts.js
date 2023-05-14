@@ -4,13 +4,14 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
+const getuserkarma = middleware.getuserkarma
 
 
 // Route definitions
 
-router.get('/new', auth, async (req, res) => {
+router.get('/new', auth, getusername, getuserkarma, async (req, res) => {
     try {
-        return res.render('newpost', {title: 'New Post'})
+        return res.render('newpost', {req, title: 'New Post', layout: './layouts/post'})
     }
     catch(error) {
         console.error(error)
@@ -164,7 +165,7 @@ router.get('/delete/:id', auth, async (req, res) => {
     }
 })
 
-router.get('/edit/:id', auth, async (req, res) => {
+router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const postId = req.params.id
         const userId = req.userId
@@ -174,7 +175,7 @@ router.get('/edit/:id', auth, async (req, res) => {
         const [results] = await req.database.query(query, params)
 
         if (results.length > 0) {
-            return res.render('editpost', { post: results[0], postId, title: 'Edit Post' })
+            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post' })
         } 
         else {
             return res.status(404).send('Post not found')

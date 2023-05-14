@@ -8,7 +8,7 @@ const path = require('path')
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
+        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'), 'public')
         try {
             await fs.promises.access(uploadPath)
         }
@@ -89,7 +89,7 @@ router.post('/upload', auth, async (req, res) => {
                 await fs.promises.unlink(path.join(__dirname, '..', currentPic))
             }
         
-            const profilePic = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + filename
+            const profilePic = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'public/' + filename
     
             // rename the filepath and update profile pic in DB
             await fs.promises.rename(filepath, profilePic)

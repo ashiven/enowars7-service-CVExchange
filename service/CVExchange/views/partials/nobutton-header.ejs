@@ -1,0 +1,15 @@
+<header>
+    <div class="post-sorting">
+        &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
+    </div>
+
+    <div class="user-info-loggedin">
+        <span class="user">
+            <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
+        </span>
+        <span class="separator">|</span>&nbsp;
+        <form method="POST" action="/user/logout" class="logout">
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit()">logout</a>&nbsp;
+        </form>
+    </div>
+</header>
