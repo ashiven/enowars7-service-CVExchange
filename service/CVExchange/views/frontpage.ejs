@@ -47,6 +47,14 @@
     </div>
   </div>
 <% } %>
+  <div>
+    <% if(page > 1 ) { %>
+    <button class="uploadbutton" onclick="window.location.href='/?sort=<%= sort %>&page=<%= page - 1 %>'">prev</button>
+    <% } %>
+    <% if(posts.length === pagelimit) { %>
+    <button class="uploadbutton" onclick="window.location.href='/?sort=<%= sort %>&page=<%= page + 1 %>'">next</button>
+    <% } %>
+  </div>
 </div>
 
 <script>

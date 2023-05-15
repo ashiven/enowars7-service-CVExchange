@@ -25,6 +25,9 @@ router.post('/new', auth, getusername, async (req, res) => {
     try {
         const title = req.body.title
         const text = req.body.text
+        if(title === '' || text === '') {
+            return res.send('You need to have a title and text!')
+        }
         const creatorId = req.userId
         const creatorName = req.username
 

@@ -24,8 +24,10 @@ async function auth(req, res, next) {
 }
 
 // ATTENTION: FIRST VULNERABILITY HERE!!!! (Parameter Tampering/Broken Authentication)
-// An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
-// With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
+// (Method 1):  An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
+//              With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
+// (Method 2):  Alternatively the files in the private directory can be accessed via path traversal by accessing for example the URL
+//              /uploads/MQ==/public/../private/flag.txt this works because we only authenticate for file access when the URL is like /uploads/MQ==/private/flag.txt
 async function fileAuth(req, res, next)  {
     try {
         const filepath = req.originalUrl

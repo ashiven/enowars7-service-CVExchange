@@ -13,6 +13,9 @@ router.post('/new', auth, getusername, async (req, res) => {
 
     try {
         const comment = req.body.comment
+        if(comment === '') {
+            return res.send('You need to supply a comment!')
+        }
         const postId = req.body.postId
         const creatorId = req.userId
         const creatorName = req.username

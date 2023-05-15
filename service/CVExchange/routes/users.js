@@ -151,12 +151,12 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         const user_params = [profileId]
         const [user] = await req.database.query(user_query, user_params)
 
-        const post_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
+        const post_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC `
         const post_params = [profileId, pagelimit]
         const [posts] = await req.database.query(post_query, post_params)
         const postIds = posts.map(post => post.id)
 
-        const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC LIMIT ?`
+        const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC `
         const comment_params = [profileId, pagelimit]
         const [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)

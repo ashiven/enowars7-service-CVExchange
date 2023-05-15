@@ -41,7 +41,15 @@ app.use((req, res, next) => {
 
 app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
     try {
-        const pagelimit = 10
+        const pagelimit = 15
+        let page = 1
+        let sort = 'hot'
+        if(req.query.page) {
+            page = parseInt(req.query.page)
+        }
+        const offset = (page - 1) * pagelimit
+        let comments = []
+
         let query = `SELECT * FROM (
                         SELECT p.*, COUNT(r.id) as ratecount 
                         FROM posts p 
@@ -61,10 +69,10 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
                         )
                     ) AS subquery 
                     ORDER BY ratecount DESC, rating DESC`
-        const params = [pagelimit]
+        const params = [pagelimit, offset]
 
         if(req.query.sort) {
-            const sort = req.query.sort
+            sort = req.query.sort
             if(sort === 'new' ) {
                 query = `SELECT * FROM posts ORDER BY datetime DESC`
             }
@@ -73,25 +81,27 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
             }
         }
 
-        query = query + ` LIMIT ?`
+        query = query + ` LIMIT ? OFFSET ?`
         const [posts] = await req.database.query(query, params)
         const postIds = posts.map(post => post.id)
 
+
         const comment_query = `SELECT * FROM comments WHERE post_id IN (?)`
-        const comment_params = [postIds]
-        const [comments] = await req.database.query(comment_query, comment_params)
+        const comment_params = [postIds]        
+        if(postIds.length > 0) {
+            [comments] = await req.database.query(comment_query, comment_params)
+        }
 
         // if a logged in user views the frontpage we render their upvotes/downvotes
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId]        
         if(req.userId && postIds.length > 0) {
-            const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
-            const ratings_params = [postIds, req.userId]
             const [ratings] = await req.database.query(ratings_query, ratings_params)
-
-            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
+            return res.render('frontpage', { req, pagelimit, page, sort, posts, comments, ratings, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
         }
         // otherwise we just render the frontpage as is
         else {
-            return res.render('frontpage', { req, sort: req.query.sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
+            return res.render('frontpage', { req, pagelimit, page, sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/frontpage' })
         }
     }
     catch(error) {
