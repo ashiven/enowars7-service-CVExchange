@@ -145,7 +145,12 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         if(req.query.tab) {
             tab = req.query.tab
         }
+        let page = 1
+        if(req.query.page) {
+            page = req.query.page
+        }
         let ratings = []
+        let commentPosts = []
 
         const user_query = `SELECT * FROM users WHERE id = ?`
         const user_params = [profileId]
@@ -157,9 +162,10 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         const postIds = posts.map(post => post.id)
 
         const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC `
-        const comment_params = [profileId, pagelimit]
+        const comment_params = [profileId, pagelimit - posts.length]
         const [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
+        const commentPostIds = comments.map(comment => comment.post_id)
 
         if(postIds.length > 0) {
             const post_ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
@@ -175,8 +181,15 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
             ratings = ratings.concat(comment_ratings)
         }
 
+        if(commentPostIds.length > 0) {
+            const comment_posts_query = `SELECT * FROM posts WHERE id IN (?)`
+            const comment_posts_params = [commentPostIds]
+            const [comment_posts] = await req.database.query(comment_posts_query, comment_posts_params) 
+            commentPosts = commentPosts.concat(comment_posts)
+        }
+
         if(user.length > 0) {
-            return res.render('profile', { tab , req, user: user[0], posts, comments, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
+            return res.render('profile', { tab , req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
         }
         else {
             return res.status(404).send('user doesnt exist')
