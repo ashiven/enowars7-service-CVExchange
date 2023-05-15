@@ -62,9 +62,10 @@ router.post('/new', auth, getusername, async (req, res) => {
     }
 })
 
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const postId = req.params.id
+        let ratings = []
 
         const post_query = `SELECT * FROM posts WHERE id = ?`
         const post_params = [postId]
@@ -94,7 +95,16 @@ router.get('/:id', auth, async (req, res) => {
         }
 
         const [comments] = await req.database.query(comment_query, comment_params)
-        return res.render('post', { req, post: post[0], comments, title: `${post[0].title}` })
+        const commentIds = comments.map(comment => comment.id)
+
+        if(commentIds.length > 0) {
+            const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
+            const comment_ratings_params = [commentIds, req.userId]
+            const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
+            ratings = ratings.concat(comment_ratings)
+        }
+
+        return res.render('post', { req, post: post[0], ratings, comments, title: `${post[0].title}`, layout: './layouts/post' })
     }
     catch (error) {
         console.error(error)

@@ -163,9 +163,9 @@ else if(tab === 'comments') { %>
     <% for (let comment of comments) { %>
     <div class="comment-outer">
         <p class="comment-post-title"> 
-            <a class="title-link login-required" href="/posts/<%= comment.post_id %>"><%= posts.find(post => post.id === comment.post_id).title %></a>&nbsp;
+            <a class="title-link login-required" href="/posts/<%= comment.post_id %>"><%= commentPosts.find(post => post.id === comment.post_id).title %></a>&nbsp;
             <span class="comment-post-title-link"> by
-            <a href="/user/profile/<%= posts.find(post => post.id === comment.post_id).creator_id %>" class="author login-required"> <%= posts.find(post => post.id === comment.post_id).creator_name %> </a> 
+            <a href="/user/profile/<%= commentPosts.find(post => post.id === comment.post_id).creator_id %>" class="author login-required"> <%= commentPosts.find(post => post.id === comment.post_id).creator_name %> </a> 
             </span>
         </p>
         <div class="comment">
