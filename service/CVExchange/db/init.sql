@@ -1,6 +1,4 @@
-CREATE DATABASE `basedbase` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-
-CREATE TABLE `comments` (
+CREATE TABLE `basedbase`.`comments` (
   `id` int NOT NULL AUTO_INCREMENT,
   `text` varchar(500) DEFAULT NULL,
   `post_id` int DEFAULT NULL,
@@ -9,9 +7,9 @@ CREATE TABLE `comments` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 
-CREATE TABLE `posts` (
+CREATE TABLE `basedbase`.`posts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(400) DEFAULT NULL,
   `text` varchar(4000) DEFAULT NULL,
@@ -20,9 +18,9 @@ CREATE TABLE `posts` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 
-CREATE TABLE `ratings` (
+CREATE TABLE `basedbase`.`ratings` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
   `comment_id` int DEFAULT NULL,
@@ -30,13 +28,13 @@ CREATE TABLE `ratings` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 
-CREATE TABLE `users` (
+CREATE TABLE `basedbase`.`users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
   `email` varchar(45) DEFAULT NULL,
   `password` varchar(45) DEFAULT NULL,
   `profile_picture` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);

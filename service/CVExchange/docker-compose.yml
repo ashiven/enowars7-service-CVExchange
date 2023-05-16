@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports:
+      - 1337:1337
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: basedbase
+
+  mysql:
+    build: db
+    volumes:
+      - cvexchange-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: basedbase
+
+volumes:
+  cvexchange-mysql-data:
