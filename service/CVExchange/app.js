@@ -8,18 +8,20 @@ const auth = auth_middleware.auth
 const fileAuth = auth_middleware.fileAuth
 const path = require('path')
 const fs = require('fs')
-const { env } = require('node:process')
+const dotenv = require('dotenv')
 const middleware = require('./middleware/other')
 const getuserid = middleware.getuserid
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
 
+dotenv.config();
+
 //connect to the MySQL Database 
 const database = mysql.createPool({
-    host: env.MYSQL_HOST,
-    user: env.MYSQL_USER,
-    password: env.MYSQL_PASSWORD,
-    database: env.MYSQL_DB,
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DB,
 });
 //--------------------------------
 
