@@ -1,7 +1,7 @@
 <div class="post-container">
 <% for (let [index, post] of posts.entries()) { %>
   <div class="post">
-    <span class="rank"> <%= index + 1 %> </span>
+    <span class="rank"> <%= (page - 1)*pagelimit + index + 1 %> </span>
     <div class="voting-section">
       <% if(req.cookies.jwtToken) { %>
       <div class="upvote <%= ratings.some(r => r.post_id === post.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= post.id %>">
