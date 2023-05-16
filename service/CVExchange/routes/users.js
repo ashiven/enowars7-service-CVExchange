@@ -139,7 +139,7 @@ router.post('/register', async (req, res) => {
 router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const profileId = req.params.id
-        const pagelimit = 10
+        const pagelimit = 15
         const userId = req.userId
         let tab = 'overview'
         if(req.query.tab) {
@@ -157,12 +157,12 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         const [user] = await req.database.query(user_query, user_params)
 
         const post_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC `
-        const post_params = [profileId, pagelimit]
+        const post_params = [profileId]
         const [posts] = await req.database.query(post_query, post_params)
         const postIds = posts.map(post => post.id)
 
         const comment_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC `
-        const comment_params = [profileId, pagelimit - posts.length]
+        const comment_params = [profileId]
         const [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
         const commentPostIds = comments.map(comment => comment.post_id)
@@ -189,7 +189,7 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         }
 
         if(user.length > 0) {
-            return res.render('profile', { tab , req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
+            return res.render('profile', { tab , page, pagelimit, req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
         }
         else {
             return res.status(404).send('user doesnt exist')
