@@ -540,6 +540,16 @@ input[type="file"] {
     text-decoration: underline;
 }
 
+.comment-edit-textarea {
+    margin-top: 7px;
+    margin-bottom: 7px;
+}
+
+.comment-edit-textarea textarea {
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
 /* style for post-page */
 
 .post-page {
@@ -574,4 +584,16 @@ input[type="file"] {
 .sort-form {
     margin-top: 10px;
     margin-bottom: 10px;
+    font-size: 13px;
+    color: gray;
+}
+
+.sort-form select {
+    border: none;
+    outline: none;
+    background-color: ghostwhite;
+    text-decoration: underline;
+    font-weight: bold;
+    font-size: 14px;
+    color: gray;
 }

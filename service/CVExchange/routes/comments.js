@@ -51,28 +51,6 @@ router.post('/new', auth, getusername, async (req, res) => {
     }
 })
 
-router.get('/edit/:id', auth, async (req, res) => {
-    try {
-        const commentId = req.params.id
-        const userId = req.userId
-        
-        const query = `SELECT * FROM comments WHERE id = ? AND creator_id = ?`
-        const params = [commentId, userId]
-        const [results] = await req.database.query(query, params)
-
-        if(results.length > 0) {
-            return res.render('editcomment', { comment: results[0], commentId, title: 'Edit Comment' })
-        }
-        else {
-            return res.status(404).send('Comment not found')
-        }
-    } 
-    catch(error) {
-        console.error(error);
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
-
 router.post('/edit/:id', auth, async (req, res) => {
     try {
         const text = req.body.text
@@ -84,7 +62,7 @@ router.post('/edit/:id', auth, async (req, res) => {
         const params = [text, commentId, userId]
         await req.database.query(query, params)
 
-        return res.redirect(`/posts/${postId}`)
+        return res.redirect(`back`)
     } 
     catch (error) {
         console.error(error)

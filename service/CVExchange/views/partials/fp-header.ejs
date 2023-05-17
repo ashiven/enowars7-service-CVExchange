@@ -18,7 +18,6 @@
 <% if(req.cookies.jwtToken) { %>
     <div class="user-info-loggedin">
         <span class="user">
-            <!-- TODO: implement karma -->
             <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
         </span>
         <span class="separator">|</span>&nbsp;

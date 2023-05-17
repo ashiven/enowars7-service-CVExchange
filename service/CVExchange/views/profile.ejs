@@ -72,13 +72,18 @@
                         <span class="comment-score"><%= element.rating %> points</span>&nbsp;
                         <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time>
                     </div>
-                    <div class="comment-text">
+                    <div class="comment-text" id="comment-text-<%= element.id %>">
                         <%= element.text %>
                     </div>
+                    <form class="comment-edit-textarea" id="comment-edit-<%= element.id %>" style="display: none;" method="post" action="/comments/edit/<%= element.id %>">
+                        <input type="hidden" name="postId" value="<%= element.post_id %>">
+                        <textarea id="text" name="text" rows="7" cols="85"><%= element.text %></textarea><br>
+                        <input class="uploadbutton" type="submit" value="save">
+                    </form>
                     <ul class="comment-buttons">
                         <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
-                        <li class="edit-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
-                        <li class="delete-button"><a class="login-required" href="/comments/edit/<%= element.id %>">edit</a></li>
+                        <li class="delete-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
+                        <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= element.id %>')">edit</a></li>
                         <% } %>
                     </ul>
                 </div>
@@ -190,13 +195,18 @@ else if(tab === 'comments') { %>
                     <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
                     <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
                 </div>
-                <div class="comment-text">
+                <div class="comment-text" id="comment-text-<%= comment.id %>">
                     <%= comment.text %>
                 </div>
+                <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
+                    <input type="hidden" name="postId" value="<%= comment.post_id %>">
+                    <textarea id="text" name="text" rows="7" cols="85"><%= comment.text %></textarea><br>
+                    <input class="uploadbutton" type="submit" value="save">
+                </form>
                 <ul class="comment-buttons">
                     <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
-                    <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
-                    <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>
+                    <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
+                    <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
                     <% } %>
                 </ul>
             </div>
@@ -337,5 +347,11 @@ for(const btn of document.querySelectorAll('.downvote-comment')) {
         })
         location.reload()
     })
+}
+function editComment(commentId) {
+    const commentText = document.getElementById(`comment-text-${commentId}`)
+    const commentEdit = document.getElementById(`comment-edit-${commentId}`)
+    commentText.style.display = 'none'
+    commentEdit.style.display = 'block'
 }
 </script>
