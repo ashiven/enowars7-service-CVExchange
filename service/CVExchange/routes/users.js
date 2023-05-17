@@ -212,6 +212,23 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
     }
 })
 
+router.post('/editnote', auth, async (req, res) => {
+    try{
+        const userId = req.userId
+        const note = req.body.text
+
+        const update_query = `UPDATE users SET note = ? WHERE id = ?`
+        const update_params = [note, userId]
+        await req.database.query(update_query, update_params)
+
+        return res.redirect('back')
+    }
+    catch (error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 
 //--------------------------------
 

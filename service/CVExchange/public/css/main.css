@@ -403,7 +403,35 @@ input[type="file"] {
     display: none;
 }
 
+.self-note {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
 
+.note-wrap {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    word-wrap: break-word;
+    word-break: break-word;
+    border: 1px solid black;
+    border-radius: 5px;
+    min-height: 100px;
+    width: 400px;
+}
+
+.note-wrap p {
+    font-size: 12px;
+    font-weight: normal;
+    max-width: 100%;
+    padding: 10px;
+    margin: none;
+}
+
+.note-edit-textarea textarea {
+    border: 1px solid black;
+    border-radius: 5px;
+}
 
 /* style for the profile header */
 
@@ -569,8 +597,9 @@ input[type="file"] {
     width: 800px;
     min-height: 100px;
     word-wrap: break-word;
+    word-break: break-word;
     border: 1px solid #336699;
-    background-color: #fbfafb;
+    background-color: white;
     border-radius: 5px;
     font-size: 15px;
 }

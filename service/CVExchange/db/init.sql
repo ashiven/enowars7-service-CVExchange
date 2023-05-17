@@ -37,5 +37,6 @@ CREATE TABLE `basedbase`.`users` (
   `password` varchar(45) DEFAULT NULL,
   `profile_picture` varchar(250) DEFAULT NULL,
   `saved` varchar(1000) DEFAULT NULL,
+  `note` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
