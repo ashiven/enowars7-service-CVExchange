@@ -235,6 +235,50 @@ router.post('/edit/:id', auth, async (req, res) => {
     }
 })
 
+router.get('/save/:id', auth, async (req, res) => {
+    const connection = await req.database.getConnection()
+
+    try {
+        const userId = req.userId
+        const postId = req.params.id 
+        let updatedSaved
+
+        // start a transaction
+        await connection.beginTransaction()
+
+        const select_query = `SELECT saved FROM users WHERE id = ?`
+        const select_params = [userId]
+        const [savedposts] = await connection.query(select_query, select_params)
+        const savedString = savedposts[0].saved
+        const saved = savedString ? savedString.split(',') : []
+
+        if(saved.includes(postId)) {
+            updatedSaved = saved.filter((savedId) => savedId !== postId)
+        } 
+        else {
+            updatedSaved = [...saved, postId] 
+        }
+        
+        const update_query = `UPDATE users SET saved = ? WHERE id = ?`
+        const update_params = [updatedSaved.join(','), userId]
+        await connection.query(update_query, update_params)
+
+        // commit the transaction and release the connection
+        await connection.commit()
+        await connection.release()
+
+        return res.redirect('back')
+    }
+    catch(error) {
+        // if there was an error, rollback changes and release the connection
+        await connection.rollback()
+        await connection.release()
+
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 //--------------------------------
 
 
