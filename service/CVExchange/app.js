@@ -72,7 +72,6 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
                         )
                     ) AS subquery 
                     ORDER BY ratecount DESC, rating DESC`
-        const params = [pagelimit, offset]
 
         if(req.query.sort) {
             sort = req.query.sort
@@ -85,6 +84,7 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
         }
 
         query = query + ` LIMIT ? OFFSET ?`
+        const params = [pagelimit, offset]
         const [posts] = await req.database.query(query, params)
         const postIds = posts.map(post => post.id)
 

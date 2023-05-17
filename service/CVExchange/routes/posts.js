@@ -71,13 +71,16 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         const post_query = `SELECT * FROM posts WHERE id = ?`
         const post_params = [postId]
         const [post] = await req.database.query(post_query, post_params)
-
         if (post.length === 0) {
             return res.status(404).send('Post not found')
         }
+        const post_rating_query = `SELECT * FROM ratings WHERE post_id = ?`
+        const post_rating_params = [post[0].id]
+        const [post_rating] = await req.database.query(post_rating_query, post_rating_params)
+        ratings = ratings.concat(post_rating)
 
-        var comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
-        const comment_params = [postId]
+        let comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
+        let comment_params = [postId]
 
         if(req.query.sort) {
             sort = req.query.sort
@@ -85,23 +88,31 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
                 comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC`
             }
             else if(sort === 'hot') {
-                //TODO: change this query to combine with top comments
-                comment_query = `SELECT c.*, COUNT(r.id) as ratecount 
-                        FROM comments c
-                        LEFT JOIN ratings r ON c.id = r.comment_id
-                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND c.post_id = ?
-                        GROUP BY c.id
-                        ORDER BY ratecount DESC, c.rating DESC`
+                comment_query = `SELECT * FROM (
+                                    SELECT c.*, COUNT(r.id) as ratecount 
+                                    FROM comments c
+                                    LEFT JOIN ratings r ON c.id = r.comment_id
+                                    WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND c.post_id = ? AND r.rating = 1
+                                    GROUP BY c.id
+
+                                    UNION 
+
+                                    SELECT c1.*, 0 as ratecount
+                                    FROM comments c1 
+                                    WHERE id NOT IN (
+                                        SELECT c2.id 
+                                        FROM comments c2 
+                                        LEFT JOIN ratings r2 on c2.id = r2.comment_id 
+                                        WHERE r2.datetime >= NOW() - INTERVAL 1 HOUR AND c2.post_id = ? AND r2.rating = 1
+                                    ) AND c1.post_id = ?
+                                ) AS subquery
+                                ORDER BY ratecount DESC, rating DESC`
+                comment_params = [postId, postId, postId]
             }
         }
 
-        const [comments] = await req.database.query(comment_query, comment_params)
+        let [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
-
-        post_rating_query = `SELECT * FROM ratings WHERE post_id = ?`
-        post_rating_params = [post[0].id]
-        const [post_rating] = await req.database.query(post_rating_query, post_rating_params)
-        ratings = ratings.concat(post_rating)
 
         if(commentIds.length > 0) {
             const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
