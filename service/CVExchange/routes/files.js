@@ -8,14 +8,18 @@ const path = require('path')
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'), 'public')
+        const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
+        const privateDir = path.join(userDir, 'private')
+        const publicDir = path.join(userDir, 'public')
         try {
-            await fs.promises.access(uploadPath)
+            await fs.promises.access(userDir)
         }
         catch(error) { 
             if(error.code === 'ENOENT') {
                 try {
-                    await fs.promises.mkdir(uploadPath)
+                    await fs.promises.mkdir(userDir)
+                    await fs.promises.mkdir(privateDir)
+                    await fs.promises.mkdir(publicDir)
                 }
                 catch(error) {
                     return cb(error)
@@ -25,7 +29,7 @@ const storage = multer.diskStorage({
                 return cb(error)
             }
         }
-        return cb(null, uploadPath)
+        return cb(null, publicDir)
     },
     filename: async (req, file, cb) => {
         return cb(null, file.originalname)
