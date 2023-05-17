@@ -13,11 +13,12 @@ const getuserkarma = middleware.getuserkarma
 
 router.get('/login', async (req, res) => {
     try{ 
+        let status = ''
         if(!req.cookies.jwtToken) {
-            return res.render('login', {title: 'Login', layout: './layouts/login'})
+            return res.render('login', {status, title: 'Login', layout: './layouts/login'})
         }
         else {
-            return res.status(200).send('Please log out first.')
+            return res.status(400).send('<h1>Please log out first.</h1>')
         }
     }
     catch (error) {
@@ -32,7 +33,7 @@ router.post('/login', async (req, res) => {
         const password = req.body.password
 
         if(!email || !password) {
-            return res.status(400).send('Please provide all required fields')
+            return res.render('login', {title: 'Login', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
         const query = `SELECT * FROM users WHERE email = ? AND password = ?`
         const params = [email, password]
@@ -45,7 +46,7 @@ router.post('/login', async (req, res) => {
             return res.redirect('/')
         }
         else {
-            return res.status(401).send('Invalid email or password')
+            return res.render('login', {title: 'Login', layout: './layouts/login', status: 'Wrong credentials, please try again!'})
         }
     } 
     catch (error) {
@@ -67,11 +68,12 @@ router.post('/logout', async (req, res) => {
 
 router.get('/register', async (req, res) => {
     try{
+        let status = ''
         if(!req.cookies.jwtToken) {
-            return res.render('register', {title: 'Register', layout: './layouts/login'})
+            return res.render('register', {status, title: 'Register', layout: './layouts/login'})
         }
         else {
-            return res.status(200).send('Please log out first.')
+            return res.status(400).send('<h1>Please log out first.</h1>')
         }
     }
     catch (error) {
@@ -89,7 +91,7 @@ router.post('/register', async (req, res) => {
         const password = req.body.password
 
         if(!name || !email || !password) {
-            return res.status(400).send('Please provide all required fields')
+            return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
 
         // start a transaction
@@ -119,12 +121,6 @@ router.post('/register', async (req, res) => {
             await connection.commit()
             await connection.release()
             return res.redirect('/')
-        }
-        else {
-            // commit the transaction and release the connection
-            await connection.commit()
-            await connection.release()
-            return res.status(401).send('Invalid email or password')
         }
     }
     catch (error) {

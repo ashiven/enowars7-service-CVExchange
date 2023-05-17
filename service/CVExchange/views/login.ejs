@@ -16,5 +16,11 @@
         <div class="text-center">
             <p>Not a member? <a href="/user/register">Register</a></p>
         </div>
+
+        <% if(status !== '') { %>
+        <div class="alert alert-danger" role="alert">
+            <%= status %>
+        </div>
+        <% } %>
     </form>
 </div>
