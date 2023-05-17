@@ -38,7 +38,6 @@
         <ul class="post-buttons">
             <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
             <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
-            <li class="hide-button"><a class="login-required" href="/posts/hide/<%= post.id %>">hide</a></li>
         </ul> 
     </div>
 </div>
@@ -85,8 +84,6 @@
             <%= comment.text %>
         </div>
         <ul class="comment-buttons">
-            <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
-            <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
             <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
             <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
             <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>

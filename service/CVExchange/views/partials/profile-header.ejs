@@ -6,11 +6,16 @@
             <li class="li-choice <%= (tab === 'overview') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=overview" class="choice <%= (tab === 'overview') ? 'on' : '' %>">overview</a></li>
             <li class="li-choice <%= (tab === 'comments') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=comments" class="choice <%= (tab === 'comments') ? 'on' : '' %>">comments</a></li>
             <li class="li-choice <%= (tab === 'submitted') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=submitted" class="choice <%= (tab === 'submitted') ? 'on' : '' %>">submitted</a></li>
-            <% }
-            else { %>
+            <% if(parseInt(req.userId) ===  parseInt(req.params.id)) { %>
+            <li class="li-choice <%= (tab === 'saved') ? 'on' : '' %>"> <a href="/user/profile/<%= req.params.id %>?tab=saved" class="choice <%= (tab === 'saved') ? 'on' : '' %>">saved</a></li>
+            <% } %>
+            <% } else { %>
             <li class="li-choice on"><a href="/user/profile/<%= req.params.id %>?tab=overview" class="choice on">overview</a></li>
             <li class="li-choice"><a href="/user/profile/<%= req.params.id %>?tab=comments" class="choice">comments</a></li>
             <li class="li-choice"><a href="/user/profile/<%= req.params.id %>?tab=submitted" class="choice">submitted</a></li>
+            <% if(parseInt(req.userId) ===  parseInt(req.params.id)) { %>
+            <li class="li-choice"><a href="/user/profile/<%= req.params.id %>?tab=saved" class="choice">saved</a></li>
+            <% } %>
             <% } %>
         </ul>
     </div>
@@ -18,7 +23,6 @@
 <% if(req.cookies.jwtToken) { %>
     <div class="user-info-loggedin">
         <span class="user">
-            <!-- TODO: link to user profile and implement karma -->
             <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
         </span>
         <span class="separator">|</span>&nbsp;

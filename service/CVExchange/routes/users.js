@@ -151,6 +151,7 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         }
         let ratings = []
         let commentPosts = []
+        let saved = []
 
         const user_query = `SELECT * FROM users WHERE id = ?`
         const user_params = [profileId]
@@ -188,8 +189,22 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
             commentPosts = commentPosts.concat(comment_posts)
         }
 
+        if(tab === 'saved') {
+            const select_query = `SELECT saved FROM users WHERE id = ?`
+            const select_params = [userId]
+            const [savedposts] = await req.database.query(select_query, select_params)
+            const savedString = savedposts[0].saved
+            const savedIds = savedString ? savedString.split(',').map(Number) : []
+            
+            const saved_query = `SELECT * FROM posts WHERE id IN (?)`
+            const saved_params = [savedIds]
+            if(savedIds.length > 0) {
+                [saved] = await req.database.query(saved_query, saved_params)
+            }
+        }
+        
         if(user.length > 0) {
-            return res.render('profile', { tab , page, pagelimit, req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
+            return res.render('profile', { tab, saved, page, pagelimit, req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
         }
         else {
             return res.status(404).send('user doesnt exist')

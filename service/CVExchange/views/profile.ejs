@@ -35,7 +35,6 @@
                 <ul class="post-buttons">
                     <li class="comments"><a class="login-required" href="/posts/<%= element.id %>"><%= comments.filter(c => c.post_id === element.id).length %> comments</a></li>
                     <li class="save-button"><a class="login-required" href="/posts/save/<%= element.id %>">save</a></li>
-                    <li class="hide-button"><a class="login-required" href="/posts/hide/<%= element.id %>">hide</a></li>
                     <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
                     <li class="edit-button"><a class="login-required" href="/posts/delete/<%= element.id %>">delete</a></li>
                     <li class="delete-button"><a class="login-required" href="/posts/edit/<%= element.id %>">edit</a></li>
@@ -77,8 +76,6 @@
                         <%= element.text %>
                     </div>
                     <ul class="comment-buttons">
-                        <li class="save-button"><a class="login-required" href="/comments/save/<%= element.id %>">save</a></li>
-                        <li class="hide-button"><a class="login-required" href="/comments/hide/<%= element.id %>">hide</a></li>
                         <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
                         <li class="edit-button"><a class="login-required" href="/comments/delete/<%= element.id %>">delete</a></li>
                         <li class="delete-button"><a class="login-required" href="/comments/edit/<%= element.id %>">edit</a></li>
@@ -135,7 +132,6 @@ else if(tab === 'submitted') { %>
             <ul class="post-buttons">
                 <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
                 <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
-                <li class="hide-button"><a class="login-required" href="/posts/hide/<%= post.id %>">hide</a></li>
                 <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
                 <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
                 <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
@@ -198,8 +194,6 @@ else if(tab === 'comments') { %>
                     <%= comment.text %>
                 </div>
                 <ul class="comment-buttons">
-                    <li class="save-button"><a class="login-required" href="/comments/save/<%= comment.id %>">save</a></li>
-                    <li class="hide-button"><a class="login-required" href="/comments/hide/<%= comment.id %>">hide</a></li>
                     <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
                     <li class="edit-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
                     <li class="delete-button"><a class="login-required" href="/comments/edit/<%= comment.id %>">edit</a></li>
@@ -218,7 +212,60 @@ else if(tab === 'comments') { %>
     <% } %>
     </div>
 </div>
-    
+<% }
+else if(tab === 'saved') { %>
+
+<div>
+    <%  
+    const firstIndex = (page - 1) * pagelimit
+    const lastIndex = firstIndex + pagelimit - 1
+
+    for (let i = firstIndex; i <= lastIndex && i < saved.length; i++ ) { 
+        const post = saved[i]
+    %>
+    <div class="post">
+        <div class="voting-section">
+            <div class="upvote <%= ratings.some(r => r.post_id === post.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+                </svg>
+            </div>
+            <div class="score"> <%= post.rating %> </div>
+            <div class="downvote <%= ratings.some(r => r.post_id === post.id && r.rating === -1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+                </svg>
+            </div>
+        </div>
+        <div class="post-body">
+            <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
+            <p class="post-tags">submitted on 
+                <time datetime="<%= post.datetime %>" class="timestamp"><%= post.datetime.toString().slice(0, -36) %></time> by 
+                <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+            </p>
+            <ul class="post-buttons">
+                <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
+                <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
+                <% if(parseInt(req.userId) === parseInt(req.params.id)) { %>
+                <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
+                <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+    <% } %>
+    <div>
+    <% if(page > 1 ) { %>
+    <button class="uploadbutton" onclick="window.location.href='/user/profile/<%= user.id %>?tab=<%= tab %>&page=<%= parseInt(page) - 1 %>'">prev</button>
+    <% } %>
+    <% if(lastIndex < posts.length) { %>
+    <button class="uploadbutton" onclick="window.location.href='/user/profile/<%= user.id %>?tab=<%= tab %>&page=<%= parseInt(page) + 1 %>'">next</button>
+    <% } %>
+    </div>
+</div>
+
 <% } %>
 
 <script>
