@@ -66,6 +66,7 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const postId = req.params.id
         let ratings = []
+        let sort = 'top'
 
         const post_query = `SELECT * FROM posts WHERE id = ?`
         const post_params = [postId]
@@ -79,7 +80,7 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         const comment_params = [postId]
 
         if(req.query.sort) {
-            const sort = req.query.sort
+            sort = req.query.sort
             if(sort === 'new' ) {
                 comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC`
             }
@@ -97,14 +98,18 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         const [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
 
+        post_rating_query = `SELECT * FROM ratings WHERE post_id = ?`
+        post_rating_params = [post[0].id]
+        const [post_rating] = await req.database.query(post_rating_query, post_rating_params)
+        ratings = ratings.concat(post_rating)
+
         if(commentIds.length > 0) {
             const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
             const comment_ratings_params = [commentIds, req.userId]
             const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
             ratings = ratings.concat(comment_ratings)
         }
-
-        return res.render('post', { req, post: post[0], ratings, comments, title: `${post[0].title}`, layout: './layouts/post' })
+        return res.render('post', { req, sort, post: post[0], ratings, comments, title: `${post[0].title}`, layout: './layouts/post' })
     }
     catch (error) {
         console.error(error)
