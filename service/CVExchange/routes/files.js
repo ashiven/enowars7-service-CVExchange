@@ -6,30 +6,52 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const path = require('path')
 
-const storage = multer.diskStorage({
-    destination: async (req, file, cb) => {
-        const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
-        const privateDir = path.join(userDir, 'private')
-        const publicDir = path.join(userDir, 'public')
-        try {
-            await fs.promises.access(userDir)
-        }
-        catch(error) { 
-            if(error.code === 'ENOENT') {
-                try {
-                    await fs.promises.mkdir(userDir)
-                    await fs.promises.mkdir(privateDir)
-                    await fs.promises.mkdir(publicDir)
+async function uploadDest (visibility, req, cb) {
+    const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
+    const publicDir = path.join(userDir, visibility)
+    try {
+        await fs.promises.access(publicDir)
+    }
+    catch(error) { 
+        if(error.code === 'ENOENT') {
+            try {
+                await fs.promises.access(userDir)
+                await fs.promises.mkdir(publicDir)
+            }
+            catch(error) {
+                if(error.code === 'ENOENT') {
+                    try {
+                        await fs.promises.mkdir(userDir)
+                        await fs.promises.mkdir(publicDir)
+                    }
+                    catch(error) {
+                        return cb(error)
+                    }
                 }
-                catch(error) {
+                else {
                     return cb(error)
                 }
             }
-            else {
-                return cb(error)
-            }
         }
-        return cb(null, publicDir)
+        else {
+            return cb(error)
+        }
+    }
+    return cb(null, publicDir)
+}
+
+const publicStorage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        uploadDest('public', req, cb)
+    },
+    filename: async (req, file, cb) => {
+        return cb(null, file.originalname)
+    }
+})
+
+const privateStorage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        uploadDest('private', req, cb)
     },
     filename: async (req, file, cb) => {
         return cb(null, file.originalname)
@@ -58,8 +80,25 @@ const fileFilter = async (req, file, cb) => {
     }
 }
 
-const uploader = multer({ storage: storage, fileFilter: fileFilter, limits: { fileSize: 1024 * 1024 * 5 } })
-const upload = uploader.single('profilePicture')
+const fileFilterPrivate = async (req, file, cb) => {
+    try {
+        const regex = /\.(txt)$/i
+        if(file.mimetype === 'text/plain' && regex.test(file.originalname)) {
+            return cb(null, true)
+        }
+        else {
+            return cb(new Error('Only text files are allowed'), false)
+        }
+    }
+    catch(error) {
+        return cb(error)
+    }
+}
+
+const publicUploader = multer({ storage: publicStorage, fileFilter: fileFilter, limits: { fileSize: 1024 * 1024 * 5 } })
+const privateUploader = multer({ storage: privateStorage, fileFilter: fileFilterPrivate, limits: { fileSize: 1024 * 1024 * 5 } })
+const upload = publicUploader.single('profilePicture')
+const privateUpload = privateUploader.single('privateFile')
 
 // Route definitions
 
@@ -156,6 +195,62 @@ router.get('/delete', auth, async (req, res) => {
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
+})
+
+router.post('/private', auth, async (req, res) => {
+
+    privateUpload(req, res, async (error) => {
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
+        if (!req.file) {
+            return res.redirect('back')
+        }
+        const connection = await req.database.getConnection()
+
+        try {
+            const filename = req.file.originalname
+            const filepath = req.file.path
+            const userId = req.userId
+
+            // start a transaction
+            await connection.beginTransaction()
+    
+            // find current profile pic and delete it
+            const find_query = `SELECT my_file FROM users WHERE id = ?`
+            const find_params = [userId]
+            const [results] = await connection.query(find_query, find_params)
+    
+            const currentFile = results[0].my_file
+            if (currentFile) {
+                await fs.promises.unlink(path.join(__dirname, '..', currentFile))
+            }
+        
+            const myFile = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'private/' + filename
+    
+            // rename the filepath and update my file in DB
+            await fs.promises.rename(filepath, myFile)
+    
+            const update_query = `UPDATE users SET my_file = ? WHERE id = ?`
+            const update_params = [myFile, userId]
+            await connection.query(update_query, update_params)
+    
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
+        
+            return res.redirect('back')
+        } 
+        catch (error) {
+            // if there was an error, rollback changes and release the connection
+            await connection.rollback()
+            await connection.release()
+    
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
+    })
 })
 
 //--------------------------------

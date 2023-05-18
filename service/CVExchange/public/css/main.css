@@ -433,6 +433,13 @@ input[type="file"] {
     border-radius: 5px;
 }
 
+.mycloud {
+    margin-top: 10px;
+    max-width: 28%;
+    max-height: 15%;
+    display: flex;
+}
+
 /* style for the profile header */
 
 .profile-sorting {

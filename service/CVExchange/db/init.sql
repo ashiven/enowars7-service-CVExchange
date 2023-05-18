@@ -38,5 +38,6 @@ CREATE TABLE `basedbase`.`users` (
   `profile_picture` varchar(250) DEFAULT NULL,
   `saved` varchar(1000) DEFAULT NULL,
   `note` varchar(250) DEFAULT NULL,
+  `my_file` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
