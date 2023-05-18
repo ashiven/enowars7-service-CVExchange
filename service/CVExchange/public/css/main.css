@@ -440,6 +440,12 @@ input[type="file"] {
     display: flex;
 }
 
+.cloud-label {
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
 /* style for the profile header */
 
 .profile-sorting {

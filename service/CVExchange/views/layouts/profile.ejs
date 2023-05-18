@@ -23,7 +23,7 @@
             <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/upload">
                 <label class="uploadbutton">
                     <div class="choicebutton">
-                        <input  type="file" name="profilePicture" onchange="filterImage()">
+                        <input  type="file" id="profilePicture" name="profilePicture" onchange="filterImage()">
                         <p>Select file</p>
                     </div>
                 </label>
@@ -51,12 +51,13 @@
             </form>
             <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>
         </div>
-        <a class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" alt="cloud"></a>
+        <label class="cloud-label" for="mycloud">My Cloud:</label>
+        <a name="mycloud" class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" alt="cloud"></a>
         <div class="upload-buttons">
             <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/private">
                 <label class="uploadbutton">
                     <div class="choicebutton">
-                        <input  type="file" name="privateFile" onchange="filterText()">
+                        <input  type="file" id="privateFile" name="privateFile" onchange="filterText()">
                         <p>Select file</p>
                     </div>
                 </label>
@@ -68,25 +69,9 @@
 </div>
 <%- include('../partials/footer') %>
 
-
-<% if(!req.cookies.jwtToken) { %>
-<script>
-const loginRequiredElements = document.querySelectorAll('.login-required')
-console.log(document.cookie)
-loginRequiredElements.forEach(element => {
-  element.addEventListener('click', event => {
-    if (!document.cookie.includes('jwtToken')) {
-      event.preventDefault()
-      window.location.href = '/user/login'
-    }
-  })
-})
-</script>
-<% } %>
-
 <script>
 function filterImage() {
-    const fileInput = document.uploadForm.profilePicture
+    const fileInput = document.getElementById("profilePicture")
 
     if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
         alert('Please select an image file')
@@ -98,7 +83,7 @@ function filterImage() {
     }
 }
 function filterText() {
-    const fileInput = document.uploadForm.privateFile
+    const fileInput = document.getElementById("privateFile")
 
     if (!(/\.(txt)$/i).test(fileInput.value)) {              
         alert('Please select a text file')

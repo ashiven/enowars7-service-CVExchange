@@ -8,21 +8,21 @@ const path = require('path')
 
 async function uploadDest (visibility, req, cb) {
     const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
-    const publicDir = path.join(userDir, visibility)
+    const uploadDir = path.join(userDir, visibility)
     try {
-        await fs.promises.access(publicDir)
+        await fs.promises.access(uploadDir)
     }
     catch(error) { 
         if(error.code === 'ENOENT') {
             try {
                 await fs.promises.access(userDir)
-                await fs.promises.mkdir(publicDir)
+                await fs.promises.mkdir(uploadDir)
             }
             catch(error) {
                 if(error.code === 'ENOENT') {
                     try {
                         await fs.promises.mkdir(userDir)
-                        await fs.promises.mkdir(publicDir)
+                        await fs.promises.mkdir(uploadDir)
                     }
                     catch(error) {
                         return cb(error)
@@ -37,7 +37,7 @@ async function uploadDest (visibility, req, cb) {
             return cb(error)
         }
     }
-    return cb(null, publicDir)
+    return cb(null, uploadDir)
 }
 
 const publicStorage = multer.diskStorage({
@@ -118,6 +118,7 @@ router.post('/upload', auth, async (req, res) => {
             const filename = req.file.originalname
             const filepath = req.file.path
             const userId = req.userId
+            const profilePic = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'public/' + filename
 
             // start a transaction
             await connection.beginTransaction()
@@ -126,14 +127,18 @@ router.post('/upload', auth, async (req, res) => {
             const find_query = `SELECT profile_picture FROM users WHERE id = ?`
             const find_params = [userId]
             const [results] = await connection.query(find_query, find_params)
-    
             const currentPic = results[0].profile_picture
+
+            if (currentPic === profilePic) {
+                // commit the transaction and release the connection
+                await connection.commit()
+                await connection.release()
+                return res.redirect('back')
+            }
             if (currentPic) {
                 await fs.promises.unlink(path.join(__dirname, '..', currentPic))
             }
         
-            const profilePic = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'public/' + filename
-    
             // rename the filepath and update profile pic in DB
             await fs.promises.rename(filepath, profilePic)
     
@@ -213,6 +218,7 @@ router.post('/private', auth, async (req, res) => {
             const filename = req.file.originalname
             const filepath = req.file.path
             const userId = req.userId
+            const myFile = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'private/' + filename
 
             // start a transaction
             await connection.beginTransaction()
@@ -221,13 +227,18 @@ router.post('/private', auth, async (req, res) => {
             const find_query = `SELECT my_file FROM users WHERE id = ?`
             const find_params = [userId]
             const [results] = await connection.query(find_query, find_params)
-    
             const currentFile = results[0].my_file
+
+            if (currentFile === myFile) {
+                // commit the transaction and release the connection
+                await connection.commit()
+                await connection.release()
+                return res.redirect('back')
+            }
             if (currentFile) {
                 await fs.promises.unlink(path.join(__dirname, '..', currentFile))
             }
         
-            const myFile = 'uploads/' + Buffer.from(userId.toString()).toString('base64') + '/' + 'private/' + filename
     
             // rename the filepath and update my file in DB
             await fs.promises.rename(filepath, myFile)
