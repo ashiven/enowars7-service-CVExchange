@@ -1,5 +1,9 @@
 const jwt = require('jsonwebtoken')
-const jwtSecret = 'SuperS3cret'
+// ATTENTION: THIRD VULNERABILITY HERE!!!! (Misconfiguration/Default Credentials)
+// Anyone having access to the source code can see the jwtSecret
+// and use it to generate session tokens for arbitrary users
+// A fix would simply consist in changing the jwtSecret
+const jwtSecret = '5up3r53cr37'
 
 async function auth(req, res, next) {
     try{
@@ -23,18 +27,16 @@ async function auth(req, res, next) {
     }
 }
 
-// ATTENTION: FIRST VULNERABILITY HERE!!!! (Parameter Tampering/Broken Authentication)
-// (Method 1):  An Id can be supplied in the params of a get request which will be used to authenticate the user accessing a file resource.
-//              With this faulty authentication mechanism an attacker can access files from a user directory not belonging to them.
-// (Method 2):  Alternatively the files in the private directory can be accessed via path traversal by accessing for example the URL
-//              /uploads/MQ==/public/../private/flag.txt this works because we only authenticate for file access when the URL is like /uploads/MQ==/private/flag.txt
+// ATTENTION: FIRST VULNERABILITY HERE!!!! (Broken Authentication)
+// The files in the private directory can be accessed via path traversal by accessing for example the URL
+// /uploads/MQ==/public/../private/flag.txt this works because we only authenticate for file access when the URL is like /uploads/MQ==/private/flag.txt
+// A fix would consist of removing the line: app.use('/uploads', express.static('./uploads')) in app.js  
+// and defining a route for /uploads/:userId/public/:filename
 async function fileAuth(req, res, next)  {
     try {
         const filepath = req.originalUrl
-        var userId = req.userId 
-        if(req.query.Id) {
-            userId = req.query.Id
-        }
+        const userId = req.userId 
+
         if (filepath.startsWith('/uploads/' + Buffer.from(userId.toString()).toString('base64') + '/')) {
             next()
         }

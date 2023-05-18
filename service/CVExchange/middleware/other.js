@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const jwtSecret = 'SuperS3cret'
 
 async function logger(req, res, next) {
     console.log(req.originalUrl)
@@ -44,7 +43,7 @@ async function getuserid(req, res, next) {
     try{
         const token = req.cookies.jwtToken
         if(token) {
-            const decoded = jwt.verify(token, jwtSecret)
+            const decoded = jwt.decode(token)
             req.userId = decoded.userId
             next()
         }
