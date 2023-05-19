@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 // Anyone having access to the source code can see the jwtSecret
 // and use it to generate session tokens for arbitrary users
 // A fix would simply consist in changing the jwtSecret
-const jwtSecret = '5up3r53cr37'
+const jwtSecret = 'amogus'
 
 async function auth(req, res, next) {
     try{
@@ -31,7 +31,7 @@ async function auth(req, res, next) {
 // The files in the private directory can be accessed via path traversal by accessing for example the URL
 // /uploads/MQ==/public/../private/flag.txt this works because we only authenticate for file access when the URL is like /uploads/MQ==/private/flag.txt
 // A fix would consist of removing the line: app.use('/uploads', express.static('./uploads')) in app.js  
-// and defining a route for /uploads/:userId/public/:filename
+// and defining a route for /uploads/:userId/public/:filename which will prevent the app from serving the whole /uploads directory and only serve the specified route
 async function fileAuth(req, res, next)  {
     try {
         const filepath = req.originalUrl

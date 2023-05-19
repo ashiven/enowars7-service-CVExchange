@@ -65,6 +65,8 @@ const privateStorage = multer.diskStorage({
 // They obviously have to bypass the client-side filters aswell.
 // This can be achieved by intercepting the response to the /user/profile GET-request 
 // and deleting the javascript responsible for client-side filtering.
+// A fix would consist of prepending a '$' towards the end of the regular expression right before '/i' to ensure 
+// that the file ending is actually a file ending and not just a substring somewhere in the filename.
 const fileFilter = async (req, file, cb) => {
     try {
         const regex = /\.(jpg|jpeg|png)/i

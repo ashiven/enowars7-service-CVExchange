@@ -126,7 +126,6 @@ app.get('/uploads/:userId/private/:filename', auth, fileAuth, async (req, res) =
     }
 })
 
-app.use(express.static('./public'))
 app.use('/uploads', express.static('./uploads'))
 app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
