@@ -58,15 +58,17 @@ const privateStorage = multer.diskStorage({
     }
 })
 
-// ATTENTION: SECOND VULNERABILITY HERE!!!! (RFI/RCE)
-// An attacker can change the content-type header of their http-request to image/jpeg 
-// and rename their file so it includes a ".jpg" i.e. "shell.jpg.php" 
-// This way they can bypass the server side upload filters and upload malicious files.
-// They obviously have to bypass the client-side filters aswell.
-// This can be achieved by intercepting the response to the /user/profile GET-request 
-// and deleting the javascript responsible for client-side filtering.
-// A fix would consist of prepending a '$' towards the end of the regular expression right before '/i' to ensure 
-// that the file ending is actually a file ending and not just a substring somewhere in the filename.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ATTENTION: SECOND VULNERABILITY HERE!!!! (LFI/RCE)                                                             //
+// An attacker can change the content-type header of their http-request to image/jpeg                             //
+// and rename their file so it includes a ".jpg" i.e. "shell.jpg.php"                                             //
+// This way they can bypass the server side upload filters and upload malicious files.                            //
+// They obviously have to bypass the client-side filters aswell.                                                  //
+// This can be achieved by intercepting the response to the /user/profile GET-request                             //
+// and deleting the javascript responsible for client-side filtering.                                             //
+// A fix would consist of prepending a '$' towards the end of the regular expression right before '/i' to ensure  //
+// that the file ending is actually a file ending and not just a substring somewhere in the filename.             //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const fileFilter = async (req, file, cb) => {
     try {
         const regex = /\.(jpg|jpeg|png)/i
@@ -102,6 +104,7 @@ const privateUploader = multer({ storage: privateStorage, fileFilter: fileFilter
 const upload = publicUploader.single('profilePicture')
 const privateUpload = privateUploader.single('privateFile')
 
+
 // Route definitions
 
 router.post('/upload', auth, async (req, res) => {
@@ -131,22 +134,19 @@ router.post('/upload', auth, async (req, res) => {
             const [results] = await connection.query(find_query, find_params)
             const currentPic = results[0].profile_picture
 
-            if (currentPic === profilePic) {
-                // commit the transaction and release the connection
-                await connection.commit()
-                await connection.release()
-                return res.redirect('back')
-            }
-            if (currentPic) {
-                await fs.promises.unlink(path.join(__dirname, '..', currentPic))
-            }
-        
-            // rename the filepath and update profile pic in DB
-            await fs.promises.rename(filepath, profilePic)
-    
             const update_query = `UPDATE users SET profile_picture = ? WHERE id = ?`
             const update_params = [profilePic, userId]
             await connection.query(update_query, update_params)
+
+            if (currentPic) {
+                if (currentPic !== profilePic) {
+                    await fs.promises.unlink(path.join(__dirname, '..', currentPic))
+                    await fs.promises.rename(filepath, profilePic)
+                }
+            }
+            else {
+                await fs.promises.rename(filepath, profilePic)
+            }
     
             // commit the transaction and release the connection
             await connection.commit()
@@ -231,23 +231,19 @@ router.post('/private', auth, async (req, res) => {
             const [results] = await connection.query(find_query, find_params)
             const currentFile = results[0].my_file
 
-            if (currentFile === myFile) {
-                // commit the transaction and release the connection
-                await connection.commit()
-                await connection.release()
-                return res.redirect('back')
-            }
-            if (currentFile) {
-                await fs.promises.unlink(path.join(__dirname, '..', currentFile))
-            }
-        
-    
-            // rename the filepath and update my file in DB
-            await fs.promises.rename(filepath, myFile)
-    
             const update_query = `UPDATE users SET my_file = ? WHERE id = ?`
             const update_params = [myFile, userId]
             await connection.query(update_query, update_params)
+
+            if (currentFile) {
+                if (currentFile !== myFile) {
+                await fs.promises.unlink(path.join(__dirname, '..', currentFile))
+                await fs.promises.rename(filepath, myFile)
+                }
+            }
+            else {
+                await fs.promises.rename(filepath, myFile)
+            }
     
             // commit the transaction and release the connection
             await connection.commit()

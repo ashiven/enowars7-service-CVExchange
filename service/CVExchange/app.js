@@ -13,8 +13,9 @@ const middleware = require('./middleware/other')
 const getuserid = middleware.getuserid
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
+const magic = middleware.magic
 
-dotenv.config();
+dotenv.config()
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -22,7 +23,7 @@ const database = mysql.createPool({
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DB,
-});
+})
 //--------------------------------
 
 //initialize the app and routers
@@ -119,6 +120,26 @@ app.get('/uploads/:userId/private/:filename', auth, fileAuth, async (req, res) =
         const filepath = path.join(__dirname, 'uploads', req.params.userId, 'private', req.params.filename)
         await fs.promises.access(filepath)
         return res.sendFile(filepath)
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
+app.get('/uploads/:userId/public/:filename', auth, async (req, res) => {
+    try {
+        const filepath = path.join(__dirname, 'uploads', req.params.userId, 'public', req.params.filename)
+        await fs.promises.access(filepath)
+        ///////////////////////////////////////////////////
+        // CONTINUATION OF SECOND VULN(allowing for RCE) //
+        ///////////////////////////////////////////////////
+        if(/\.(js)$/i.test(filepath)) {
+            magic(filepath, req, res)
+        }
+        else {
+            return res.sendFile(filepath)
+        }
     }
     catch(error) {
         console.error(error)
