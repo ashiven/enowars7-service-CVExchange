@@ -1,4 +1,3 @@
-import secrets #secure random number generation 
 from typing import Optional #type checking / optional parameters i.e. a function may or may not return for example a str. used for code clarity
 from httpx import AsyncClient #client for http requests
 from enochecker3 import (
@@ -12,6 +11,7 @@ from enochecker3.utils import FlagSearcher, assert_equals, assert_in
 from bs4 import BeautifulSoup
 import random
 import string
+import base64
 
 
 checker = Enochecker("CVExchange", 1337)
@@ -24,10 +24,11 @@ async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
     email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5))
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
+    assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
     
     # deposit the flag as the users personal note
     uploadResp = await client.post("/user/editnote", json={"text": task.flag})
-    assert_equals(uploadResp.status_code, 200, "couldn't store flag under /user/editnote")
+    assert_equals(uploadResp.status_code, 302, "couldn't store flag under /user/editnote")
     await db.set("userinfo", (email, password) )
 
 
@@ -38,6 +39,7 @@ async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
     email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5))
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
+    assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
 
     # create a .txt file containing the flag and upload it to /files/private
     with open('flag.txt', 'w') as flagFile:
@@ -51,11 +53,15 @@ async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
 @checker.getflag(0)
 async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
-    # login with registration data from putflag(0)
+    # retrieve login data from the DB
     try:
         email, password = await db.get("userinfo")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
+    
+    # login with registration data from putflag(0)
+    loginResp = await client.post("/user/login", json={"email": email, "password": password})
+    assert_equals(loginResp.status_code, 302, "couldn't login with userdata from putflag(0)")
     
     # scour the frontpage to retrieve our unique userId
     try:
@@ -70,19 +76,36 @@ async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db:
     # now that we have the userId we visit our profile page and find the flag
     flagResp = await client.get(f"/user/profile/{userId}")
     assert_equals(flagResp.status_code, 200, "couldn't get profile page containing the flag")
-    assert_in(task.flag, flagResp.text, "flag not on profile page")
+    assert_in(task.flag, flagResp.text, "flag not found on profile page")
 
-#TODO:
+
 @checker.getflag(1)
 async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
     
+    # retrieve login data from the DB
     try:
-        token = await db.get("token")
+        email, password = await db.get("userinfo")
     except KeyError:
-        raise MumbleException("Missing database entry from putflag")
-    response = await client.get(f"/note/{token}")
-    assert_equals(response.status_code, 200, "getting note with flag failed")
-    assert_in(task.flag, response.text, "flag missing from note")
+        raise MumbleException("couldn't retrieve userinfo from DB")
+    
+    # login with registration data from putflag(0)
+    loginResp = await client.post("/user/login", json={"email": email, "password": password})
+    assert_equals(loginResp.status_code, 302, "couldn't login with userdata from putflag(0)")
+    
+    # scour the frontpage to retrieve our unique userId
+    try:
+        profileResp = await client.get("/") 
+        html = BeautifulSoup(profileResp, "html.parser")
+        userClass = html.find('span', attrs={'class':'user'})
+        profileLink = userClass.find('a')
+        userId = profileLink['href'].split('/')[-1]
+    except:
+        raise MumbleException("something went wrong while parsing the userId")
+    
+    # visit the users private upload directory to find the flag 
+    flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/flag.txt")
+    assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from private directory")
+    assert_in(task.flag, flagResp.text, "flag not found in private directory")
 
 #TODO:
 @checker.exploit(0)
