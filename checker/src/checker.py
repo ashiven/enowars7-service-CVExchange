@@ -1,4 +1,4 @@
-from typing import Optional #type checking / optional parameters i.e. a function may or may not return for example a str. used for code clarity
+from typing import Optional #type checking / optional parameters i.e. a function may or may not return a str
 from httpx import AsyncClient #client for http requests
 from enochecker3 import (
     ChainDB,
@@ -90,7 +90,7 @@ async def getflag_test(task: GetflagCheckerTaskMessage, client: AsyncClient, db:
     
     # login with registration data from putflag(0)
     loginResp = await client.post("/user/login", json={"email": email, "password": password})
-    assert_equals(loginResp.status_code, 302, "couldn't login with userdata from putflag(0)")
+    assert_equals(loginResp.status_code, 302, "couldn't login with userdata from putflag(1)")
     
     # scour the frontpage to retrieve our unique userId
     try:
