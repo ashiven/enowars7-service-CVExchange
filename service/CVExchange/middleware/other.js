@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const fs = require('fs')
 
 async function logger(req, res, next) {
     console.log(req.originalUrl)
