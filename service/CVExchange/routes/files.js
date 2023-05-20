@@ -262,6 +262,63 @@ router.post('/private', auth, async (req, res) => {
     })
 })
 
+
+const backupStorage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        const userDir = path.join(__dirname, '..', 'backups', Buffer.from(req.userId.toString()).toString('base64'))
+        try {
+            await fs.promises.access(userDir)
+        }
+        catch(error) { 
+            if(error.code === 'ENOENT') {
+                try {
+                    await fs.promises.mkdir(userDir)
+                }
+                catch(error) {
+                    return cb(error)
+                }
+            }
+            else {
+                return cb(error)
+            }
+        }
+        return cb(null, userDir)
+    },
+    filename: async (req, file, cb) => {
+        return cb(null, file.originalname)
+    }
+})
+
+const backupUploader = multer({ storage: backupStorage, fileFilter: fileFilterPrivate, limits: { fileSize: 1024 * 1024 * 5 } })
+const backupUpload = backupUploader.single('backupFile')
+
+router.post('/backup', auth, (req, res) =>{
+
+    backupUpload(req, res, async (error) => {
+        if(error) {
+            console.error(error)
+            return res.status(500).send('<h1>Internal Server Error</h1>')
+        }
+        if (!req.file) {
+            return res.redirect('back')
+        }
+    })
+
+    return res.redirect('back')
+})
+
+router.get('/retrieve/:userId/:filename', auth, async (req, res) => {
+    try {
+        const filepath = path.join(__dirname, '../backups', req.params.userId, req.params.filename)
+        await fs.promises.access(filepath)
+        return res.sendFile(filepath)
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 //--------------------------------
 
 
