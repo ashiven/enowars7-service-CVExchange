@@ -1,26 +1,18 @@
-version: '2.1'
+version: '3'
 
 services:
   cvexchange-checker:
     build: .
     # The checker runs a HTTP interfaces, so we need to map port 3031 to the outside (port 8000).
     ports:
-      - 5008:8000
+      - 8000:3031
     environment:
       - MONGO_ENABLED=1
       - MONGO_HOST=cvexchange-mongo
       - MONGO_PORT=27017
       - MONGO_USER=cvexchange
       - MONGO_PASSWORD=cvexchange
-    mem_limit: 1G
-    memswap_limit: 2G
-    ulimits:
-      core:
-        soft: 0
-        hard: 0
-      nproc:
-        soft: 4000
-        hard: 4000
+
   # The python checkerlib requires a mongo db!
   cvexchange-mongo:
     image: mongo
@@ -29,12 +21,3 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: cvexchange
       MONGO_INITDB_ROOT_PASSWORD: cvexchange
-    mem_limit: 1G
-    memswap_limit: 2G
-    ulimits:
-      core:
-        soft: 0
-        hard: 0
-      nproc:
-        soft: 4000
-        hard: 4000

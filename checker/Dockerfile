@@ -1,16 +1,14 @@
-FROM python:3.9-buster
-RUN apt-get update && apt-get upgrade -y
+FROM python:3.9
 
 # add checker user
 RUN useradd -ms /bin/bash -u 1000 checker
 
+USER checker
 WORKDIR /checker
 
-COPY requirements.txt .
+COPY ./src/requirements.txt /checker/requirements.txt 
+RUN pip3 install -r requirements.txt
 
-USER checker
-RUN python3 -m pip install -r requirements.txt
-
-COPY ./src .
+COPY ./src /checker/
 
 ENTRYPOINT [ "/home/checker/.local/bin/gunicorn", "-c", "gunicorn.conf.py", "checker:app" ]
