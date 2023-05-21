@@ -16,7 +16,9 @@ import string
 import base64
 
 
-checker = Enochecker("CVExchange", 1337)
+SERVICE_PORT = 1337
+checker = Enochecker("CVExchange", SERVICE_PORT)
+app = lambda: checker.app
 
 
 async def register(client: AsyncClient):
