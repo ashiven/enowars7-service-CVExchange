@@ -17,7 +17,7 @@ import base64
 
 
 SERVICE_PORT = 1337
-checker = Enochecker("CVExchange", SERVICE_PORT)
+checker = Enochecker("cvexchange", SERVICE_PORT)
 app = lambda: checker.app
 
 
