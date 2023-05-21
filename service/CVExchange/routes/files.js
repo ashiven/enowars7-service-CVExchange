@@ -309,7 +309,7 @@ router.post('/backup', auth, (req, res) =>{
 
 router.get('/retrieve/:userId/:filename', auth, async (req, res) => {
     try {
-        if(req.userId !== req.params.userId) {
+        if(Buffer.from(req.userId.toString()).toString('base64') !== req.params.userId) {
             return res.status(403).send('<h1>You are not allowed to access this users files</h1>')
         }
         const filepath = path.join(__dirname, '../backups', req.params.userId, req.params.filename)
