@@ -23,7 +23,7 @@ app = lambda: checker.app
 
 async def register(client: AsyncClient):
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+    email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '.' + ''.join(random.choices(string.ascii_letters + string.digits, k=3))
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
     assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
 
@@ -32,7 +32,7 @@ async def register(client: AsyncClient):
 
 async def login(email: str, password: str, client: AsyncClient):
     loginResp = await client.post("/user/login", json={"email": email, "password": password})
-    assert_equals(loginResp.status_code, 302, "couldn't login with userdata from putflag(0)")
+    assert_equals(loginResp.status_code, 302, "couldn't login with userdata")
     
     # scour the frontpage to retrieve our unique userId
     profileResp = await client.get("/") 
@@ -69,6 +69,7 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
 
     uploadResp = await client.post('/files/private', data={"file": open('flag.txt', 'rb')})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/private")
+
 
 @checker.putflag(2)
 async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
