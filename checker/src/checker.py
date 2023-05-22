@@ -58,7 +58,7 @@ async def login(task, email: str, password: str, client: AsyncClient):
 async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
     await db.set("userinfo", (email, password) )
     
     # deposit the flag as the users personal note
@@ -70,7 +70,7 @@ async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
 async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
    
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/private
@@ -85,7 +85,7 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
 async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
    
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/backup
@@ -106,7 +106,7 @@ async def getflag_note(task: GetflagCheckerTaskMessage, client: AsyncClient, db:
         raise MumbleException("couldn't retrieve userinfo from DB")
     
     # login with registration data from putflag(0)
-    userId, cookie = await login(email, password, client)
+    userId, cookie = await login(task, email, password, client)
 
     # now that we have the userId we visit our profile page and find the flag
     flagResp = await client.get(f"http://{task.address}:{SERVICE_PORT}/user/profile/{userId}", cookies={"jwtToken": cookie})
@@ -124,7 +124,7 @@ async def getflag_private(task: GetflagCheckerTaskMessage, client: AsyncClient, 
         raise MumbleException("couldn't retrieve userinfo from DB")
     
     # login with registration data from putflag(1)
-    userId, cookie = await login(email, password, client)
+    userId, cookie = await login(task, email, password, client)
     
     # visit the users private upload directory to find the flag 
     flagResp = await client.get(f"http://{task.address}:{SERVICE_PORT}/uploads/{base64.b64encode(userId.encode()).decode()}/private/flag.txt", cookies={"jwtToken": cookie})
@@ -142,7 +142,7 @@ async def getflag_backup(task: GetflagCheckerTaskMessage, client: AsyncClient, d
         raise MumbleException("couldn't retrieve userinfo from DB")
     
     # login with registration data from putflag(2)
-    userId, cookie = await login(email, password, client)
+    userId, cookie = await login(task, email, password, client)
     
     # visit the users backup directory to retrieve the flag
     flagResp = await client.get(f"http://{task.address}:{SERVICE_PORT}/files/retrieve/{base64.b64encode(userId.encode()).decode()}/flag.txt", cookies={"jwtToken": cookie})
@@ -159,7 +159,7 @@ async def exploit_note(task: ExploitCheckerTaskMessage, searcher: FlagSearcher, 
     userId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
 
     # exploit
     flagResp = await client.get(f"http://{task.address}:{SERVICE_PORT}/user/profile/{userId}?userId={userId}", cookies={"jwtToken": cookie})
@@ -179,7 +179,7 @@ async def exploit_private(task: ExploitCheckerTaskMessage, searcher: FlagSearche
     userId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
 
     # exploit
     flagResp = await client.get(f"http://{task.address}:{SERVICE_PORT}/uploads/{base64.b64encode(userId.encode()).decode()}/public/../private/flag.txt", cookies={"jwtToken": cookie})
@@ -199,7 +199,7 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
     victimUserId = task.attack_info
 
     # register so client has a cookie 
-    email, password, cookie = await register(client)
+    email, password, cookie = await register(task, client)
 
     # scour the frontpage to retrieve our unique userId
     try:
