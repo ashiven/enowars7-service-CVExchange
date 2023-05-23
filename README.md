@@ -32,7 +32,7 @@ The problem here is that we use a faulty conditional statement with our view eng
 
 The first part of that statement is just fine because `req.userId` is a parameter that is set by our authentication middleware and is derived from decoding the session cookie a user has received after logging in.
 
-The problem clearly lies in the second part of the statement which checks whether the user has supplied a query paramater with the name **userId**, which anyone can supply quite easily.
+The problem clearly lies in the second part of the statement which checks whether the user has supplied a query parameter with the name **userId**, which anyone can supply quite easily.
 Therefore we are able to access a users private profile information like so: **/user/profile/{whateverTheirIdIs}?userId={whateverTheirIdIs}** .
 
 This can be fixed by rewriting the conditional statement as follows: `if(parseInt(req.userId) === parseInt(req.params.id))` .
