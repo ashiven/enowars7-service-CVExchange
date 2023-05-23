@@ -236,7 +236,7 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
     payload = b"Content-Type: image/jpeg\r\n\r\n" + data
     
     # create a request for a file upload
-    request = Request("POST", f"http://localhost:{SERVICE_PORT}/files/upload", files={"profilePicture": payload}, cookies={"jwtToken": cookie})
+    request = Request("POST", f"http://{task.address}:{SERVICE_PORT}/files/upload", files={"profilePicture": payload}, cookies={"jwtToken": cookie})
     
     # copy the headers for our actual request 
     headers = {}
