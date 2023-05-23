@@ -1,6 +1,9 @@
+version: '3'
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 1337:1337
     environment:
@@ -10,7 +13,9 @@ services:
       MYSQL_DB: basedbase
 
   mysql:
-    build: db
+    build:
+      context: ./CVExchange/db
+      dockerfile: Dockerfile
     volumes:
       - cvexchange-mysql-data:/var/lib/mysql
     environment:
