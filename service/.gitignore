@@ -1,5 +1,5 @@
 /CVExchange/node_modules/
-/CVExchange//uploads/*
-!/CVExchange//uploads/.gitkeep
-/CVExchange//backups/*
-!/CVExchange//backups/.gitkeep
+/CVExchange/uploads/*
+!/CVExchange/uploads/.gitkeep
+/CVExchange/backups/*
+!/CVExchange/backups/.gitkeep
