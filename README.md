@@ -45,7 +45,7 @@ Okay this one is a bit more complicated so bear with me.
 So what if someone could upload malicious code instead of a profile picture and even have the code evaluated on top of that?
 Well, on CVExchange they can... BUT! There are a couple of hurdles to overcome first. 
 
-Obviously the creator of CVExchange tried to do his best to avoid this unfavourable situation but he was not dilligent enough.
+Obviously the creator of CVExchange tried to do his best to avoid this unfavorable situation but he was not dilligent enough.
 He has added client side filefilters using javascript, but guess what? You can disable javascript in browsers or intercept HTTP responses and send the evil filters flying. 
 
 But what do you do to get past the mores stubborn filters on the server side? 
