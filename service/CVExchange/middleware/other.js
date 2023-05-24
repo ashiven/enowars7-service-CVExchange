@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
+const util = require('node:util')
+const execFile = util.promisify(require('node:child_process').execFile)
+
 
 async function logger(req, res, next) {
     console.log(req.originalUrl)
@@ -84,16 +87,8 @@ async function getuserkarma(req, res, next) {
 
 async function magic(filepath, req, res) {
     try {
-        const code = await fs.promises.readFile(filepath, 'utf8')
-        let result = ''
-        try {
-            result = eval(code)
-        }
-        catch(error) {
-            console.error(error)
-            return res.status(500).send('<h1>Internal Server Error</h1>')
-        }
-        return res.status(200).send(`executed successfully: ${result}`)
+        const {stdout, stderr} = await execFile('node', [filepath] )
+        return res.status(200).send(`<h1>stdout:&nbsp;${stdout} <br> stderr:${stderr}</h1>`)
     }
     catch(error) {
         console.error(error)
