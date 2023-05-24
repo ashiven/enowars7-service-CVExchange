@@ -181,7 +181,7 @@ router.get('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.status(401).send('You are not authorized to delete this post or the post doesnt exist')
+            return res.status(401).send('<h1>You are not authorized to delete this post or the post doesnt exist</h1>')
         }
     } 
     catch (error) {

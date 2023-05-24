@@ -143,7 +143,10 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
         }
         let page = 1
         if(req.query.page) {
-            page = req.query.page
+            page = parseInt(req.query.page)
+            if(!Number.isInteger(page)) {
+                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+            }
         }
         let ratings = []
         let commentPosts = []
