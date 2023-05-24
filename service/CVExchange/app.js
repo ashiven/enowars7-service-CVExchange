@@ -50,6 +50,9 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
         let sort = 'hot'
         if(req.query.page) {
             page = parseInt(req.query.page)
+            if(!Number.isInteger(page)) {
+                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+            }
         }
         const offset = (page - 1) * pagelimit
         let comments = []
@@ -81,6 +84,9 @@ app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
             }
             else if(sort === 'top') {
                 query = `SELECT * FROM posts ORDER BY rating DESC`
+            }
+            else {
+                sort = 'hot'
             }
         }
 

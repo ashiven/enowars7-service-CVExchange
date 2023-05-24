@@ -72,7 +72,7 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         const post_params = [postId]
         const [post] = await req.database.query(post_query, post_params)
         if (post.length === 0) {
-            return res.status(404).send('Post not found')
+            return res.status(404).send('<h1>Post not found</h1>')
         }
         const post_rating_query = `SELECT * FROM ratings WHERE post_id = ?`
         const post_rating_params = [post[0].id]
