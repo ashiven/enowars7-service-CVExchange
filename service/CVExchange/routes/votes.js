@@ -12,10 +12,12 @@ router.post('/ratepost', auth, async (req, res) => {
     try {
         const userId = req.userId
         const rating = parseInt(req.body.rating)
-        const postId = req.body.postId
-
         if (!(rating === 1 || rating === -1)) {
             return res.status(400).send('Yea.. I see what you were trying to do ;)')
+        }
+        const postId = req.body.postId
+        if (!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>That wont work.</h1>')
         }
 
         // start a transaction
@@ -87,10 +89,12 @@ router.post('/ratecomment', auth, async (req, res) => {
     try {
         const userId = req.userId 
         const rating = parseInt(req.body.rating)
-        const commentId = req.body.commentId
-
         if(!(rating === 1 || rating === -1)) {
             return res.status(400).send('Yea.. I see what you were trying to do ;)')
+        }
+        const commentId = req.body.commentId
+        if (!Number.isInteger(parseInt(commentId))) {
+            return res.status(500).send('<h1>That wont work.</h1>')
         }
 
         // start a transaction

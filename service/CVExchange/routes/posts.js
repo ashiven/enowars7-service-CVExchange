@@ -25,8 +25,8 @@ router.post('/new', auth, getusername, async (req, res) => {
     try {
         const title = req.body.title
         const text = req.body.text
-        if(title === '' || text === '') {
-            return res.send('You need to have a title and text!')
+        if(!title || !text || title === '' || text === '') {
+            return res.status(500).send('You need to include a title and text!')
         }
         const creatorId = req.userId
         const creatorName = req.username
@@ -65,6 +65,9 @@ router.post('/new', auth, getusername, async (req, res) => {
 router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const postId = req.params.id
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>Thats not a number in my world.</h1>')
+        }
         let ratings = []
         let sort = 'top'
 
@@ -133,6 +136,9 @@ router.get('/delete/:id', auth, async (req, res) => {
 
     try {
         const postId = req.params.id
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>Cant delete imaginary posts.</h1>')
+        }
         const userId = req.userId
 
         // start a transaction
@@ -181,7 +187,7 @@ router.get('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.status(401).send('<h1>You are not authorized to delete this post or the post doesnt exist</h1>')
+            return res.status(401).send('<h1>You are not authorized to delete this post or the post doesnt exist.</h1>')
         }
     } 
     catch (error) {
@@ -197,6 +203,9 @@ router.get('/delete/:id', auth, async (req, res) => {
 router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const postId = req.params.id
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>What are you even trying to edit?</h1>')
+        }
         const userId = req.userId
         
         const query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
@@ -207,7 +216,7 @@ router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
             return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post' })
         } 
         else {
-            return res.status(404).send('Post not found')
+            return res.status(404).send('<h1>Post not found</h1>')
         }
     } 
     catch (error) {
@@ -220,7 +229,13 @@ router.post('/edit/:id', auth, async (req, res) => {
     try {
         const title = req.body.title
         const text = req.body.text
+        if(!title || !text || title === '' || text === '') {
+            return res.status(500).send('You need to include a title and text!')
+        }
         const postId = req.params.id
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send(`<h1>Since when is "${postId}" a number huh?</h1>`)
+        }
         const userId = req.userId
 
         const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
@@ -240,7 +255,10 @@ router.get('/save/:id', auth, async (req, res) => {
 
     try {
         const userId = req.userId
-        const postId = req.params.id 
+        const postId = req.params.id
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>Stop it. Its time to stop. Really.</h1>')
+        }
         let updatedSaved
 
         // start a transaction

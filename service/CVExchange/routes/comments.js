@@ -13,10 +13,13 @@ router.post('/new', auth, getusername, async (req, res) => {
 
     try {
         const comment = req.body.comment
-        if(comment === '') {
-            return res.send('You need to supply a comment!')
+        if(!comment || comment === '') {
+            return res.status(500).send('You need to supply a comment!')
         }
         const postId = req.body.postId
+        if(!Number.isInteger(parseInt(postId))) {
+            return res.status(500).send('<h1>Dont test my patience bud.</h1>')
+        }
         const creatorId = req.userId
         const creatorName = req.username
 
@@ -54,8 +57,13 @@ router.post('/new', auth, getusername, async (req, res) => {
 router.post('/edit/:id', auth, async (req, res) => {
     try {
         const text = req.body.text
-        const postId = req.body.postId
+        if(!text || text === '') {
+            return res.status(500).send('You need to supply a comment!')
+        }
         const commentId = req.params.id
+        if(!Number.isInteger(parseInt(commentId))) {
+            return res.status(500).send('<h1>Dont test my patience bud.</h1>')
+        }
         const userId = req.userId
     
         const query = `UPDATE comments SET text = ? WHERE id = ? AND creator_id = ?`
@@ -75,6 +83,9 @@ router.get('/delete/:id', auth, async (req, res) => {
 
     try {
         const commentId = req.params.id
+        if(!Number.isInteger(parseInt(commentId))) {
+            return res.status(500).send('<h1>Cant delete imaginary comments.</h1>')
+        }
         const userId = req.userId
 
         // start a transaction

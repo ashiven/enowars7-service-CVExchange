@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
         const email = req.body.email
         const password = req.body.password
 
-        if(!email || !password) {
+        if(!email || !password || email === '' || password === '') {
             return res.render('login', {title: 'Login', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
         const query = `SELECT * FROM users WHERE email = ? AND password = ?`
@@ -90,7 +90,7 @@ router.post('/register', async (req, res) => {
         const email = req.body.email
         const password = req.body.password
 
-        if(!name || !email || !password) {
+        if(!name || !email || !password || name === '' || email === '' || password === '') {
             return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
 
@@ -135,6 +135,9 @@ router.post('/register', async (req, res) => {
 router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => {
     try {
         const profileId = req.params.id
+        if(!Number.isInteger(parseInt(profileId))) {
+            return res.status(500).send(`<h1>Riddle me this: What is the result of 2 + ${profileId} ? Yea.. I thought so.</h1>`)
+        }
         const pagelimit = 15
         const userId = req.userId
         let tab = 'overview'
