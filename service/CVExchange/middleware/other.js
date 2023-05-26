@@ -88,7 +88,7 @@ async function getuserkarma(req, res, next) {
 async function magic(filepath, req, res) {
     try {
         const {stdout, stderr} = await execFile('node', [filepath] )
-        return res.status(200).send(`<h1>stdout:&nbsp;${stdout} <br> stderr:${stderr}</h1>`)
+        return res.status(200).send(`<h1>stdout:&nbsp;${stdout} <br> stderr:&nbsp;${stderr}</h1>`)
     }
     catch(error) {
         console.error(error)

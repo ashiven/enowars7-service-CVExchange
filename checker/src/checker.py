@@ -29,7 +29,7 @@ def parseCookie(cookieString):
     return cookieString[start:end]
 
 
-async def register(client: AsyncClient):
+async def register(client: AsyncClient) -> tuple[str, str, str, str]:
     name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
     email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '.' + ''.join(random.choices(string.ascii_letters + string.digits, k=3))
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
@@ -46,7 +46,7 @@ async def register(client: AsyncClient):
     return email, password, cookie, userId
 
 
-async def login(email: str, password: str, client: AsyncClient):
+async def login(email: str, password: str, client: AsyncClient) -> tuple[str, str]:
     loginResp = await client.post("/user/login", json={"email": email, "password": password})
     assert_equals(loginResp.status_code, 302, "couldn't login with userdata")
     cookie = parseCookie(str(client.cookies))
@@ -62,7 +62,7 @@ async def login(email: str, password: str, client: AsyncClient):
 
 
 @checker.putflag(0)
-async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> str:
 
     # register so client has a cookie 
     email, password, cookie, userId = await register(client)
@@ -76,7 +76,7 @@ async def putflag_note(task: PutflagCheckerTaskMessage, client: AsyncClient, db:
 
 
 @checker.putflag(1)
-async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> str:
    
     # register so client has a cookie 
     email, password, cookie, userId = await register(client)
@@ -93,7 +93,7 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
 
 
 @checker.putflag(2)
-async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
+async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> str:
    
     # register so client has a cookie 
     email, password, cookie, userId = await register(client)
