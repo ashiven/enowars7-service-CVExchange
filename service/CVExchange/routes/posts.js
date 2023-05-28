@@ -50,7 +50,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         await connection.commit()
         await connection.release()
 
-        return res.redirect('/')
+        return res.redirect(`/posts/${postId}`)
     } 
     catch(error) {
         // if there was an error, rollback changes and release the connection
