@@ -17,7 +17,7 @@ RUN npm install
 COPY ./CVExchange/ .
 
 #give full permissions to the owners of files/folders and only read permissions to everyone else
-RUN chmod -R 744 /
+RUN chmod -R 744 /app
 
 #set execute permissions for files inside of /uploads
 RUN chmod -R 755 /app/uploads
