@@ -14,7 +14,7 @@ router.post('/new', auth, getusername, async (req, res) => {
     try {
         const comment = req.body.comment
         if(!comment || comment === '') {
-            return res.status(500).send('You need to supply a comment!')
+            return res.status(500).send('<h1>You need to supply a comment!</h1>')
         }
         const postId = req.body.postId
         if(!Number.isInteger(parseInt(postId))) {
@@ -58,7 +58,7 @@ router.post('/edit/:id', auth, async (req, res) => {
     try {
         const text = req.body.text
         if(!text || text === '') {
-            return res.status(500).send('You need to supply a comment!')
+            return res.status(500).send('<h1>You need to supply a comment!</h1>')
         }
         const commentId = req.params.id
         if(!Number.isInteger(parseInt(commentId))) {
@@ -117,7 +117,7 @@ router.get('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.status(401).send('You are not authorized to delete this comment or it doesnt exist')
+            return res.status(401).send('<h1>You are not authorized to delete this comment or it doesnt exist</h1>')
         }
     } 
     catch (error) {

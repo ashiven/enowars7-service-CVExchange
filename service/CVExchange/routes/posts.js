@@ -26,7 +26,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         const title = req.body.title
         const text = req.body.text
         if(!title || !text || title === '' || text === '') {
-            return res.status(500).send('You need to include a title and text!')
+            return res.status(500).send('<h1>You need to include a title and text!</h1>')
         }
         const creatorId = req.userId
         const creatorName = req.username
@@ -230,7 +230,7 @@ router.post('/edit/:id', auth, async (req, res) => {
         const title = req.body.title
         const text = req.body.text
         if(!title || !text || title === '' || text === '') {
-            return res.status(500).send('You need to include a title and text!')
+            return res.status(500).send('<h1>You need to include a title and text!</h1>')
         }
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {

@@ -13,7 +13,7 @@ router.post('/ratepost', auth, async (req, res) => {
         const userId = req.userId
         const rating = parseInt(req.body.rating)
         if (!(rating === 1 || rating === -1)) {
-            return res.status(400).send('Yea.. I see what you were trying to do ;)')
+            return res.status(400).send('<h1>Yea.. I see what you were trying to do ;)</h1>')
         }
         const postId = req.body.postId
         if (!Number.isInteger(parseInt(postId))) {
@@ -90,7 +90,7 @@ router.post('/ratecomment', auth, async (req, res) => {
         const userId = req.userId 
         const rating = parseInt(req.body.rating)
         if(!(rating === 1 || rating === -1)) {
-            return res.status(400).send('Yea.. I see what you were trying to do ;)')
+            return res.status(400).send('<h1>Yea.. I see what you were trying to do ;)</h1>')
         }
         const commentId = req.body.commentId
         if (!Number.isInteger(parseInt(commentId))) {
