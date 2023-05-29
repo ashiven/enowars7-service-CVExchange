@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<%- include('../partials/bare-header') %>
+<div class="layout-frontpage">
+
+    <main><%- body %></main>
+    
+    <side>
+      <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
+    </side>
+    
+</div>
+<%- include('../partials/footer') %>
+
+
+<% if(!req.cookies.jwtToken) { %>
+<script>
+const loginRequiredElements = document.querySelectorAll('.login-required')
+console.log(document.cookie)
+loginRequiredElements.forEach(element => {
+  element.addEventListener('click', event => {
+    if (!document.cookie.includes('jwtToken')) {
+      event.preventDefault()
+      window.location.href = '/user/login'
+    }
+  })
+})
+</script>
+<% } %>
+
+
+</body>
+</html>

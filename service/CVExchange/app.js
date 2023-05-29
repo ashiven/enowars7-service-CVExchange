@@ -153,6 +153,46 @@ app.get('/uploads/:userId/public/:filename', auth, async (req, res) => {
     }
 })
 
+app.get('/search', auth, async (req, res) => {
+    try{
+        const pagelimit = 15
+        let page = 1
+        if(req.query.page) {
+            page = parseInt(req.query.page)
+            if(!Number.isInteger(page)) {
+                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+            }
+        }
+        const offset = (page - 1) * pagelimit
+        let comments = []
+        let ratings = []
+
+        const search = req.query.q
+        const search_query = `SELECT p.*, MATCH (title, text, creator_name) AGAINST (?) AS score FROM posts p WHERE MATCH (title, text, creator_name) AGAINST (?) LIMIT ? OFFSET ?`
+        const search_params = [search, search, pagelimit, offset]
+        const [posts] = await req.database.query(search_query, search_params)
+        const postIds = posts.map(post => post.id)
+
+        const comment_query = `SELECT * FROM comments WHERE post_id IN (?)`
+        const comment_params = [postIds]        
+        if(postIds.length > 0) {
+            [comments] = await req.database.query(comment_query, comment_params)
+        }
+
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId]        
+        if(postIds.length > 0) {
+            [ratings] = await req.database.query(ratings_query, ratings_params)
+        }
+
+        return res.render('frontpage', { req, pagelimit, page, posts, comments, ratings, title: 'Search results', layout: './layouts/search' })
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
 app.use('/uploads', express.static('./uploads'))
 app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
