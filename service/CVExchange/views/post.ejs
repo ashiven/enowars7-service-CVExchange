@@ -88,8 +88,8 @@
                     <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
                     <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
                     <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
-                    <li class="reply-button"><a class="login-required" href="#" onclick="reply('<%= comment.id %>')">reply</a></li>
                     <% } %>
+                    <li class="reply-button"><a class="login-required" href="#" onclick="reply('<%= comment.id %>')">reply</a></li>
                 </ul>
                 <form class="comment-edit-textarea" id="comment-reply-<%= comment.id %>" style="display: none;" method="post" action="/comments/new">
                     <input type="hidden" name="postId" value="<%= comment.post_id %>">
