@@ -185,7 +185,7 @@ app.get('/search', auth, getusername, getuserkarma, async (req, res) => {
             [ratings] = await req.database.query(ratings_query, ratings_params)
         }
 
-        return res.render('frontpage', { req, pagelimit, page, posts, comments, ratings, title: 'Search results', layout: './layouts/search' })
+        return res.render('frontpage', { req, pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/search' })
     }
     catch(error) {
         console.error(error)
