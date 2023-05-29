@@ -47,47 +47,66 @@
     <button class="uploadbutton" type="submit">save</button>
 </form>
 
+
 <div>
-<% for (let comment of comments) { %>
-<div class="comment">
-    <div class="voting-section">
-        <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
-            </svg>
-        </div>
-        <div class="downvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
-            </svg>
-        </div>
-    </div>
-    <div class="comment-body">
-        <div class="comment-title">
-            <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
-            <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
-            <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
-        </div>
-        <div class="comment-text" id="comment-text-<%= comment.id %>">
-            <%= comment.text %>
-        </div>
-        <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
-            <input type="hidden" name="postId" value="<%= comment.post_id %>">
-            <textarea id="text" name="text" rows="7" cols="85"><%= comment.text %></textarea><br>
-            <input class="uploadbutton" type="submit" value="save">
-        </form>
-        <ul class="comment-buttons">
-            <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
-            <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
-            <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
-            <% } %>
-        </ul>
-    </div>
+    <% createThread(comments) %>
 </div>
+
+
+<% function createThread(comments, level = 0) { %>
+    <% comments.forEach((comment) => { %>
+        <div class="comment <%= level === 0 ? '' : 'child-comment' %>" style="margin-left: <%= level * 20 %>px;">
+            <div class="voting-section">
+                <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="downvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+            <div class="comment-body">
+                <div class="comment-title">
+                    <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
+                    <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
+                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
+                </div>
+                <div class="comment-text" id="comment-text-<%= comment.id %>">
+                    <%= comment.text %>
+                </div>
+                <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
+                    <input type="hidden" name="postId" value="<%= comment.post_id %>">
+                    <textarea id="text" name="text" rows="7" cols="85"><%= comment.text %></textarea><br>
+                    <input class="uploadbutton" type="submit" value="save">
+                </form>
+                <ul class="comment-buttons">
+                    <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
+                    <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
+                    <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
+                    <li class="reply-button"><a class="login-required" href="#" onclick="reply('<%= comment.id %>')">reply</a></li>
+                    <% } %>
+                </ul>
+                <form class="comment-edit-textarea" id="comment-reply-<%= comment.id %>" style="display: none;" method="post" action="/comments/new">
+                    <input type="hidden" name="postId" value="<%= comment.post_id %>">
+                    <input type="hidden" name="parentId" value="<%= comment.id %>">
+                    <textarea id="comment" name="comment" rows="7" cols="65"></textarea><br>
+                    <input class="uploadbutton" type="submit" value="save">
+                </form>
+            </div>
+        </div>
+        <% if (comment.children.length > 0) { %>
+        <div class="child-comments">
+              <% createThread(comment.children, level + 1) %>
+        </div>
+        <% } %>
+    <% }) %>
 <% } %>
-</div>
+
 
 <script>
 for(const btn of document.querySelectorAll('.upvote')) {
@@ -183,5 +202,9 @@ function editComment(commentId) {
     const commentEdit = document.getElementById(`comment-edit-${commentId}`)
     commentText.style.display = 'none'
     commentEdit.style.display = 'block'
+}
+function reply(commentId) {
+    const commentReply = document.getElementById(`comment-reply-${commentId}`)
+    commentReply.style.display = 'block'
 }
 </script>

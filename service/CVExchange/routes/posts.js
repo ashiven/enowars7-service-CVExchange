@@ -117,13 +117,44 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         let [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
 
+
+        // ------------------------------under construction--------------------------------------
+
+        const commentMap = {}
+        const rootComments = []
+
+        //comment map with key: commentId  value: comment
+        for(let comment of comments) {
+            comment.children = []
+            commentMap[comment.id] = comment
+        }
+
+        //fill children list for each comment and fill root comments
+        for(let comment of comments) {
+            if(comment.parent_id !== null) {
+                const parent = commentMap[comment.parent_id]
+                parent.children.push(comment)
+            }
+            else {
+                rootComments.push(comment)
+            }
+        }
+
+        //sort children by rating descending
+        for(let comment of rootComments) {
+            comment.children.sort((a, b) => b.rating - a.rating)
+        }
+
+        // ------------------------------under construction--------------------------------------
+
+
         if(commentIds.length > 0) {
             const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
             const comment_ratings_params = [commentIds, req.userId]
             const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
             ratings = ratings.concat(comment_ratings)
         }
-        return res.render('post', { req, sort, post: post[0], ratings, comments, title: `${post[0].title}`, layout: './layouts/post' })
+        return res.render('post', { req, sort, post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
     }
     catch (error) {
         console.error(error)

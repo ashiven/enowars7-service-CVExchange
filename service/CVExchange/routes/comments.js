@@ -20,15 +20,29 @@ router.post('/new', auth, getusername, async (req, res) => {
         if(!Number.isInteger(parseInt(postId))) {
             return res.status(500).send('<h1>Dont test my patience bud.</h1>')
         }
+        let parentId
+        if(req.body.parentId) {
+            parentId = req.body.parentId
+            if(!Number.isInteger(parseInt(parentId))) {
+                return res.status(500).send('<h1>Dont test my patience bud.</h1>')
+            }
+        }
         const creatorId = req.userId
         const creatorName = req.username
 
         // start a transaction
         await connection.beginTransaction()
 
-        const insert_query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime) VALUES (?, ?, ?, ?,  1,  NOW() )`
-        const insert_params = [comment, postId, creatorId, creatorName]
-        await connection.query(insert_query, insert_params)
+        if(parentId) {
+            const insert_query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime, parent_id) VALUES (?, ?, ?, ?,  1,  NOW(), ? )`
+            const insert_params = [comment, postId, creatorId, creatorName, parentId]
+            await connection.query(insert_query, insert_params)
+        }
+        else {
+            const insert_query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime) VALUES (?, ?, ?, ?,  1,  NOW() )`
+            const insert_params = [comment, postId, creatorId, creatorName]
+            await connection.query(insert_query, insert_params)
+        }
 
         const commentId_query = `SELECT LAST_INSERT_ID() AS id FROM comments`
         const [results] = await connection.query(commentId_query)

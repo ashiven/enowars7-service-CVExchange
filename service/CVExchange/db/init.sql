@@ -6,6 +6,7 @@ CREATE TABLE `basedbase`.`comments` (
   `creator_name` varchar(45) DEFAULT NULL,
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
+  `parent_id` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
