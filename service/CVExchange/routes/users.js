@@ -202,6 +202,10 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
             const saved_params = [savedIds]
             if(savedIds.length > 0) {
                 [saved] = await req.database.query(saved_query, saved_params)
+                const updatedSaved = savedIds.filter((id) => saved.some((post) => post.id === id))
+                const update_query = `UPDATE users SET saved = ? WHERE id = ?`
+                const update_params = [updatedSaved.join(','), userId]
+                await req.database.query(update_query, update_params)
             }
         }
         
