@@ -18,7 +18,8 @@ CREATE TABLE `basedbase`.`posts` (
   `creator_name` varchar(45) DEFAULT NULL,
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  ADD FULLTEXT INDEX `search_index` (`creator_name`, `title`, `text`) VISIBLE
 );
 
 CREATE TABLE `basedbase`.`ratings` (

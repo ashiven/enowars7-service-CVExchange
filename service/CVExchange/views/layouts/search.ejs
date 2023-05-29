@@ -8,12 +8,17 @@
 </head>
 <body>
 
-<%- include('../partials/bare-header') %>
+<%- include('../partials/nobutton-header') %>
 <div class="layout-frontpage">
 
     <main><%- body %></main>
     
     <side>
+      <div class="searchbar">
+        <form action="/search">
+            <input type="text" name="q" placeholder="search">
+        </form>
+      </div>
       <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
     </side>
     

@@ -283,11 +283,20 @@ header {
 side {
     padding: 20px;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: flex-start;
     align-items: flex-start;
     font-size: 17px;
     font-weight: bolder;
     color: #3367a4;
+}
+
+.searchbar input[type="text"] {
+    width: 285px;
+    height: 25px;
+    padding-left: 10px;
+    font-size: 14px;
 }
 
 .new-post-button {
