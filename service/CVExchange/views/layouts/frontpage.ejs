@@ -16,7 +16,7 @@
     
     <side>
       <div class="searchbar">
-        <form action="/search">
+        <form action="/search" id="searchform">
             <input type="text" name="q" placeholder="search">
         </form>
       </div>
@@ -26,11 +26,9 @@
 </div>
 <%- include('../partials/footer') %>
 
-
 <% if(!req.cookies.jwtToken) { %>
 <script>
 const loginRequiredElements = document.querySelectorAll('.login-required')
-console.log(document.cookie)
 loginRequiredElements.forEach(element => {
   element.addEventListener('click', event => {
     if (!document.cookie.includes('jwtToken')) {
@@ -39,9 +37,16 @@ loginRequiredElements.forEach(element => {
     }
   })
 })
+
+const searchform = document.getElementById('searchform')
+searchform.addEventListener('submit', event => {
+  if (!document.cookie.includes('jwtToken')) {
+      event.preventDefault()
+      window.location.href = '/user/login'
+  }
+})
 </script>
 <% } %>
-
 
 </body>
 </html>
