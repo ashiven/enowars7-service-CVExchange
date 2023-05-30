@@ -566,6 +566,7 @@ input[type="file"] {
     font-size: 14px;
     margin-top: 5px;
     margin-bottom: 5px;
+    max-width: 900px;
 }
 
 .comment-body ul.comment-buttons {

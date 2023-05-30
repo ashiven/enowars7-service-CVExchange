@@ -20,5 +20,10 @@
     </div>
 
     <button class="btn btn-lg btn-primary btn-block" value="Done!" type="submit">Done!</button>
+    <% if(status !== '') { %>
+      <div class="alert alert-danger" role="alert">
+          <%= status %>
+      </div>
+    <% } %>
   </form>
 </div>

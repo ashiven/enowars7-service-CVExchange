@@ -11,7 +11,7 @@ const getuserkarma = middleware.getuserkarma
 
 router.get('/new', auth, getusername, getuserkarma, async (req, res) => {
     try {
-        return res.render('newpost', {req, title: 'New Post', layout: './layouts/post'})
+        return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: ''})
     }
     catch(error) {
         console.error(error)
@@ -26,7 +26,16 @@ router.post('/new', auth, getusername, async (req, res) => {
         const title = req.body.title
         const text = req.body.text
         if(!title || !text || title === '' || text === '') {
-            return res.status(500).send('<h1>You need to include a title and text!</h1>')
+            await connection.release()
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'You need to include a title and text!'})
+        }
+        if(title.length < 8) {
+            await connection.release()
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'Please provide a title containing at least 8 characters.'})
+        }
+        if(title.length > 400 || text.length > 4000) {
+            await connection.release()
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
         }
         const creatorId = req.userId
         const creatorName = req.username
@@ -244,7 +253,7 @@ router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
         const [results] = await req.database.query(query, params)
 
         if (results.length > 0) {
-            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post' })
+            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: '' })
         } 
         else {
             return res.status(404).send('<h1>Post not found</h1>')
@@ -258,16 +267,27 @@ router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
 
 router.post('/edit/:id', auth, async (req, res) => {
     try {
-        const title = req.body.title
-        const text = req.body.text
-        if(!title || !text || title === '' || text === '') {
-            return res.status(500).send('<h1>You need to include a title and text!</h1>')
-        }
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
             return res.status(500).send(`<h1>Since when is "${postId}" a number huh?</h1>`)
         }
         const userId = req.userId
+
+        const post_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
+        const post_params = [postId, userId]
+        const [results] = await req.database.query(post_query, post_params)
+
+        const title = req.body.title
+        const text = req.body.text
+        if(!title || !text || title === '' || text === '') {
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'You need to include a title and text!'})
+        }
+        if(title.length < 8) {
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'Please provide a title containing at least 8 characters.'})
+        }
+        if(title.length > 400 || text.length > 4000) {
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
+        }
 
         const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
         const params = [title, text, postId, userId]
