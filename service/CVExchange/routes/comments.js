@@ -119,14 +119,12 @@ router.get('/delete/:id', auth, async (req, res) => {
         const [find_results] = await connection.query(find_query, find_params)
 
         if (find_results.length > 0) {
-            const postId = find_results[0].post_id
 
-            const delete_comment_query = `DELETE FROM comments WHERE id = ?`
-            const delete_comment_params = [commentId]
-            await connection.query(delete_comment_query, delete_comment_params)
+            const deletedIds = []
+            await deleteChildren(connection, commentId, deletedIds)
 
-            const delete_ratings_query = `DELETE FROM ratings WHERE comment_id = ?`
-            const delete_ratings_params = [commentId]
+            const delete_ratings_query = `DELETE FROM ratings WHERE comment_id IN (?)`
+            const delete_ratings_params = [deletedIds]
             await connection.query(delete_ratings_query, delete_ratings_params)
 
             // commit the transaction and release the connection
@@ -154,6 +152,23 @@ router.get('/delete/:id', auth, async (req, res) => {
 })
 
 //--------------------------------
+
+
+async function deleteChildren(connection, commentId, deletedIds) {
+    const child_query = `SELECT id FROM comments WHERE parent_id = ?`
+    const child_params = [commentId]
+    const [children] = await connection.query(child_query, child_params)
+  
+    const delete_query = `DELETE FROM comments WHERE id = ?`
+    const delete_params = [commentId]
+    await connection.query(delete_query, delete_params);
+
+    deletedIds.push(commentId)
+  
+    for (const child of children) {
+        await deleteChildren(connection, child.id, deletedIds);
+    }
+}
 
 
 module.exports = router
