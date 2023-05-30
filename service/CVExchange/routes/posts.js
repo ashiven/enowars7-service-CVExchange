@@ -211,11 +211,20 @@ router.get('/delete/:id', auth, async (req, res) => {
             const delete_ratings_params = [postId]
             await connection.query(delete_ratings_query, delete_ratings_params)
 
-            // commit the transaction and release the connection
-            await connection.commit()
-            await connection.release()
+            if(req.originalUrl === `/posts/delete/${postId}`) {
+                // commit the transaction and release the connection
+                await connection.commit()
+                await connection.release()
 
-            return res.redirect('back')
+                return res.redirect('/')
+            }
+            else {
+                // commit the transaction and release the connection
+                await connection.commit()
+                await connection.release()
+
+                return res.redirect('back')
+            }
         }
         else {
             // commit the transaction and release the connection

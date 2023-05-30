@@ -17,6 +17,11 @@ router.post('/new', auth, getusername, async (req, res) => {
             await connection.release()
             return res.status(500).send('<h1>You need to supply a comment!</h1>')
         }
+        if(comment.length > 500 ) {
+            await connection.release()
+            return res.status(500).send('<h1>Please limit your comment to 500 characters.</h1>')
+        }
+
         const postId = req.body.postId
         if(!Number.isInteger(parseInt(postId))) {
             await connection.release()

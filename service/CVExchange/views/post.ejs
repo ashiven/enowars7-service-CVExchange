@@ -32,11 +32,15 @@
             <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
         </p>
         <div class="post-text">
-            <p><%= post.text %></p>
+            <p><%- post.text.replace(/\n/g, '<br>') %></p>
         </div>
         <ul class="post-buttons">
             <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
             <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
+            <% if(parseInt(req.userId) === parseInt(post.creator_id)) { %>
+            <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
+            <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
+            <% } %>
         </ul> 
     </div>
 </div>
@@ -50,9 +54,9 @@
     </select>
 </form>
 
-<form method="post" action="/comments/new">
+<form method="post" action="/comments/new" id="newcomment-form">
     <input type="hidden" name="postId" value="<%= post.id %>">
-    <textarea class="comment-textarea" name="comment" rows="7" cols="65"></textarea><br>
+    <textarea class="comment-textarea" id="newcomment-text" name="comment" rows="7" cols="65"></textarea><br>
     <button class="uploadbutton" type="submit">save</button>
 </form>
 
@@ -86,7 +90,7 @@
                     <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
                 </div>
                 <div class="comment-text" id="comment-text-<%= comment.id %>">
-                    <%= comment.text %>
+                    <%- comment.text.replace(/\n/g, '<br>') %>
                 </div>
                 <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
                     <input type="hidden" name="postId" value="<%= comment.post_id %>">
@@ -216,4 +220,12 @@ function reply(commentId) {
     const commentReply = document.getElementById(`comment-reply-${commentId}`)
     commentReply.style.display = 'block'
 }
+
+document.getElementById('newcomment-form').addEventListener('submit', (event) => {
+    const textarea = document.getElementById('newcomment-text')
+
+    if(textarea.value.length > 500 || textarea.value.length < 1) {
+        event.preventDefault()
+    }
+})
 </script>

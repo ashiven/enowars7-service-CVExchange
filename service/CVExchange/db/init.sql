@@ -1,6 +1,6 @@
 CREATE TABLE `basedbase`.`comments` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `text` varchar(500) DEFAULT NULL,
+  `text` TEXT DEFAULT NULL,
   `post_id` int DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
   `creator_name` varchar(45) DEFAULT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `basedbase`.`comments` (
 CREATE TABLE `basedbase`.`posts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(400) DEFAULT NULL,
-  `text` varchar(4000) DEFAULT NULL,
+  `text` TEXT DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
   `creator_name` varchar(45) DEFAULT NULL,
   `rating` int DEFAULT NULL,
