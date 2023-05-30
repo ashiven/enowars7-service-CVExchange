@@ -91,18 +91,22 @@ router.post('/register', async (req, res) => {
         const password = req.body.password
 
         if(!name || !email || !password || name === '' || email === '' || password === '') {
+            await connection.release()
             return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
 
         // start a transaction
         await connection.beginTransaction()
 
-        const search_query = `SELECT * FROM users WHERE email = ?`
-        const search_params = [email]
+        const search_query = `SELECT * FROM users WHERE email = ? OR name = ?`
+        const search_params = [email, name]
         const [search_results] = await connection.query(search_query, search_params)
 
         if(search_results.length > 0) {
-            return res.status(409).send('User already exists')
+            // commit the transaction and release the connection
+            await connection.commit()
+            await connection.release()
+            return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Username or email already taken.'})
         }
 
         const insert_query = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`
@@ -213,7 +217,7 @@ router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => 
             return res.render('profile', { tab, saved, page, pagelimit, req, user: user[0], posts, comments, commentPosts, ratings, title: `${user[0].name}'s Profile`, layout: './layouts/profile' })
         }
         else {
-            return res.status(404).send('user doesnt exist')
+            return res.status(404).send('<h1>User Not Found</h1>')
         }
     } 
     catch (error) {

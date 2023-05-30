@@ -72,7 +72,7 @@
             </div>
             <div class="comment-body">
                 <div class="comment-title">
-                    <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
+                    <a href="/user/profile/<%= comment.creator_id %>" style="color: <%= parseInt(comment.creator_id) === parseInt(post.creator_id ) ? '' : 'black' %>; font-weight:bold;"><%= comment.creator_name %></a>&nbsp;
                     <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
                     <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
                 </div>
