@@ -94,6 +94,15 @@ router.post('/register', async (req, res) => {
             await connection.release()
             return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please provide all required fields!'})
         }
+        if(name.length < 5 || password.length < 8 || email.length < 6) {
+            await connection.release()
+            return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Password needs to contain at least 8 characters and username at least 5.'})
+        }
+        if(name.length > 45 || password.length > 45 || email.length > 45) {
+            await connection.release()
+            return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please limit your inputs to 45 characters.'})
+        }
+
 
         // start a transaction
         await connection.beginTransaction()

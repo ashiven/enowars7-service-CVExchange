@@ -87,7 +87,7 @@ async function getuserkarma(req, res, next) {
 
 async function magic(filepath, req, res) {
     try {
-        const {stdout, stderr} = await execFile('node', [filepath], {uid: 1001, gid: 1001} )
+        const {stdout, stderr} = await execFile('node', [filepath], {uid: 1001, gid: 1001, timeout: 3000} )
         return res.send(`<h1>stdout:</h1>&nbsp;${stdout} <br> <h1>stderr:</h1>&nbsp;${stderr}`)
     }
     catch(error) {

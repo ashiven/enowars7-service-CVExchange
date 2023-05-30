@@ -609,6 +609,18 @@ input[type="file"] {
     max-width: 1200px;
 }
 
+.post-page-voting-section {
+    margin-top: -23px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: rgb(152, 148, 148);
+    font-size: 15px;
+    font-weight: bold;
+}
+
 .comment-textarea {
     margin-bottom: 10px;
 }
