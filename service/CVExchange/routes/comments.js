@@ -14,16 +14,19 @@ router.post('/new', auth, getusername, async (req, res) => {
     try {
         const comment = req.body.comment
         if(!comment || comment === '') {
+            await connection.release()
             return res.status(500).send('<h1>You need to supply a comment!</h1>')
         }
         const postId = req.body.postId
         if(!Number.isInteger(parseInt(postId))) {
+            await connection.release()
             return res.status(500).send('<h1>Dont test my patience bud.</h1>')
         }
         let parentId
         if(req.body.parentId) {
             parentId = req.body.parentId
             if(!Number.isInteger(parseInt(parentId))) {
+                await connection.release()
                 return res.status(500).send('<h1>Dont test my patience bud.</h1>')
             }
         }
@@ -98,6 +101,7 @@ router.get('/delete/:id', auth, async (req, res) => {
     try {
         const commentId = req.params.id
         if(!Number.isInteger(parseInt(commentId))) {
+            await connection.release()
             return res.status(500).send('<h1>Cant delete imaginary comments.</h1>')
         }
         const userId = req.userId

@@ -126,9 +126,6 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
         let [comments] = await req.database.query(comment_query, comment_params)
         const commentIds = comments.map(comment => comment.id)
 
-
-        // ------------------------------under construction--------------------------------------
-
         const commentMap = {}
         const rootComments = []
 
@@ -154,9 +151,6 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
             comment.children.sort((a, b) => b.rating - a.rating)
         }
 
-        // ------------------------------under construction--------------------------------------
-
-
         if(commentIds.length > 0) {
             const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
             const comment_ratings_params = [commentIds, req.userId]
@@ -177,6 +171,7 @@ router.get('/delete/:id', auth, async (req, res) => {
     try {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
+            await connection.release()
             return res.status(500).send('<h1>Cant delete imaginary posts.</h1>')
         }
         const userId = req.userId
@@ -277,6 +272,10 @@ router.post('/edit/:id', auth, async (req, res) => {
         const post_params = [postId, userId]
         const [results] = await req.database.query(post_query, post_params)
 
+        if (results.length <= 0) {
+            return res.status(404).send('<h1>Post not found</h1>')
+        }
+
         const title = req.body.title
         const text = req.body.text
         if(!title || !text || title === '' || text === '') {
@@ -293,7 +292,7 @@ router.post('/edit/:id', auth, async (req, res) => {
         const params = [title, text, postId, userId]
         await req.database.query(query, params)
 
-        return res.redirect(`/user/profile/${userId}`)
+        return res.redirect(`/posts/${postId}`)
     } 
     catch (error) {
         console.error(error)
@@ -308,6 +307,7 @@ router.get('/save/:id', auth, async (req, res) => {
         const userId = req.userId
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
+            await connection.release()
             return res.status(500).send('<h1>Stop it. Its time to stop. Really.</h1>')
         }
         let updatedSaved
