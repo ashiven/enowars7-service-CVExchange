@@ -295,7 +295,7 @@ side {
     flex-direction: column;
     gap: 15px;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-end;
     font-size: 17px;
     font-weight: bolder;
     color: #3367a4;
