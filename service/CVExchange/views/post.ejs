@@ -27,8 +27,8 @@
     </a>
     <div class="post-body">
         <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
-        <p class="post-tags">submitted on 
-            <time datetime="<%= post.datetime %>" class="timestamp"><%= post.datetime.toString().slice(0, -36) %></time> by 
+        <p class="post-tags">submitted 
+            <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %></time> ago by 
             <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
         </p>
         <div class="post-text">
@@ -44,6 +44,52 @@
         </ul> 
     </div>
 </div>
+
+<% function timeSince(date) {
+    var seconds = Math.floor((new Date() - date) / 1000)
+    var interval = seconds / 31536000
+
+    if (interval > 1) {
+        if (interval < 2) {
+            return Math.floor(interval) + " year"
+        }
+        return Math.floor(interval) + " years"
+    }
+
+    interval = seconds / 2592000
+    if (interval > 1) {
+        if (interval < 2) {
+            return Math.floor(interval) + " month"
+        }
+        return Math.floor(interval) + " months"
+    }
+
+    interval = seconds / 86400
+    if (interval > 1) {
+        if (interval < 2) {
+            return Math.floor(interval) + " day"
+        }
+        return Math.floor(interval) + " days"
+    }
+
+    interval = seconds / 3600
+    if (interval > 1) {
+        if (interval < 2) {
+            return Math.floor(interval) + " hour"
+        }
+        return Math.floor(interval) + " hours"
+    }
+
+    interval = seconds / 60
+    if (interval > 1) {
+        if (interval < 2) {
+            return Math.floor(interval) + " minute"
+        }
+        return Math.floor(interval) + " minutes"
+    }
+
+    return Math.floor(seconds) + " seconds"
+} %>
 
 <form class="sort-form" id="sort-form" action="/posts/<%= post.id %>">
     <label for="sort">sorted by:</label>
@@ -86,8 +132,8 @@
             <div class="comment-body">
                 <div class="comment-title">
                     <a href="/user/profile/<%= comment.creator_id %>" style="color: <%= parseInt(comment.creator_id) === parseInt(post.creator_id ) ? '' : 'black' %>; font-weight:bold;"><%= comment.creator_name %></a>&nbsp;
-                    <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
-                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
+                    <span class="comment-score"><%= comment.rating %> <%= comment.rating === 1 ? 'point' : 'points' %></span>&nbsp;
+                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
                 </div>
                 <div class="comment-text" id="comment-text-<%= comment.id %>">
                     <%- comment.text.replace(/\n/g, '<br>') %>
@@ -228,4 +274,35 @@ document.getElementById('newcomment-form').addEventListener('submit', (event) =>
         event.preventDefault()
     }
 })
+
+function timeSince(date) {
+    var seconds = Math.floor((new Date() - date) / 1000)
+    var interval = seconds / 31536000
+
+    if (interval > 1) {
+        return Math.floor(interval) + " years"
+    }
+
+    interval = seconds / 2592000
+    if (interval > 1) {
+        return Math.floor(interval) + " months"
+    }
+
+    interval = seconds / 86400
+    if (interval > 1) {
+        return Math.floor(interval) + " days"
+    }
+
+    interval = seconds / 3600
+    if (interval > 1) {
+        return Math.floor(interval) + " hours"
+    }
+
+    interval = seconds / 60
+    if (interval > 1) {
+        return Math.floor(interval) + " minutes"
+    }
+
+    return Math.floor(seconds) + " seconds"
+}
 </script>

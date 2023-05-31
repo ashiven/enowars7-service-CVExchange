@@ -37,8 +37,8 @@
             </a>
             <div class="post-body">
                 <p class="post-title"> <a class="title-link login-required" href="/posts/<%= element.id %>"><%= element.title %></a> </p>
-                <p class="post-tags">submitted on 
-                    <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time> by 
+                <p class="post-tags">submitted
+                    <time datetime="<%= element.datetime %>" class="timestamp"><%= timeSince(element.datetime) %> ago</time> by 
                     <a href="/user/profile/<%= element.creator_id %>" class="author login-required"><%= element.creator_name %></a>
                 </p>
                 <ul class="post-buttons">
@@ -78,8 +78,8 @@
                 <div class="comment-body">
                     <div class="comment-title">
                         <a href="/user/profile/<%= element.creator_id %>" class=""><%= element.creator_name %> </a>&nbsp;
-                        <span class="comment-score"><%= element.rating %> points</span>&nbsp;
-                        <time datetime="<%= element.datetime %>" class="timestamp"><%= element.datetime.toString().slice(0, -36) %></time>
+                        <span class="comment-score"><%= element.rating %> <%= Math.abs(parseInt(element.rating)) === 1 ? 'point' : 'points' %></span>&nbsp;
+                        <time datetime="<%= element.datetime %>" class="timestamp"><%= timeSince(element.datetime) %> ago</time>
                     </div>
                     <div class="comment-text" id="comment-text-<%= element.id %>">
                         <%= element.text %>
@@ -148,8 +148,8 @@ else if(tab === 'submitted') { %>
         </a>
         <div class="post-body">
             <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
-            <p class="post-tags">submitted on 
-                <time datetime="<%= post.datetime %>" class="timestamp"><%= post.datetime.toString().slice(0, -36) %></time> by 
+            <p class="post-tags">submitted
+                <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %> ago</time> by 
                 <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
             </p>
             <ul class="post-buttons">
@@ -210,8 +210,8 @@ else if(tab === 'comments') { %>
             <div class="comment-body">
                 <div class="comment-title">
                     <a href="/user/profile/<%= comment.creator_id %>" class=""><%= comment.creator_name %></a>&nbsp;
-                    <span class="comment-score"><%= comment.rating %> points</span>&nbsp;
-                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= comment.datetime.toString().slice(0, -36) %></time>
+                    <span class="comment-score"><%= comment.rating %> <%= Math.abs(parseInt(comment.rating)) === 1 ? 'point' : 'points' %></span>&nbsp;
+                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
                 </div>
                 <div class="comment-text" id="comment-text-<%= comment.id %>">
                     <%= comment.text %>
@@ -278,8 +278,8 @@ else if(tab === 'saved') { %>
         </a>
         <div class="post-body">
             <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
-            <p class="post-tags">submitted on 
-                <time datetime="<%= post.datetime %>" class="timestamp"><%= post.datetime.toString().slice(0, -36) %></time> by 
+            <p class="post-tags">submitted
+                <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %> ago</time> by 
                 <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
             </p>
             <ul class="post-buttons">
@@ -305,8 +305,55 @@ else if(tab === 'saved') { %>
 
 <% } %>
 
+
+<% function timeSince(date) {
+  var seconds = Math.floor((new Date() - date) / 1000)
+  var interval = seconds / 31536000
+
+  if (interval > 1) {
+      if (interval < 2) {
+          return Math.floor(interval) + " year"
+      }
+      return Math.floor(interval) + " years"
+  }
+
+  interval = seconds / 2592000
+  if (interval > 1) {
+      if (interval < 2) {
+          return Math.floor(interval) + " month"
+      }
+      return Math.floor(interval) + " months"
+  }
+
+  interval = seconds / 86400
+  if (interval > 1) {
+      if (interval < 2) {
+          return Math.floor(interval) + " day"
+      }
+      return Math.floor(interval) + " days"
+  }
+
+  interval = seconds / 3600
+  if (interval > 1) {
+      if (interval < 2) {
+          return Math.floor(interval) + " hour"
+      }
+      return Math.floor(interval) + " hours"
+  }
+
+  interval = seconds / 60
+  if (interval > 1) {
+      if (interval < 2) {
+          return Math.floor(interval) + " minute"
+      }
+      return Math.floor(interval) + " minutes"
+  }
+
+  return Math.floor(seconds) + " seconds"
+} %>
+
+
 <script>
-  
 for(const btn of document.querySelectorAll('.upvote')) {
     btn.addEventListener('click', async (event) => {
         event.currentTarget.classList.toggle('on')
