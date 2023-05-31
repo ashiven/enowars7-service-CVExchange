@@ -113,10 +113,10 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         await connection.beginTransaction()
 
         if(req.subscribed.includes(parseInt(subId))) {
-            updatedSubscribed = subscribed.filter((subbedId) => subbedId !== subId)
+            updatedSubscribed = req.subscribed.filter((subbedId) => subbedId !== subId)
         } 
         else {
-            updatedSubscribed = [...subscribed, subId] 
+            updatedSubscribed = [...req.subscribed, subId] 
         }
         
         const update_query = `UPDATE users SET subscribed = ? WHERE id = ?`
@@ -134,6 +134,94 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         await connection.rollback()
         await connection.release()
 
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
+
+router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
+    try {
+        let page = 1
+        const pagelimit = 15
+        const offset = (page - 1) * pagelimit
+
+        if(req.query.page) {
+            page = parseInt(req.query.page)
+            if(!Number.isInteger(page)) {
+                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+            }
+        }
+
+        let sort = 'hot'
+        let subId = req.params.id
+        if(!Number.isInteger(parseInt(subId))) {
+            return res.status(500).send('<h1>Yea.. subexchange Ids have to be numbers buddy.</h1>')
+        }
+        let comments = []
+        let ratings = []
+
+        let params = [subId, subId, subId, pagelimit, offset]
+        let query = `SELECT * FROM (
+                        SELECT p.*, COUNT(r.id) as ratecount 
+                        FROM posts p 
+                        LEFT JOIN ratings r ON p.id = r.post_id
+                        WHERE r.datetime >= NOW() - INTERVAL 1 HOUR AND r.rating = 1 AND p.sub_id = ?
+                        GROUP BY p.id
+
+                        UNION
+
+                        SELECT p1.*, 0 as ratecount
+                        FROM posts p1 
+                        WHERE id NOT IN (
+                            SELECT p2.id
+                            FROM posts p2
+                            LEFT JOIN ratings r2 ON p2.id = r2.post_id
+                            WHERE r2.datetime >= NOW() - INTERVAL 1 HOUR AND r2.rating = 1 AND p2.sub_id = ?
+                        ) AND sub_id = ?
+                    ) AS subquery 
+                    ORDER BY ratecount DESC, rating DESC`
+
+        if(req.query.sort) {
+            sort = req.query.sort
+            if(sort === 'new' ) {
+                query = `SELECT * FROM posts WHERE sub_id = ? ORDER BY datetime DESC`
+                params = [subId, pagelimit, offset]
+            }
+            else if(sort === 'top') {
+                query = `SELECT * FROM posts WHERE sub_id = ? ORDER BY rating DESC`
+                params = [subId, pagelimit, offset]
+            }
+            else {
+                sort = 'hot'
+            }
+        }
+
+        query = query + ` LIMIT ? OFFSET ?`
+        const [posts] = await req.database.query(query, params)
+        const postIds = posts.map(post => post.id)
+
+
+        const comment_query = `SELECT * FROM comments WHERE post_id IN (?)`
+        const comment_params = [postIds]        
+        if(postIds.length > 0) {
+            [comments] = await req.database.query(comment_query, comment_params)
+        }
+
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId]        
+        if(postIds.length > 0) {
+            [ratings] = await req.database.query(ratings_query, ratings_params)
+        }
+
+        const sub_query = `SELECT * FROM subs WHERE id = ?`
+        const sub_params = [subId]
+        const [sub] = await req.database.query(sub_query, sub_params)
+        
+        return res.render('frontpage', { req, sub: sub[0], ratings, pagelimit, page, sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/subexchange' })
+
+    }
+    catch(error) {
         console.error(error)
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }

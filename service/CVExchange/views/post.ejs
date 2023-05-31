@@ -30,6 +30,7 @@
         <p class="post-tags">submitted 
             <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %></time> ago by 
             <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+            to <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
         </p>
         <div class="post-text">
             <p><%- post.text.replace(/(\r\n){3,}/g, '\n\n').replace(/\n/g, '<br>')  %></p>

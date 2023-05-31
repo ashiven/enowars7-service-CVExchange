@@ -1,0 +1,52 @@
+<header>
+    <div class="post-sorting">
+        &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
+        <p class="subname"> <%= sub.name %> </p>
+        <ul class="sorting-menu">
+            <% if(sort) { %>
+            <li class="li-choice <%= (sort === 'hot') ? 'on' : '' %>"> <a href="/subs/<%= sub.id %>/?sort=hot" class="choice <%= (sort === 'hot') ? 'on' : '' %>">hot</a></li>
+            <li class="li-choice <%= (sort === 'new') ? 'on' : '' %>"> <a href="/subs/<%= sub.id %>/?sort=new" class="choice <%= (sort === 'new') ? 'on' : '' %>">new</a></li>
+            <li class="li-choice <%= (sort === 'top') ? 'on' : '' %>"> <a href="/subs/<%= sub.id %>/?sort=top" class="choice <%= (sort === 'top') ? 'on' : '' %>">top</a></li>
+            <% }
+            else { %>
+            <li class="li-choice on"><a href="/subs/<%= sub.id %>/?sort=hot" class="choice on">hot</a></li>
+            <li class="li-choice"><a href="/subs/<%= sub.id %>/?sort=new" class="choice">new</a></li>
+            <li class="li-choice"><a href="/subs/<%= sub.id %>/?sort=top" class="choice">top</a></li>
+            <% } %>
+        </ul>
+    </div>
+
+<% if(req.cookies.jwtToken) { %>
+    <div class="user-info-loggedin">
+        <span class="user">
+            <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
+        </span>
+        <span class="separator">|</span>&nbsp;
+        <form method="POST" action="/user/logout" class="logout">
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit()">logout</a>&nbsp;
+        </form>
+    </div>
+<% } 
+else { %>
+    <div class="user-info-loggedout">
+        <span class="user-loggedout">Want to join? <a href="/user/login">Log in</a> or <a href="/user/register">sign up</a> in seconds.</span>
+    </div>
+<% } %>
+</header>
+
+<script>
+const links = document.querySelectorAll('.choice')
+for(const link of links) {
+    link.addEventListener('click', async (event) => {
+        event.preventDefault()
+        if(!event.currentTarget.classList.contains('on')) {
+            event.currentTarget.classList.toggle('on')
+            event.currentTarget.parentNode.classList.toggle('on')
+            window.location.href = event.currentTarget.href
+        }
+        else {
+            window.location.href = event.currentTarget.href
+        }
+    })
+}
+</script>

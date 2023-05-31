@@ -39,7 +39,8 @@
                 <p class="post-title"> <a class="title-link login-required" href="/posts/<%= element.id %>"><%= element.title %></a> </p>
                 <p class="post-tags">submitted
                     <time datetime="<%= element.datetime %>" class="timestamp"><%= timeSince(element.datetime) %> ago</time> by 
-                    <a href="/user/profile/<%= element.creator_id %>" class="author login-required"><%= element.creator_name %></a>
+                    <a href="/user/profile/<%= element.creator_id %>" class="author login-required"><%= element.creator_name %></a> to
+                    <a href="/subs/<%= element.sub_id %>" class="author login-required">c/<%= element.sub_name %></a>
                 </p>
                 <ul class="post-buttons">
                     <li class="comments"><a class="login-required" href="/posts/<%= element.id %>"><%= comments.filter(c => c.post_id === element.id).length %> comments</a></li>
@@ -150,7 +151,8 @@ else if(tab === 'submitted') { %>
             <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
             <p class="post-tags">submitted
                 <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %> ago</time> by 
-                <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+                <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a> to
+                <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
             </p>
             <ul class="post-buttons">
                 <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
@@ -280,7 +282,8 @@ else if(tab === 'saved') { %>
             <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
             <p class="post-tags">submitted
                 <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %> ago</time> by 
-                <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+                <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a> to
+                <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
             </p>
             <ul class="post-buttons">
                 <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
