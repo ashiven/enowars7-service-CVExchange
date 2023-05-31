@@ -5,6 +5,7 @@ const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
+const sanitizer = require('sanitizer')
 
 
 // Route definitions
@@ -23,8 +24,8 @@ router.post('/new', auth, getusername, async (req, res) => {
     const connection = await req.database.getConnection()
     
     try {
-        const title = req.body.title
-        const text = req.body.text
+        const title = sanitizer.escape(req.body.title)
+        const text = sanitizer.escape(req.body.text)
         if(!title || !text || title === '' || text === '') {
             await connection.release()
             return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'You need to include a title and text!'})
@@ -285,8 +286,8 @@ router.post('/edit/:id', auth, async (req, res) => {
             return res.status(404).send('<h1>Post not found</h1>')
         }
 
-        const title = req.body.title
-        const text = req.body.text
+        const title = sanitizer.escape(req.body.title)
+        const text = sanitizer.escape(req.body.text)
         if(!title || !text || title === '' || text === '') {
             return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'You need to include a title and text!'})
         }

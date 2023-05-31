@@ -32,7 +32,7 @@
             <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
         </p>
         <div class="post-text">
-            <p><%- post.text.replace(/\n/g, '<br>') %></p>
+            <p><%- post.text.replace(/(\r\n){3,}/g, '\n\n').replace(/\n/g, '<br>')  %></p>
         </div>
         <ul class="post-buttons">
             <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
@@ -136,7 +136,7 @@
                     <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
                 </div>
                 <div class="comment-text" id="comment-text-<%= comment.id %>">
-                    <%- comment.text.replace(/\n/g, '<br>') %>
+                    <%- comment.text.replace(/(\r\n){3,}/g, '\n\n').replace(/\n/g, '<br>') %>
                 </div>
                 <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
                     <input type="hidden" name="postId" value="<%= comment.post_id %>">

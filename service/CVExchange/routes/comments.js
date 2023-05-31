@@ -4,6 +4,7 @@ const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
+const sanitizer = require('sanitizer')
 
 
 // Route definitions
@@ -12,7 +13,7 @@ router.post('/new', auth, getusername, async (req, res) => {
     const connection = await req.database.getConnection()
 
     try {
-        const comment = req.body.comment
+        const comment = sanitizer.escape(req.body.comment)
         if(!comment || comment === '') {
             await connection.release()
             return res.status(500).send('<h1>You need to supply a comment!</h1>')
@@ -78,9 +79,12 @@ router.post('/new', auth, getusername, async (req, res) => {
 
 router.post('/edit/:id', auth, async (req, res) => {
     try {
-        const text = req.body.text
+        const text = sanitizer.escape(req.body.text)
         if(!text || text === '') {
             return res.status(500).send('<h1>You need to supply a comment!</h1>')
+        }
+        if(text.length > 500 ) {
+            return res.status(500).send('<h1>Please limit your comment to 500 characters.</h1>')
         }
         const commentId = req.params.id
         if(!Number.isInteger(parseInt(commentId))) {
@@ -154,6 +158,8 @@ router.get('/delete/:id', auth, async (req, res) => {
 //--------------------------------
 
 
+// Function definitions
+
 async function deleteChildren(connection, commentId, deletedIds) {
     const child_query = `SELECT id FROM comments WHERE parent_id = ?`
     const child_params = [commentId]
@@ -170,5 +176,6 @@ async function deleteChildren(connection, commentId, deletedIds) {
     }
 }
 
+//--------------------------------
 
 module.exports = router
