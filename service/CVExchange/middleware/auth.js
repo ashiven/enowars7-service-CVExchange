@@ -1,5 +1,7 @@
+const dotenv = require('dotenv')
+dotenv.config()
 const jwt = require('jsonwebtoken')
-const jwtSecret = 'amogus'
+const jwtSecret = process.env.JWT_SECRET
 
 async function auth(req, res, next) {
     try{
