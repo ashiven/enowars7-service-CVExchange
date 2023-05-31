@@ -11,6 +11,7 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_DB: basedbase
+      JWT_SECRET: superduper53cr37youwillnevergu35517
 
   mysql:
     build:
