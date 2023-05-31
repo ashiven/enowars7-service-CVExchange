@@ -228,6 +228,55 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
 })
 
 
+router.get('/search/:id', auth, getusername, getuserkarma, async (req, res) => {
+    try{
+        const pagelimit = 15
+        let page = 1
+        if(req.query.page) {
+            page = parseInt(req.query.page)
+            if(!Number.isInteger(page)) {
+                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+            }
+        }
+        let subId = req.params.id
+        if(!Number.isInteger(parseInt(subId))) {
+            return res.status(500).send('<h1>Yea.. subexchange Ids have to be numbers buddy.</h1>')
+        }
+        const offset = (page - 1) * pagelimit
+        let comments = []
+        let ratings = []
+
+        const search = req.query.q
+        const search_query = `SELECT p.*, MATCH (title, text, creator_name) AGAINST (?) AS score FROM posts p WHERE MATCH (title, text, creator_name) AGAINST (?) AND p.sub_id = ? LIMIT ? OFFSET ?`
+        const search_params = [search, search, req.params.id, pagelimit, offset]
+        const [posts] = await req.database.query(search_query, search_params)
+        const postIds = posts.map(post => post.id)
+
+        const comment_query = `SELECT * FROM comments WHERE post_id IN (?)`
+        const comment_params = [postIds]        
+        if(postIds.length > 0) {
+            [comments] = await req.database.query(comment_query, comment_params)
+        }
+
+        const ratings_query = `SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?`
+        const ratings_params = [postIds, req.userId]        
+        if(postIds.length > 0) {
+            [ratings] = await req.database.query(ratings_query, ratings_params)
+        }
+
+        const sub_query = `SELECT * FROM subs WHERE id = ?`
+        const sub_params = [subId]
+        const [sub] = await req.database.query(sub_query, sub_params)
+
+        return res.render('frontpage', { req, sub: sub[0], pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/search' })
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+})
+
+
 
 //--------------------------------
 

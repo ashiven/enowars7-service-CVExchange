@@ -1,6 +1,9 @@
 <header>
     <div class="post-sorting">
         &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
+        <% if(locals.sub) { %>
+        <p class="subname"> <%= sub.name %> </p>
+        <% } %>
     </div>
 
     <div class="user-info-loggedin">
