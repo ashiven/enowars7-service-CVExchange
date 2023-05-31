@@ -8,10 +8,11 @@ body {
 
 footer {
     background-color: ghostwhite;
-    color:darkslateblue;
-    font-size: 16px;
+    color:grey;
+    font-size: 13px;
     font-weight: normal;
     padding: 15px;
+    margin-left: 20px;
 }
 
 main {
