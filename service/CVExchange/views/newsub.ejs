@@ -1,0 +1,34 @@
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/main.css">
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+
+<div class="container">
+  <form method="post" action="/subs/new">
+    <h3>Create New Subexchange</h3>
+
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" class="form-control" name="name" id="name" required="">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description:</label>
+      <textarea class="form-control" rows="5" name="description" id="description" required=""></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="sidebar">Sidebar:</label>
+        <textarea class="form-control" rows="5" name="sidebar" id="sidebar" required=""></textarea>
+      </div>
+
+    <button class="btn btn-lg btn-primary btn-block" value="Done!" type="submit">Done!</button>
+    <% if(status !== '') { %>
+      <div class="alert alert-danger" role="alert">
+          <%= status %>
+      </div>
+    <% } %>
+  </form>
+</div>

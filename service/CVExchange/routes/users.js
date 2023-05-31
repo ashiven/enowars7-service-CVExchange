@@ -86,13 +86,17 @@ router.post('/register', async (req, res) => {
     const connection = await req.database.getConnection()
 
     try {
-        const name = req.body.name
-        const email = req.body.email
-        const password = req.body.password
+        const name = req.body.name.replace(/\s/g, '')
+        const email = req.body.email.replace(/\s/g, '')
+        const password = req.body.password.replace(/\s/g, '')
 
         if(!name || !email || !password || name === '' || email === '' || password === '') {
             await connection.release()
             return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please provide all required fields!'})
+        }
+        if(!(/^[a-zA-Z0-9]+$/).test(name)) {
+            await connection.release()
+            return res.render('register', {title: 'Register', layout: './layouts/login', status: 'Please only use numbers and letters for the username.'})
         }
         if(name.length < 5 || password.length < 8 || email.length < 6) {
             await connection.release()

@@ -5,14 +5,28 @@ const auth = auth_middleware.auth
 const middleware = require('../middleware/other')
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
+const getsubids = middleware.getsubids
 const sanitizer = require('sanitizer')
 
 
 // Route definitions
 
-router.get('/new', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/new', auth, getusername, getuserkarma, getsubids, async (req, res) => {
     try {
-        return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: ''})
+        let subbed = []
+        
+        const subbed_query = `SELECT * FROM subs WHERE id IN (?)`
+        const subbed_params = [req.subscribed]
+
+        if(req.subscribed.length > 0) {
+            [subbed] = await req.database.query(subbed_query, subbed_params)
+            const updatedSubbed = req.subscribed.filter((id) => subbed.some((sub) => sub.id === id))
+            const update_query = `UPDATE users SET subscribed = ? WHERE id = ?`
+            const update_params = [updatedSubbed.join(','), req.userId]
+            await req.database.query(update_query, update_params)
+        }
+
+        return res.render('newpost', {req, subbed, title: 'New Post', layout: './layouts/post', status: ''})
     }
     catch(error) {
         console.error(error)
@@ -20,7 +34,7 @@ router.get('/new', auth, getusername, getuserkarma, async (req, res) => {
     }
 })
 
-router.post('/new', auth, getusername, async (req, res) => {
+router.post('/new', auth, getusername, getsubids, async (req, res) => {
     const connection = await req.database.getConnection()
     
     try {
@@ -38,14 +52,29 @@ router.post('/new', auth, getusername, async (req, res) => {
             await connection.release()
             return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
         }
+        const subId = req.body.subid
+        if(!Number.isInteger(parseInt(subId))) {
+            await connection.release()
+            return res.status(500).send('<h1>Thats not a number in my world.</h1>')
+        }
+        if(!req.subscribed.includes(parseInt(subId))) {
+            await connection.release()
+            return res.status(500).send('<h1>You are not subscribed to this subexchange.</h1>')
+        }
+
+        const name_query = `SELECT name FROM subs WHERE id = ?`
+        const name_params = [subId]
+        const [result] = await connection.query(name_query, name_params)
+        const subName = result[0].name
+        
         const creatorId = req.userId
         const creatorName = req.username
 
         // start a transaction
         await connection.beginTransaction()
 
-        const insert_query = `INSERT INTO posts (title, text, rating, creator_id, creator_name, datetime) VALUES (?, ?, 1, ?, ?, NOW() )`
-        const insert_params = [title, text, creatorId, creatorName]
+        const insert_query = `INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )`
+        const insert_params = [title, text, subId, subName, creatorId, creatorName]
         await connection.query(insert_query, insert_params)
 
         const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`

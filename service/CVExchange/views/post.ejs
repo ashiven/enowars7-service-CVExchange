@@ -132,7 +132,7 @@
             <div class="comment-body">
                 <div class="comment-title">
                     <a href="/user/profile/<%= comment.creator_id %>" style="color: <%= parseInt(comment.creator_id) === parseInt(post.creator_id ) ? '' : 'black' %>; font-weight:bold;"><%= comment.creator_name %></a>&nbsp;
-                    <span class="comment-score"><%= comment.rating %> <%= comment.rating === 1 ? 'point' : 'points' %></span>&nbsp;
+                    <span class="comment-score"><%= comment.rating %> <%= Math.abs(parseInt(comment.rating)) === 1 ? 'point' : 'points' %></span>&nbsp;
                     <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
                 </div>
                 <div class="comment-text" id="comment-text-<%= comment.id %>">

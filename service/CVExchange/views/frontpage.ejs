@@ -38,7 +38,8 @@
       <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
       <p class="post-tags">submitted
         <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %> ago</time> by 
-        <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+        <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a> to
+        <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
       </p>
       <ul class="post-buttons">
         <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>

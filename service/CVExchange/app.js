@@ -208,6 +208,8 @@ const fileRouter = require('./routes/files.js')
 app.use('/files', fileRouter)
 const voteRouter = require('./routes/votes.js')
 app.use('/votes', voteRouter)
+const subRouter = require('./routes/subexchanges')
+app.use('/subs', subRouter)
 
 //--------------------------------
 
