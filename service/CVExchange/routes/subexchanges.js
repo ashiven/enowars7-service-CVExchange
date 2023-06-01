@@ -72,7 +72,7 @@ router.post('/new', auth, getusername, async (req, res) => {
             return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Subexchange with this name already exists.'})
         }
 
-        const insert_query = `INSERT INTO subs (name, description, sidebar, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, ?, NOW() )`
+        const insert_query = `INSERT INTO subs (name, description, sidebar, creator_id, creator_name, members, datetime) VALUES (?, ?, ?, ?, ?, 0, NOW() )`
         const insert_params = [name, description, sidebar, creatorId, creatorName]
         await connection.query(insert_query, insert_params)
 
@@ -113,10 +113,16 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         await connection.beginTransaction()
 
         if(req.subscribed.includes(parseInt(subId))) {
-            updatedSubscribed = req.subscribed.filter((subbedId) => subbedId !== subId)
+            updatedSubscribed = req.subscribed.filter((subbedId) => subbedId !== parseInt(subId))
+            const sub_query = `UPDATE subs SET members = members - 1 WHERE id = ?`
+            const sub_params = [subId]
+            await connection.query(sub_query, sub_params)
         } 
         else {
-            updatedSubscribed = [...req.subscribed, subId] 
+            updatedSubscribed = [...req.subscribed, subId]
+            const sub_query = `UPDATE subs SET members = members + 1 WHERE id = ?`
+            const sub_params = [subId]
+            await connection.query(sub_query, sub_params)
         }
         
         const update_query = `UPDATE users SET subscribed = ? WHERE id = ?`
