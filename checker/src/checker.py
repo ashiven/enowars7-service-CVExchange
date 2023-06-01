@@ -14,6 +14,8 @@ from bs4 import BeautifulSoup
 import random
 import string
 import base64
+import randfacts
+from quote import quote
 
 
 SERVICE_PORT = 1337
@@ -27,6 +29,10 @@ def parseCookie(cookieString):
     if end == -1:
         end = len(cookieString)
     return cookieString[start:end]
+
+
+def getRandom(length):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
 async def register(client: AsyncClient) -> tuple[str, str, str, str]:
@@ -109,6 +115,54 @@ async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, d
     return userId
 
 
+@checker.putnoise(0)
+async def putnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
+
+    # register so client has a cookie 
+    email, password, cookie, userId = await register(client)
+    
+    # generate random fact 
+    title = f"Fact of the Minute #{random.randint(0,500)}"
+    text = randfacts.get_fact()
+
+    # create a new subexchange and subscribe to it 
+    subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
+    subId = subResp.headers['Location'].split('/')[-1]
+    await client.get(f"/subs/subscribe/{subId}", cookies={"jwtToken": cookie})
+
+    # post the fact to the generated subexchange
+    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
+    assert_equals(uploadResp.status_code, 302, "couldn't create post under /posts/new")
+
+    # save the redirection URL and other postinfo in DB
+    await db.set("postinfo", (uploadResp.headers['Location'], title, text) )
+
+
+@checker.putnoise(1)
+async def putnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
+
+    # register so client has a cookie 
+    email, password, cookie, userId = await register(client)
+
+    # generate a random quote
+    title = f"Quote of the Minute #{random.randint(0,500)}"
+    authors = ['Gabriel Garcia Marquez', 'Douglas Adams', 'Jane Austen', 'Charlotte Bronte', 'George Orwell', 'Shakespeare', 'John Steinbeck', 'Antoine de Saint-Exupery', 'Hermann Hesse', 'Franz Kafka', 'Oscar Wilde']
+    meta = quote(random.choice(authors), limit=1)[0]
+    text = 'Author: ' + meta['author'] + '\n\n Book: ' + meta['book'] + '\n\n Quote: ' + meta['quote']
+
+    # create a new subexchange and subscribe to it 
+    subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
+    subId = subResp.headers['Location'].split('/')[-1]
+    await client.get(f"/subs/subscribe/{subId}", cookies={"jwtToken": cookie})
+
+    # post the quote
+    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
+    assert_equals(uploadResp.status_code, 302, "couldn't create post under /posts/new")
+
+    # save the redirection URL and other postinfo in DB
+    await db.set("postinfo", (uploadResp.headers['Location'], title, text) )
+
+
 @checker.getflag(0)
 async def getflag_note(task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB) -> None:
 
@@ -161,6 +215,44 @@ async def getflag_backup(task: GetflagCheckerTaskMessage, client: AsyncClient, d
     flagResp = await client.get(f"/files/retrieve/{base64.b64encode(userId.encode()).decode()}/flag.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from backup directory")
     assert_in(task.flag, flagResp.text, "flag not found in backup directory")
+
+
+@checker.getnoise(0)
+async def getnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
+
+    # retrieve postinfo from the DB
+    try:
+        postURL, title, text = await db.get("postinfo")
+    except KeyError:
+        raise MumbleException("couldn't retrieve postinfo from DB")
+
+    # register so client has a cookie 
+    email, password, cookie, userId = await register(client)
+    
+    # visit the postURL to retrieve noise
+    noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
+    assert_equals(noiseResp.status_code, 200, "couldn't get post containing fact")
+    assert_in(text, noiseResp.text, "fact not found in post")
+
+
+@checker.getnoise(1)
+async def getnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
+
+    # retrieve postinfo from the DB
+    try:
+        postURL, title, text = await db.get("postinfo")
+    except KeyError:
+        raise MumbleException("couldn't retrieve postinfo from DB")
+
+    # register so client has a cookie 
+    email, password, cookie, userId = await register(client)
+    
+    # visit the postURL to retrieve noise
+    noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
+    assert_equals(noiseResp.status_code, 200, "couldn't get post containing quote")
+
+    convertedText = text.replace('\n', '<br>')
+    assert_in(convertedText, noiseResp.text, "quote not found in post")
 
 
 @checker.exploit(0)

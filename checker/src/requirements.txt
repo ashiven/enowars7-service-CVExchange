@@ -3,3 +3,5 @@ uvicorn
 gunicorn
 faker
 beautifulsoup4
+randfacts
+quote
