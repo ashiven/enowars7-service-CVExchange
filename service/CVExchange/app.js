@@ -3,20 +3,11 @@ const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql2/promise')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const auth_middleware = require('./middleware/auth')
-const auth = auth_middleware.auth
-const fileAuth = auth_middleware.fileAuth
 const path = require('path')
 const fs = require('fs')
+const { auth, fileAuth } = require('./middleware/auth')
+const { getuserid, getusername, getuserkarma, magic, getsubids, getsubnames} = require('./middleware/other')
 const dotenv = require('dotenv')
-const middleware = require('./middleware/other')
-const getuserid = middleware.getuserid
-const getusername = middleware.getusername
-const getuserkarma = middleware.getuserkarma
-const magic = middleware.magic
-const getsubids = middleware.getsubids
-const getsubnames = middleware.getsubnames
-
 dotenv.config()
 
 //connect to the MySQL Database 
