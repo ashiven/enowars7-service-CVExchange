@@ -1,6 +1,6 @@
 CREATE TABLE `basedbase`.`comments` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `text` TEXT DEFAULT NULL,
+  `text` text DEFAULT NULL,
   `post_id` int DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
   `creator_name` varchar(45) DEFAULT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `basedbase`.`comments` (
 CREATE TABLE `basedbase`.`posts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(400) DEFAULT NULL,
-  `text` TEXT DEFAULT NULL,
+  `text` text DEFAULT NULL,
   `sub_id` int DEFAULT NULL,
   `sub_name` varchar(45) DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
@@ -40,18 +40,18 @@ CREATE TABLE `basedbase`.`users` (
   `email` varchar(45) DEFAULT NULL,
   `password` varchar(45) DEFAULT NULL,
   `profile_picture` varchar(250) DEFAULT NULL,
-  `saved` TEXT DEFAULT NULL,
+  `saved` text DEFAULT NULL,
   `note` varchar(250) DEFAULT NULL,
   `my_file` varchar(250) DEFAULT NULL,
-  `subscribed` TEXT DEFAULT NULL,
+  `subscribed` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `basedbase`.`subs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
-  `description` TEXT DEFAULT NULL,
-  `sidebar` TEXT DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `sidebar` text DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
   `creator_name` varchar(45) DEFAULT NULL,
   `members` int DEFAULT NULL,
