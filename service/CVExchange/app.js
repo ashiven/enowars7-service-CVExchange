@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const fs = require('fs')
 const { auth, fileAuth } = require('./middleware/auth')
-const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs} = require('./middleware/other')
+const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs, gettopsubs} = require('./middleware/other')
 const dotenv = require('dotenv')
 dotenv.config()
 

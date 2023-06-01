@@ -123,6 +123,21 @@ async function getsubs(req, res, next) {
     }
 }
 
+async function gettopsubs(req, res, next) {
+    try {
+            const select_query = `SELECT * FROM subs ORDER BY members DESC LIMIT 17`
+            const select_params = [req.subscribed]
+            const [subs] = await req.database.query(select_query, select_params)
+
+            req.topsubs = subs
+            next()
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+}
+
 async function magic(filepath, req, res) {
     try {
         const {stdout, stderr} = await execFile('node', [filepath], {uid: 1001, gid: 1001, timeout: 3000} )
@@ -134,4 +149,4 @@ async function magic(filepath, req, res) {
     }
 }
 
-module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubs, magic, logger}
+module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubs, gettopsubs, magic, logger}

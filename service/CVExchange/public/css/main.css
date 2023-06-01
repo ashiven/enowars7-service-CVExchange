@@ -466,6 +466,85 @@ input[type="file"] {
 
 /* style for the profile header */
 
+.pre-header {
+    background-color: #f0f1f1;
+    border-bottom: 1px solid gray;
+    font-family: "Noto Sans", sans-serif;
+    display: flex;
+    align-items: center;
+}
+
+.icon-tabler-terminal-2 {
+    margin-left: 2px;
+}
+
+.mysubexchanges {
+    margin-left: 10px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    text-transform: uppercase;
+}
+
+.subdropper {
+    border: 1px solid gray;
+    border-top: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 150px;
+    position: absolute;
+    z-index: 10;
+    background-color: #fefeff;
+    margin-left: 23px;
+}
+
+.sublink {
+    color: #3367a4;;
+    width: 150px;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.sublink:hover {
+    background-color: #d0e4fc;
+}
+
+.sublink p {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-left: 2px;
+}
+
+.separator {
+    margin-left: 10px;
+}
+
+.pre-header ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-left: 15px;
+}
+
+.pre-header ul li {
+    margin-right: 10px;
+    font-size: 11px;
+}
+
+.pre-header ul li a {
+    color: black;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.pre-header ul li a:hover {
+    text-decoration: underline;
+}
+
 .profile-sorting {
     display: flex;
     justify-content: flex-start;

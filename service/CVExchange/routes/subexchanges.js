@@ -32,27 +32,27 @@ router.post('/new', auth, getusername, async (req, res) => {
             await connection.release()
             return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please only use numbers and letters for the name.'})
         }
-        if(name.length < 4) {
+        if(name.length < 4 || name.length > 20) {
             await connection.release()
-            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a longer name.'})
+            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a name between 4 to 20 characters.'})
         }
         const description = sanitizer.escape(req.body.description)
         if(!description || description === '') {
             await connection.release()
             return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'You need to include a description!'})
         }
-        if(description.length < 5) {
+        if(description.length < 5 || description.length > 100) {
             await connection.release()
-            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a longer description.'})
+            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a description between 5 to 100 characters.'})
         }
         const sidebar = sanitizer.escape(req.body.sidebar)
         if(!sidebar || sidebar === '') {
             await connection.release()
             return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'You need to include a sidebar text!'})
         }
-        if(sidebar.length < 5) {
+        if(sidebar.length < 5 || sidebar.length > 500) {
             await connection.release()
-            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a longer sidebar text.'})
+            return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please provide a sidebar between 5 to 500 characters.'})
         }
         const creatorId = req.userId
         const creatorName = req.username
