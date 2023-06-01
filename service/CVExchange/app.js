@@ -3,19 +3,13 @@ const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql2/promise')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const auth_middleware = require('./middleware/auth')
-const auth = auth_middleware.auth
-const fileAuth = auth_middleware.fileAuth
 const path = require('path')
 const fs = require('fs')
+const { auth, fileAuth } = require('./middleware/auth')
+const { getuserid, getusername, getuserkarma, magic, getsubids, getsubnames} = require('./middleware/other')
 const dotenv = require('dotenv')
-const middleware = require('./middleware/other')
-const getuserid = middleware.getuserid
-const getusername = middleware.getusername
-const getuserkarma = middleware.getuserkarma
-const magic = middleware.magic
-
 dotenv.config()
+
 
 //connect to the MySQL Database 
 const database = mysql.createPool({
@@ -26,8 +20,16 @@ const database = mysql.createPool({
 })
 //--------------------------------
 
+
 //initialize the app and routers
 const app = express()
+const postRouter = require('./routes/posts.js')
+const userRouter = require('./routes/users.js')
+const commentRouter = require('./routes/comments.js')
+const fileRouter = require('./routes/files.js')
+const voteRouter = require('./routes/votes.js')
+const subRouter = require('./routes/subexchanges')
+
 app.set('view engine', 'ejs')
 app.set('layout', './layouts/standard')
 
@@ -41,9 +43,10 @@ app.use((req, res, next) => {
     next()
 })
 
+
 //Route definitions
 
-app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
+app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubnames, async (req, res) => {
     try {
         const pagelimit = 15
         let page = 1
@@ -198,17 +201,11 @@ app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))
 
-const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
-const userRouter = require('./routes/users.js')
 app.use('/user', userRouter)
-const commentRouter = require('./routes/comments.js')
 app.use('/comments', commentRouter)
-const fileRouter = require('./routes/files.js')
 app.use('/files', fileRouter)
-const voteRouter = require('./routes/votes.js')
 app.use('/votes', voteRouter)
-const subRouter = require('./routes/subexchanges')
 app.use('/subs', subRouter)
 
 //--------------------------------

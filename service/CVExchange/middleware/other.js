@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken')
-const fs = require('fs')
 const util = require('node:util')
 const execFile = util.promisify(require('node:child_process').execFile)
 
@@ -106,6 +105,24 @@ async function getsubids(req, res, next) {
     }
 }
 
+async function getsubnames(req, res, next) {
+    try {
+        if(req.userId && req.subscribed.length > 0) {
+
+            const select_query = `SELECT name FROM subs WHERE id IN (?)`
+            const select_params = [req.subscribed]
+            const [subs] = await req.database.query(select_query, select_params)
+            
+            req.subnames = subs
+        }
+        next()
+    }
+    catch(error) {
+        console.error(error)
+        return res.status(500).send('<h1>Internal Server Error</h1>')
+    }
+}
+
 async function magic(filepath, req, res) {
     try {
         const {stdout, stderr} = await execFile('node', [filepath], {uid: 1001, gid: 1001, timeout: 3000} )
@@ -117,4 +134,4 @@ async function magic(filepath, req, res) {
     }
 }
 
-module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, magic, logger}
+module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubnames, magic, logger}
