@@ -504,10 +504,14 @@ input[type="file"] {
 }
 
 .sublink {
-    color: #3367a4;;
+    color: #3367a4;
     width: 150px;
     font-size: 11px;
     text-transform: uppercase;
+}
+
+.subdropper a:visited {
+    color: #3367a4;
 }
 
 .sublink:hover {

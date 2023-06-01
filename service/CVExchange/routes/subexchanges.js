@@ -1,14 +1,14 @@
 const express = require('express')
 const router = express.Router()
 const {auth} = require('../middleware/auth')
-const {getuserkarma, getusername, getsubids }= require('../middleware/other')
+const {getuserkarma, getusername, getsubids, getsubs, gettopsubs }= require('../middleware/other')
 const sanitizer = require('sanitizer')
 
 
 // Route definitions
 
 
-router.get('/new', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: ''})
     }
@@ -146,7 +146,7 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
 })
 
 
-router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         let page = 1
         const pagelimit = 15
@@ -234,7 +234,7 @@ router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
 })
 
 
-router.get('/search/:id', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try{
         const pagelimit = 15
         let page = 1

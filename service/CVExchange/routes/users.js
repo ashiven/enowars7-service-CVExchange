@@ -4,9 +4,7 @@ const jwt = require('jsonwebtoken')
 const auth_middleware = require('../middleware/auth')
 const auth = auth_middleware.auth
 const jwtSecret = auth_middleware.jwtSecret
-const middleware = require('../middleware/other')
-const getusername = middleware.getusername
-const getuserkarma = middleware.getuserkarma
+const {getusername, getuserkarma, getsubids, getsubs, gettopsubs} = require('../middleware/other')
 
 
 //Route definitions
@@ -149,7 +147,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.get('/profile/:id', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/profile/:id', auth, getusername, getuserkarma,getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         const profileId = req.params.id
         if(!Number.isInteger(parseInt(profileId))) {

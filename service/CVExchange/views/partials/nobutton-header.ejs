@@ -24,6 +24,12 @@
     </ul>
 </div>
 
+<div class="subdropper" id="subdropper" style="display: none;">
+    <% if(req.subs) { for(const sub of req.subs) { %>
+    <a href="/subs/<%= sub.id %>" class="sublink"><p><%= sub.name %></p></a>
+    <% } } %>
+</div>
+
 <header>
     <div class="post-sorting">
         &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
@@ -42,3 +48,15 @@
         </form>
     </div>
 </header>
+
+<script>
+const dropper = document.getElementById('subdropper')
+document.getElementById('mysubs').addEventListener('click', (event) => {
+    if(dropper.style.display === 'none') {
+        dropper.style.display = 'flex'
+    }
+    else {
+        dropper.style.display = 'none'
+    }
+})
+</script>

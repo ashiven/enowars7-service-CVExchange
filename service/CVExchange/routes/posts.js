@@ -6,12 +6,14 @@ const middleware = require('../middleware/other')
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
 const getsubids = middleware.getsubids
+const getsubs = middleware.getsubs
+const gettopsubs = middleware.gettopsubs
 const sanitizer = require('sanitizer')
 
 
 // Route definitions
 
-router.get('/new', auth, getusername, getuserkarma, getsubids, async (req, res) => {
+router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         let subbed = []
         
@@ -101,7 +103,7 @@ router.post('/new', auth, getusername, getsubids, async (req, res) => {
     }
 })
 
-router.get('/:id', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
@@ -274,7 +276,7 @@ router.get('/delete/:id', auth, async (req, res) => {
     }
 })
 
-router.get('/edit/:id', auth, getusername, getuserkarma, async (req, res) => {
+router.get('/edit/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
