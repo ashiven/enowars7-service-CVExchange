@@ -105,15 +105,15 @@ async function getsubids(req, res, next) {
     }
 }
 
-async function getsubnames(req, res, next) {
+async function getsubs(req, res, next) {
     try {
         if(req.userId && req.subscribed.length > 0) {
 
-            const select_query = `SELECT name FROM subs WHERE id IN (?)`
+            const select_query = `SELECT * FROM subs WHERE id IN (?)`
             const select_params = [req.subscribed]
             const [subs] = await req.database.query(select_query, select_params)
 
-            req.subnames = subs
+            req.subs = subs
         }
         next()
     }
@@ -134,4 +134,4 @@ async function magic(filepath, req, res) {
     }
 }
 
-module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubnames, magic, logger}
+module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubs, magic, logger}

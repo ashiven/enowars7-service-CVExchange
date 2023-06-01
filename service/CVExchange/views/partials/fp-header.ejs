@@ -1,3 +1,12 @@
+<div>
+    <div class="dropdown"><span class="selected title">my subreddits</span></div>
+    <div class="drop-choices srdrop">
+
+        <% if(req.subs) { for(const sub of req.subs) { %>
+        <a href="/subs/<%= sub.id %>" class=""><%= sub.name %></a>
+        <% } } %>
+    </div>
+</div>
 <header>
     <div class="post-sorting">
         &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;

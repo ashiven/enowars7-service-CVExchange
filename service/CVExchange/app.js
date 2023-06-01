@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const fs = require('fs')
 const { auth, fileAuth } = require('./middleware/auth')
-const { getuserid, getusername, getuserkarma, magic, getsubids, getsubnames} = require('./middleware/other')
+const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs} = require('./middleware/other')
 const dotenv = require('dotenv')
 dotenv.config()
 
@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 //Route definitions
 
-app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
+app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, async (req, res) => {
     try {
         const pagelimit = 15
         let page = 1
@@ -146,7 +146,7 @@ app.get('/uploads/:userId/public/:filename', auth, async (req, res) => {
     }
 })
 
-app.get('/search', auth, getusername, getuserkarma, getsubids, getsubnames, async (req, res) => {
+app.get('/search', auth, getusername, getuserkarma, async (req, res) => {
     try{
         const pagelimit = 15
         let page = 1
