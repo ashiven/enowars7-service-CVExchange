@@ -54,7 +54,6 @@ CREATE TABLE `basedbase`.`subs` (
   `sidebar` TEXT DEFAULT NULL,
   `creator_id` int DEFAULT NULL,
   `creator_name` varchar(45) DEFAULT NULL,
-  `members` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
