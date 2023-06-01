@@ -21,7 +21,7 @@ CREATE TABLE `basedbase`.`posts` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  ADD FULLTEXT INDEX `search_index` (`creator_name`, `title`, `text`)
+  FULLTEXT KEY `search_index` (`creator_name`,`title`,`text`)
 );
 
 CREATE TABLE `basedbase`.`ratings` (
