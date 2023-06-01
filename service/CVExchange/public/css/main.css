@@ -472,6 +472,8 @@ input[type="file"] {
     font-family: "Noto Sans", sans-serif;
     display: flex;
     align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .icon-tabler-terminal-2 {
