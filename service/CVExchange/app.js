@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 //Route definitions
 
-app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, async (req, res) => {
+app.get('/', getuserid, getusername, getuserkarma, async (req, res) => {
     try {
         const pagelimit = 15
         let page = 1
