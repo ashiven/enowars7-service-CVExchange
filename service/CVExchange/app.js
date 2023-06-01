@@ -14,6 +14,8 @@ const getuserid = middleware.getuserid
 const getusername = middleware.getusername
 const getuserkarma = middleware.getuserkarma
 const magic = middleware.magic
+const getsubids = middleware.getsubids
+const getsubnames = middleware.getsubnames
 
 dotenv.config()
 
@@ -153,7 +155,7 @@ app.get('/uploads/:userId/public/:filename', auth, async (req, res) => {
     }
 })
 
-app.get('/search', auth, getusername, getuserkarma, async (req, res) => {
+app.get('/search', auth, getusername, getuserkarma, getsubids, getsubnames, async (req, res) => {
     try{
         const pagelimit = 15
         let page = 1
