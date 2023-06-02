@@ -572,6 +572,10 @@ input[type="file"] {
     margin-left: 23px;
 }
 
+.sub-link-head a {
+    color: black;
+}
+
 .sublink {
     color: #3367a4;
     width: 150px;

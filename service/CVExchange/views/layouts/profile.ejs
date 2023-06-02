@@ -57,7 +57,7 @@
                 <p name="note" ><%= user.note %></p>
             </div>
             <form class="note-edit-textarea" id="note-edit" style="display: none;" method="post" action="/user/editnote">
-                <textarea id="text" name="text" rows="7" cols="55"><%= user.note %></textarea><br>
+                <textarea id="text" name="text" rows="7" cols="37"><%= user.note %></textarea><br>
                 <input class="uploadbutton" type="submit" value="save">
             </form>
             <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>

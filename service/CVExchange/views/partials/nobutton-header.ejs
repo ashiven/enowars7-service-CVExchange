@@ -34,7 +34,7 @@
     <div class="post-sorting">
         &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
         <% if(locals.sub) { %>
-        <p class="subname"> <%= sub.name %> </p>
+        <span class="sub-link-head"><a class="sub-link-head" href="/subs/<%= sub.id %>"><p class="subname"> <%= sub.name %> </p></a></span>
         <% } %>
     </div>
 

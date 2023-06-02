@@ -33,7 +33,7 @@
 <header>
     <div class="post-sorting">
         &nbsp;<a class="header-image" href="/"><img src="/img/logo.png" alt="logo"></a>&nbsp;&nbsp;
-        <p class="subname"> <%= sub.name %> </p>
+        <span class="sub-link-head"><a class="sub-link-head" href="/subs/<%= sub.id %>"><p class="subname"> <%= sub.name %> </p></a></span>
         <ul class="sorting-menu">
             <% if(sort) { %>
             <li class="li-choice <%= (sort === 'hot') ? 'on' : '' %>"> <a href="/subs/<%= sub.id %>/?sort=hot" class="choice <%= (sort === 'hot') ? 'on' : '' %>">hot</a></li>

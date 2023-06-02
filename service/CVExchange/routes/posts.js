@@ -28,7 +28,7 @@ router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
             await req.database.query(update_query, update_params)
         }
 
-        return res.render('newpost', {req, subbed, title: 'New Post', layout: './layouts/post', status: ''})
+        return res.render('newpost', {req, subbed, title: 'New Post', layout: './layouts/standard', status: ''})
     }
     catch(error) {
         console.error(error)
@@ -44,15 +44,15 @@ router.post('/new', auth, getusername, getsubids, async (req, res) => {
         const text = sanitizer.escape(req.body.text)
         if(!title || !text || title === '' || text === '') {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'You need to include a title and text!'})
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
         }
         if(title.length < 8) {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'Please provide a title containing at least 8 characters.'})
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
         }
         if(title.length > 400 || text.length > 4000) {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/post', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
+            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
         }
         const subId = req.body.subid
         if(!Number.isInteger(parseInt(subId))) {
@@ -189,7 +189,12 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
             const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
             ratings = ratings.concat(comment_ratings)
         }
-        return res.render('post', { req, sort, post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
+
+        const sub_query = `SELECT * FROM subs WHERE id = ?`
+        const sub_params = [post[0].sub_id]
+        const [sub] = await req.database.query(sub_query, sub_params)
+
+        return res.render('post', { req, sort, sub: sub[0], post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
     }
     catch (error) {
         console.error(error)
@@ -289,7 +294,7 @@ router.get('/edit/:id', auth, getusername, getuserkarma, getsubids, getsubs, get
         const [results] = await req.database.query(query, params)
 
         if (results.length > 0) {
-            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: '' })
+            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: '' })
         } 
         else {
             return res.status(404).send('<h1>Post not found</h1>')
@@ -320,13 +325,13 @@ router.post('/edit/:id', auth, async (req, res) => {
         const title = sanitizer.escape(req.body.title)
         const text = sanitizer.escape(req.body.text)
         if(!title || !text || title === '' || text === '') {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'You need to include a title and text!'})
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
         }
         if(title.length < 8) {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'Please provide a title containing at least 8 characters.'})
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
         }
         if(title.length > 400 || text.length > 4000) {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/post', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
+            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
         }
 
         const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
