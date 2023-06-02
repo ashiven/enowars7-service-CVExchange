@@ -389,6 +389,11 @@ router.get('/save/:id', auth, async (req, res) => {
     }
 })
 
+//this is just an endpoint used by the checker to know how exactly the text gets sanitized
+router.get('/sanitize/:text', auth, async (req, res) => {
+    return res.send(sanitizer.escape(req.params.text))
+})
+
 //--------------------------------
 
 

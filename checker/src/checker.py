@@ -148,7 +148,7 @@ async def putnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     title = f"Quote of the Minute #{random.randint(0,500)}"
     authors = ['Gabriel Garcia Marquez', 'Douglas Adams', 'Jane Austen', 'Charlotte Bronte', 'George Orwell', 'Shakespeare', 'John Steinbeck', 'Antoine de Saint-Exupery', 'Hermann Hesse', 'Franz Kafka', 'Oscar Wilde']
     meta = quote(random.choice(authors), limit=1)[0]
-    text = 'Author: ' + meta['author'] + '\n\n Book: ' + meta['book'] + '\n\n Quote: ' + meta['quote']
+    text = 'Author: ' + meta['author'] + '\r\n\r\n Book: ' + meta['book'] + '\r\n\r\n Quote: ' + meta['quote']
 
     # create a new subexchange and subscribe to it 
     subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
@@ -232,7 +232,9 @@ async def getnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
     # visit the postURL to retrieve noise
     noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing fact")
-    assert_in(text, noiseResp.text, "fact not found in post")
+
+    convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    assert_in(convertResp.text, noiseResp.text, "fact not found in post")
 
 
 @checker.getnoise(1)
@@ -251,7 +253,7 @@ async def getnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing quote")
 
-    convertedText = text.replace('\n', '<br>')
+    convertedText = text.replace('\r\n', '<br>')
     assert_in(convertedText, noiseResp.text, "quote not found in post")
 
 
