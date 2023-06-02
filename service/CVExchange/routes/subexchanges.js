@@ -133,7 +133,7 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         await connection.commit()
         await connection.release()
 
-        return res.redirect('/')
+        return res.redirect(`/subs/${subId}`)
     }
     catch(error) {
         // if there was an error, rollback changes and release the connection

@@ -13,6 +13,7 @@
 <div class="layout-profile">
     <main><%- body %> </main>
     <div class="side-profile">
+        <div>
         <% if (user.profile_picture) { %>
         <img src="/<%= user.profile_picture %>" alt="Profile picture">
         <% } 
@@ -75,6 +76,7 @@
             </form>
         </div>
         <% } %>
+        </div>
     </div>
 </div>
 <%- include('../partials/footer') %>

@@ -13,7 +13,7 @@
       <label for="subbed">Subexchange:</label>
       <select class="form-control" name="subid" id="subid" required="">
         <% for (let i = 0; i < subbed.length; i++) { %>
-          <option value="<%= subbed[i].id %>"><%= subbed[i].name %></option>
+          <option value="<%= subbed[i].id %>" <%= ( parseInt( req.headers.referer.split('/').pop()) === subbed[i].id ) ? 'selected' : '' %> ><%= subbed[i].name %></option>
         <% } %>
       </select>
     </div>

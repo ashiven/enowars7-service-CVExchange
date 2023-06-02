@@ -14,14 +14,39 @@
 <div class="layout-frontpage">
 
     <main><%- body %></main>
-    
-    <side>
-      <div class="searchbar">
-        <form action="/subs/search/<%= sub.id %>" id="searchform">
-            <input type="text" name="q" placeholder="search">
-        </form>
+    <div class="side-sub">
+      <div class="sub-wrap">
+        <div class="searchbar-sub">
+          <form action="/subs/search/<%= sub.id %>" id="searchform">
+              <input type="text" name="q" placeholder="search">
+          </form>
+        </div>
+        <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
+        <div class="sub-stats">
+          <div class="sub-title">
+            <p> <span class="fat"> c/<%= sub.name %> </span> </p>
+          </div>
+          <p>             
+            <form method="get" action="/subs/subscribe/<%= sub.id %>">
+              <button class="uploadbutton" type="submit"><%= req.subscribed.includes(parseInt(sub.id)) ? 'leave' : 'join'  %></button>
+              <%= sub.members %> members
+            </form> 
+          </p>
+        </div>
+        <div class="sub-about">
+          <label for="about"> Description: </label>
+          <div id="about-text" class="about-wrap">
+              <p name="about" ><%= sub.description %></p>
+          </div>
+        </div>
+        <div class="sub-about">
+          <label for="about"> About: </label>
+          <div id="about-text" class="about-wrap">
+              <p name="about" ><%= sub.sidebar %></p>
+          </div>
+        </div>
       </div>
-    </side>
+    </div>
     
 </div>
 <%- include('../partials/footer') %>
