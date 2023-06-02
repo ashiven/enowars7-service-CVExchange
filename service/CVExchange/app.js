@@ -161,7 +161,7 @@ app.get('/search', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         let ratings = []
 
         const search = req.query.q
-        const search_query = `SELECT p.*, MATCH (title, text, creator_name) AGAINST (?) AS score FROM posts p WHERE MATCH (title, text, creator_name) AGAINST (?) LIMIT ? OFFSET ?`
+        const search_query = `SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) LIMIT ? OFFSET ?`
         const search_params = [search, search, pagelimit, offset]
         const [posts] = await req.database.query(search_query, search_params)
         const postIds = posts.map(post => post.id)

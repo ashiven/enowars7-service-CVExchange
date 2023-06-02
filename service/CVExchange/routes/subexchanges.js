@@ -253,7 +253,7 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
         let ratings = []
 
         const search = req.query.q
-        const search_query = `SELECT p.*, MATCH (title, text, creator_name) AGAINST (?) AS score FROM posts p WHERE MATCH (title, text, creator_name) AGAINST (?) AND p.sub_id = ? LIMIT ? OFFSET ?`
+        const search_query = `SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) AND p.sub_id = ? LIMIT ? OFFSET ?`
         const search_params = [search, search, req.params.id, pagelimit, offset]
         const [posts] = await req.database.query(search_query, search_params)
         const postIds = posts.map(post => post.id)
@@ -274,7 +274,7 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
         const sub_params = [subId]
         const [sub] = await req.database.query(sub_query, sub_params)
 
-        return res.render('frontpage', { req, sub: sub[0], pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/search' })
+        return res.render('frontpage', { req, sub: sub[0], pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/subsearch' })
     }
     catch(error) {
         console.error(error)
