@@ -253,8 +253,8 @@ async def getnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing quote")
 
-    convertedText = text.replace('\r\n', '<br>')
-    assert_in(convertedText, noiseResp.text, "quote not found in post")
+    convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    assert_in(convertResp.text, noiseResp.text, "quote not found in post")
 
 
 @checker.exploit(0)
