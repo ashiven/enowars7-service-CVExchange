@@ -10,6 +10,7 @@ const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs, gettops
 const dotenv = require('dotenv')
 dotenv.config()
 
+
 //connect to the MySQL Database 
 const database = mysql.createPool({
     host: process.env.MYSQL_HOST,
@@ -19,8 +20,16 @@ const database = mysql.createPool({
 })
 //--------------------------------
 
+
 //initialize the app and routers
 const app = express()
+const postRouter = require('./routes/posts.js')
+const userRouter = require('./routes/users.js')
+const commentRouter = require('./routes/comments.js')
+const fileRouter = require('./routes/files.js')
+const voteRouter = require('./routes/votes.js')
+const subRouter = require('./routes/subexchanges')
+
 app.set('view engine', 'ejs')
 app.set('layout', './layouts/standard')
 
@@ -29,10 +38,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+
+//make DB accessible through req
 app.use((req, res, next) => { 
-    req.database = database //make DB accessible through req
+    req.database = database
     next()
 })
+
 
 //Route definitions
 
@@ -191,17 +203,11 @@ app.use('/img', express.static('./public/img'))
 app.use('/css', express.static('./public/css'))
 app.use('/js', express.static('./public/js'))
 
-const postRouter = require('./routes/posts.js')
 app.use('/posts', postRouter)
-const userRouter = require('./routes/users.js')
 app.use('/user', userRouter)
-const commentRouter = require('./routes/comments.js')
 app.use('/comments', commentRouter)
-const fileRouter = require('./routes/files.js')
 app.use('/files', fileRouter)
-const voteRouter = require('./routes/votes.js')
 app.use('/votes', voteRouter)
-const subRouter = require('./routes/subexchanges')
 app.use('/subs', subRouter)
 
 //--------------------------------

@@ -3,7 +3,6 @@ const router = express.Router()
 const {auth} = require('../middleware/auth')
 const {getuserkarma, getusername, getsubids, getsubs, gettopsubs }= require('../middleware/other')
 const sanitizer = require('sanitizer')
-const e = require('express')
 
 
 // Route definitions

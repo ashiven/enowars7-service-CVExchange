@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const auth_middleware = require('../middleware/auth')
-const auth = auth_middleware.auth
+const { auth } = require('../middleware/auth')
 
 
 // Route definitions

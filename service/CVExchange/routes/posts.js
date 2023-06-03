@@ -1,13 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const auth_middleware = require('../middleware/auth')
-const auth = auth_middleware.auth
-const middleware = require('../middleware/other')
-const getusername = middleware.getusername
-const getuserkarma = middleware.getuserkarma
-const getsubids = middleware.getsubids
-const getsubs = middleware.getsubs
-const gettopsubs = middleware.gettopsubs
+const { auth } = require('../middleware/auth')
+const { getusername, getuserkarma, getsubids, getsubs, gettopsubs } = require('../middleware/other')
 const sanitizer = require('sanitizer')
 
 

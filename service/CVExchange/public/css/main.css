@@ -248,9 +248,9 @@ header {
     align-items: center;
     background-color: #eef6ff;
     height: 20px;
-    width: 120px;
     border-top-left-radius: 10px;
     font-size: 12px;
+    overflow: hidden;
 }
 
 .user a {

@@ -2,8 +2,7 @@ const multer = require('multer')
 const fs = require('fs')
 const express = require('express')
 const router = express.Router()
-const auth_middleware = require('../middleware/auth')
-const auth = auth_middleware.auth
+const { auth } = require('../middleware/auth')
 const path = require('path')
 
 async function uploadDest (visibility, req, cb) {

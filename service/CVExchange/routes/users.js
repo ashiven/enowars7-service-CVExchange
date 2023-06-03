@@ -1,10 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
-const auth_middleware = require('../middleware/auth')
-const auth = auth_middleware.auth
-const jwtSecret = auth_middleware.jwtSecret
-const {getusername, getuserkarma, getsubids, getsubs, gettopsubs} = require('../middleware/other')
+const { auth, jwtSecret } = require('../middleware/auth')
+const { getusername, getuserkarma, getsubids, getsubs, gettopsubs } = require('../middleware/other')
 
 
 //Route definitions
