@@ -1,6 +1,6 @@
 # The Service 
 
-It is basically a primitive reddit clone, which allows for post creation, commenting and user profiles, but does not currently have a surrogate for subreddits.
+It is basically a primitive reddit clone, which allows for post creation, commenting and user profiles, but does not currently have a surrogate for link posts and private messaging.
 
 
 # The Vulnerabilities 
