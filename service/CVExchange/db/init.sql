@@ -58,3 +58,61 @@ CREATE TABLE `basedbase`.`subs` (
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
+
+
+INSERT INTO `basedbase`.`users` (
+  `id`,
+  `name`,
+  `email`,
+  `password`,
+  `subscribed`
+)
+VALUES (
+  1,
+  'admin',
+  'admin@secret.com',
+  'supersecret',
+  '1,2'
+);
+
+INSERT INTO `basedbase`.`subs` (
+  `id`,
+  `name`,
+  `description`,
+  `sidebar`,
+  `creator_id`,
+  `creator_name`,
+  `members`,
+  `datetime`
+)
+VALUES (
+  1,
+  'todayiforgot',
+  'What was that thing again?',
+  'This is the place you always dreamed about where you can share all of the little bits of knowledge that changed your life for better or for worse or not at all.',
+  1,
+  'admin',
+  1,
+  NOW()
+);
+
+INSERT INTO `basedbase`.`subs` (
+  `id`,
+  `name`,
+  `description`,
+  `sidebar`,
+  `creator_id`,
+  `creator_name`,
+  `members`,
+  `datetime`
+)
+VALUES (
+  2,
+  'inspirationalquotes',
+  'Quotes from authors universally beloved.',
+  'Here is where you can post your favorite quotes from your favorite authors, or your most hated authors, or your somewhat well liked authors, or your somewhat but not too well liked authors. The choice is yours.',
+  1,
+  'admin',
+  1,
+  NOW()
+);

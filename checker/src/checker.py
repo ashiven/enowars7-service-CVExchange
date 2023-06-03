@@ -126,12 +126,12 @@ async def putnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
     text = randfacts.get_fact()
 
     # create a new subexchange and subscribe to it 
-    subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
-    subId = subResp.headers['Location'].split('/')[-1]
-    await client.get(f"/subs/subscribe/{subId}", cookies={"jwtToken": cookie})
+    # subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
+    # subId = subResp.headers['Location'].split('/')[-1]
+    await client.get(f"/subs/subscribe/1", cookies={"jwtToken": cookie})
 
     # post the fact to the generated subexchange
-    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
+    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": 1}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couldn't create post under /posts/new")
 
     # save the redirection URL and other postinfo in DB
@@ -151,12 +151,12 @@ async def putnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     text = 'Author: ' + meta['author'] + '\r\n\r\n Book: ' + meta['book'] + '\r\n\r\n Quote: ' + meta['quote']
 
     # create a new subexchange and subscribe to it 
-    subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
-    subId = subResp.headers['Location'].split('/')[-1]
-    await client.get(f"/subs/subscribe/{subId}", cookies={"jwtToken": cookie})
+    # subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
+    # subId = subResp.headers['Location'].split('/')[-1]
+    await client.get(f"/subs/subscribe/2", cookies={"jwtToken": cookie})
 
     # post the quote
-    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
+    uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": 2}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couldn't create post under /posts/new")
 
     # save the redirection URL and other postinfo in DB
