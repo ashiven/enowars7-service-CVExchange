@@ -9,20 +9,7 @@ const sanitizer = require('sanitizer')
 
 router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
-        let subbed = []
-        
-        const subbed_query = `SELECT * FROM subs WHERE id IN (?)`
-        const subbed_params = [req.subscribed]
-
-        if(req.subscribed.length > 0) {
-            [subbed] = await req.database.query(subbed_query, subbed_params)
-            const updatedSubbed = req.subscribed.filter((id) => subbed.some((sub) => sub.id === id))
-            const update_query = `UPDATE users SET subscribed = ? WHERE id = ?`
-            const update_params = [updatedSubbed.join(','), req.userId]
-            await req.database.query(update_query, update_params)
-        }
-
-        return res.render('newpost', {req, subbed, title: 'New Post', layout: './layouts/standard', status: ''})
+        return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: ''})
     }
     catch(error) {
         console.error(error)
@@ -30,7 +17,7 @@ router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     }
 })
 
-router.post('/new', auth, getusername, getsubids, async (req, res) => {
+router.post('/new', auth, getusername, getsubids, getsubs, async (req, res) => {
     const connection = await req.database.getConnection()
     
     try {
@@ -38,15 +25,15 @@ router.post('/new', auth, getusername, getsubids, async (req, res) => {
         const text = sanitizer.escape(req.body.text)
         if(!title || !text || title === '' || text === '') {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
+            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
         }
         if(title.length < 8) {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
+            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
         }
         if(title.length > 400 || text.length > 4000) {
             await connection.release()
-            return res.render('newpost', {req, title: 'New Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
+            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
         }
         const subId = req.body.subid
         if(!Number.isInteger(parseInt(subId))) {
@@ -68,6 +55,18 @@ router.post('/new', auth, getusername, getsubids, async (req, res) => {
 
         // start a transaction
         await connection.beginTransaction()
+
+        const spam_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1`
+        const spam_params = [creatorId]
+        const [spam] = await connection.query(spam_query, spam_params)
+
+        if(spam.length > 0) {
+            //ensure that users can only create a new post every 10 seconds
+            if(Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
+                await connection.release()
+                return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please wait 10 seconds inbetween creating new posts.'})
+            }
+        }
 
         const insert_query = `INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )`
         const insert_params = [title, text, subId, subName, creatorId, creatorName]

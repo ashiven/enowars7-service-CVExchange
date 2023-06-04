@@ -40,6 +40,18 @@ router.post('/new', auth, getusername, async (req, res) => {
         // start a transaction
         await connection.beginTransaction()
 
+        const spam_query = `SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1`
+        const spam_params = [creatorId]
+        const [spam] = await connection.query(spam_query, spam_params)
+
+        if(spam.length > 0) {
+            //ensure that users can only post a new comment every 3 seconds
+            if(Math.floor((new Date() - spam[0].datetime) / 1000) < 3) {
+                await connection.release()
+                return res.redirect(`/posts/${postId}`)
+            }
+        }
+
         if(parentId) {
             const insert_query = `INSERT INTO comments (text, post_id, creator_id, creator_name, rating, datetime, parent_id) VALUES (?, ?, ?, ?,  1,  NOW(), ? )`
             const insert_params = [comment, postId, creatorId, creatorName, parentId]
