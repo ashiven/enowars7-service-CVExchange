@@ -48,11 +48,11 @@
     </div>
 
 <% if(req.cookies.jwtToken) { %>
-    <div class="user-info-loggedin" style="width: <%= Math.max(req.username.length * 8, 120) %>px;">
+    <div class="user-info-loggedin" style="width: <%= req.username.length * 8 + 80 %>px;">
         <span class="user">
             <a href="/user/profile/<%= req.userId %>"><%= req.username %></a>&nbsp;(<span class="karma"><%= req.postkarma + req.commentkarma %></span>)&nbsp;
         </span>
-        <span class="separator">|</span>&nbsp;
+        <span class="separatorprof">|</span>&nbsp;
         <form method="POST" action="/user/logout" class="logout">
             <a href="#" onclick="event.preventDefault(); this.closest('form').submit()">logout</a>&nbsp;
         </form>
