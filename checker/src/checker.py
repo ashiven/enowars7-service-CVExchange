@@ -36,14 +36,15 @@ def getRandom(length):
 
 
 async def register(client: AsyncClient) -> tuple[str, str, str, str]:
-    name, password = ''.join(random.choices(string.ascii_letters + string.digits, k=10)), ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    email = ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '@' + ''.join(random.choices(string.ascii_letters + string.digits, k=5)) + '.' + ''.join(random.choices(string.ascii_letters + string.digits, k=3))
+    name, password = getRandom(10), getRandom(10)
+    email = getRandom(5) + '@' + getRandom(5) + '.' + getRandom(3)
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
     assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
     cookie = parseCookie(str(client.cookies))
 
     # scour the frontpage to retrieve our unique userId
     profileResp = await client.get("/", cookies={"jwtToken": cookie}) 
+    assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
     html = BeautifulSoup(profileResp, "html.parser")
     userClass = html.find('span', attrs={'class':'user'})
     profileLink = userClass.find('a')
@@ -59,6 +60,7 @@ async def login(email: str, password: str, client: AsyncClient) -> tuple[str, st
     
     # scour the frontpage to retrieve our unique userId
     profileResp = await client.get("/", cookies={"jwtToken": cookie}) 
+    assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
     html = BeautifulSoup(profileResp, "html.parser")
     userClass = html.find('span', attrs={'class':'user'})
     profileLink = userClass.find('a')
@@ -128,7 +130,8 @@ async def putnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
     # create a new subexchange and subscribe to it 
     # subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
     # subId = subResp.headers['Location'].split('/')[-1]
-    await client.get(f"/subs/subscribe/1", cookies={"jwtToken": cookie})
+    subResp = await client.get(f"/subs/subscribe/1", cookies={"jwtToken": cookie})
+    assert_equals(subResp.status_code, 302, "couldn't subscribe under /subs/subscribe/1")
 
     # post the fact to the generated subexchange
     uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": 1}, cookies={"jwtToken": cookie})
@@ -153,7 +156,8 @@ async def putnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     # create a new subexchange and subscribe to it 
     # subResp = await client.post("/subs/new", json={"name": getRandom(10), "description": getRandom(10), "sidebar": getRandom(10)}, cookies={"jwtToken": cookie})
     # subId = subResp.headers['Location'].split('/')[-1]
-    await client.get(f"/subs/subscribe/2", cookies={"jwtToken": cookie})
+    subResp = await client.get(f"/subs/subscribe/2", cookies={"jwtToken": cookie})
+    assert_equals(subResp.status_code, 302, "couldn't subscribe under /subs/subscribe/2")
 
     # post the quote
     uploadResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": 2}, cookies={"jwtToken": cookie})
@@ -233,7 +237,9 @@ async def getnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
     noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing fact")
 
+    # get the sanitized version of the post text
     convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    assert_equals(convertResp.status_code, 200, "couldn't convert post under /posts/sanitize")
     assert_in(convertResp.text, noiseResp.text, "fact not found in post")
 
 
@@ -253,8 +259,43 @@ async def getnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     noiseResp = await client.get(postURL, cookies={"jwtToken": cookie})
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing quote")
 
+    # get the sanitized version of the post text
     convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    assert_equals(convertResp.status_code, 200, "couldn't convert post under /posts/sanitize")
     assert_in(convertResp.text, noiseResp.text, "quote not found in post")
+
+
+@checker.havoc(0)
+async def havoc_doabunchofstuffinb64(client: AsyncClient) -> None:
+
+    # register so client has a cookie 
+    email, password, cookie, userId = await register(client)
+
+    # create a new subexchange and subscribe to it 
+    name = getRandom(15)
+    description = base64.b64encode(getRandom(10).encode()).decode()
+    sidebar = base64.b64encode(getRandom(10).encode()).decode()
+    subCreateResp = await client.post("/subs/new", json={"name": name, "description": description, "sidebar": sidebar}, cookies={"jwtToken": cookie})
+    assert_equals(subCreateResp.status_code, 302, "couldn't create new sub under /subs/new")
+    subId = subCreateResp.headers['Location'].split('/')[-1]
+    subResp = await client.get(f"/subs/subscribe/{subId}", cookies={"jwtToken": cookie})
+    assert_equals(subResp.status_code, 302, f"couldn't subscribe under /subs/subscribe/{subId}")
+
+    # post some random stuff to the created subexchange
+    title = base64.b64encode(getRandom(10).encode()).decode()
+    text = base64.b64encode(getRandom(100).encode()).decode()
+    postResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
+    assert_equals(postResp.status_code, 302, "couldn't create post under /posts/new")
+    postId = postResp.headers['Location'].split('/')[-1]
+
+    # comment on the created post
+    comment = base64.b64encode(getRandom(10).encode()).decode()
+    commentResp = await client.post("/comments/new", json={"comment": comment, "postId": postId}, cookies={"jwtToken": cookie})
+    assert_equals(commentResp.status_code, 302, "couldn't create post under /comments/new")
+
+    # retrieve the created post
+    checkResp = await client.get(f"/posts/{postId}", cookies={"jwtToken": cookie})
+    assert_equals(checkResp.status_code, 200, f"couldn't get post under /posts/{postId}")
 
 
 @checker.exploit(0)
