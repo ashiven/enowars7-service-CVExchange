@@ -63,6 +63,7 @@ router.post('/new', auth, getusername, getsubids, getsubs, async (req, res) => {
         if(spam.length > 0) {
             //ensure that users can only create a new post every 10 seconds
             if(Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
+                await connection.commit()
                 await connection.release()
                 return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please wait 10 seconds inbetween creating new posts.'})
             }

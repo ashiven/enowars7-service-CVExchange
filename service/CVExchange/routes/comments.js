@@ -47,6 +47,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         if(spam.length > 0) {
             //ensure that users can only post a new comment every 3 seconds
             if(Math.floor((new Date() - spam[0].datetime) / 1000) < 3) {
+                await connection.commit()
                 await connection.release()
                 return res.redirect(`/posts/${postId}`)
             }

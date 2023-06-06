@@ -67,6 +67,7 @@ router.post('/new', auth, getusername, async (req, res) => {
         if(spam.length > 0) {
             //ensure that users can only create a new subexchange every 20 seconds
             if(Math.floor((new Date() - spam[0].datetime) / 1000) < 20) {
+                await connection.commit()
                 await connection.release()
                 return res.render('newsub', {req, title: 'New Subexchange', layout: './layouts/sub', status: 'Please wait 20 seconds inbetween creating new subexchanges.'})
             }
