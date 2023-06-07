@@ -15,7 +15,14 @@ import random
 import string
 import base64
 import randfacts
-from quote import quote
+import re
+import json
+from faker import Faker
+
+# initialize quotes and faker
+fake = Faker()
+with open('quotes.json', 'r') as file:
+    quotes = json.load(file)
 
 
 SERVICE_PORT = 1337
@@ -31,15 +38,30 @@ def parseCookie(cookieString):
     return cookieString[start:end]
 
 
-def getRandom(length):
+def getRandom(length) -> str:
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
+def getFake(type: str) -> str:
+    res = None
+    if type == 'name':
+        res = fake.name()
+    elif type == 'text':
+        res = fake.text()
+    res = re.sub(r'\s+', '', res)
+    res = re.sub(r'[^\w\s-]', '', res)
+    
+    if type == 'name':
+        return res[:15] + str(random.randint(0, 10000))
+    
+    return res[:15]
+
+
 async def register(client: AsyncClient) -> tuple[str, str, str, str]:
-    name, password = getRandom(10), getRandom(10)
+    name, password = getFake('name'), getRandom(10)
     email = getRandom(5) + '@' + getRandom(5) + '.' + getRandom(3)
     registerResp = await client.post("/user/register", json={"name": name, "email": email, "password": password})
-    assert_equals(registerResp.status_code, 302, "couldn't register a new user under /user/register")
+    assert_equals(registerResp.status_code, 302, f"couldn't register a new user with name: {name} under /user/register")
     cookie = parseCookie(str(client.cookies))
 
     # scour the frontpage to retrieve our unique userId
@@ -149,8 +171,7 @@ async def putnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
 
     # generate a random quote
     title = f"Quote of the Minute #{random.randint(0,500)}"
-    authors = ['Gabriel Garcia Marquez', 'Douglas Adams', 'Jane Austen', 'Charlotte Bronte', 'George Orwell', 'Shakespeare', 'John Steinbeck', 'Antoine de Saint-Exupery', 'Hermann Hesse', 'Franz Kafka', 'Oscar Wilde']
-    meta = quote(random.choice(authors), limit=1)[0]
+    meta = random.choice(quotes)
     text = 'Author: ' + meta['author'] + '\r\n\r\n Book: ' + meta['book'] + '\r\n\r\n Quote: ' + meta['quote']
 
     # create a new subexchange and subscribe to it 
@@ -272,9 +293,9 @@ async def havoc_doabunchofstuffinb64(client: AsyncClient) -> None:
     email, password, cookie, userId = await register(client)
 
     # create a new subexchange and subscribe to it 
-    name = getRandom(15)
-    description = base64.b64encode(getRandom(10).encode()).decode()
-    sidebar = base64.b64encode(getRandom(10).encode()).decode()
+    name = getFake('text')
+    description = base64.b64encode(getFake('text').encode()).decode()
+    sidebar = base64.b64encode(getFake('text').encode()).decode()
     subCreateResp = await client.post("/subs/new", json={"name": name, "description": description, "sidebar": sidebar}, cookies={"jwtToken": cookie})
     assert_equals(subCreateResp.status_code, 302, "couldn't create new sub under /subs/new")
     subId = subCreateResp.headers['Location'].split('/')[-1]
@@ -282,8 +303,8 @@ async def havoc_doabunchofstuffinb64(client: AsyncClient) -> None:
     assert_equals(subResp.status_code, 302, f"couldn't subscribe under /subs/subscribe/{subId}")
 
     # post some random stuff to the created subexchange
-    title = base64.b64encode(getRandom(10).encode()).decode()
-    text = base64.b64encode(getRandom(100).encode()).decode()
+    title = base64.b64encode(getFake('text').encode()).decode()
+    text = base64.b64encode(getFake('text').encode()).decode()
     postResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
     assert_equals(postResp.status_code, 302, "couldn't create post under /posts/new")
     postId = postResp.headers['Location'].split('/')[-1]
