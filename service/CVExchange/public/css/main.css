@@ -768,6 +768,17 @@ input[type="file"] {
     border-radius: 5px;
 }
 
+.error-message {
+    margin-top: 0px;
+    color: red;
+    font-size: 12px;
+}
+
+.error-message.show-error {
+    margin-top: 0px;
+    margin-bottom: 10px; 
+}
+
 /* style for post-page */
 
 .post-page {

@@ -104,8 +104,10 @@
 <form method="post" action="/comments/new" id="newcomment-form">
     <input type="hidden" name="postId" value="<%= post.id %>">
     <textarea class="comment-textarea" id="newcomment-text" name="comment" rows="7" cols="65"></textarea><br>
+    <div class="error-message" id="error-message"></div>
     <button class="uploadbutton" type="submit">save</button>
 </form>
+
 
 
 <div>
@@ -115,7 +117,7 @@
 
 <% function createThread(comments, level = 0) { %>
     <% comments.forEach((comment) => { %>
-        <div class="comment <%= level === 0 ? '' : 'child-comment' %>" style="margin-left: <%= level * 20 %>px;">
+        <div class="comment <%= level === 0 ? '' : 'child-comment' %>" style="margin-left: <%= level * 25 %>px;">
             <div class="voting-section">
                 <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -270,9 +272,12 @@ function reply(commentId) {
 
 document.getElementById('newcomment-form').addEventListener('submit', (event) => {
     const textarea = document.getElementById('newcomment-text')
+    const errorMsg = document.getElementById('error-message')
 
     if(textarea.value.length > 500 || textarea.value.length < 1) {
         event.preventDefault()
+        errorMsg.classList.add('show-error')
+        errorMsg.textContent = 'Your comment should contain between 1 to 500 characters.'
     }
 })
 
@@ -306,4 +311,22 @@ function timeSince(date) {
 
     return Math.floor(seconds) + " seconds"
 }
+
+
+let lastSubmit = localStorage.getItem('lastSubmit')
+document.getElementById('newcomment-form').addEventListener('submit', (event) => {
+    const currentTime = Date.now()
+    const timeDiff = currentTime - lastSubmit
+    const errorMsg = document.getElementById('error-message')
+
+    if (timeDiff < 3000 && lastSubmit) {
+        event.preventDefault()
+        errorMsg.classList.add('show-error')
+        errorMsg.textContent = 'Not so fast! Please wait 3 seconds inbetween comments.'
+    } 
+    else {
+        localStorage.setItem('lastSubmit', currentTime)
+    }
+})
+
 </script>

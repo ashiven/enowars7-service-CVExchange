@@ -46,13 +46,15 @@ def getFake(type: str) -> str:
     res = None
     if type == 'name':
         res = fake.name()
-    elif type == 'text':
+    elif type == 'text' or type == 'longtext':
         res = fake.text()
     res = re.sub(r'\s+', '', res)
     res = re.sub(r'[^\w\s-]', '', res)
     
     if type == 'name':
         return res[:15] + str(random.randint(0, 10000))
+    elif type == 'longtext':
+        return res[:400]
     
     return res[:15]
 
@@ -293,7 +295,7 @@ async def havoc_doabunchofstuffinb64(client: AsyncClient) -> None:
     email, password, cookie, userId = await register(client)
 
     # create a new subexchange and subscribe to it 
-    name = getFake('text')
+    name = getFake('text') + str(random.randint(0, 10000))
     description = base64.b64encode(getFake('text').encode()).decode()
     sidebar = base64.b64encode(getFake('text').encode()).decode()
     subCreateResp = await client.post("/subs/new", json={"name": name, "description": description, "sidebar": sidebar}, cookies={"jwtToken": cookie})
@@ -304,13 +306,13 @@ async def havoc_doabunchofstuffinb64(client: AsyncClient) -> None:
 
     # post some random stuff to the created subexchange
     title = base64.b64encode(getFake('text').encode()).decode()
-    text = base64.b64encode(getFake('text').encode()).decode()
+    text = base64.b64encode(getFake('longtext').encode()).decode()
     postResp = await client.post("/posts/new", json={"title": title, "text": text, "subid": subId}, cookies={"jwtToken": cookie})
     assert_equals(postResp.status_code, 302, "couldn't create post under /posts/new")
     postId = postResp.headers['Location'].split('/')[-1]
 
     # comment on the created post
-    comment = base64.b64encode(getRandom(10).encode()).decode()
+    comment = base64.b64encode(getFake('longtext').encode()).decode()
     commentResp = await client.post("/comments/new", json={"comment": comment, "postId": postId}, cookies={"jwtToken": cookie})
     assert_equals(commentResp.status_code, 302, "couldn't create post under /comments/new")
 
