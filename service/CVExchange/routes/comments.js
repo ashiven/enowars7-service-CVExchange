@@ -122,7 +122,7 @@ router.get('/delete/:id', auth, async (req, res) => {
         const commentId = req.params.id
         if(!Number.isInteger(parseInt(commentId))) {
             await connection.release()
-            return res.status(500).send('<h1>Cant delete imaginary comments.</h1>')
+            return res.status(500).send("<h1>Can't delete imaginary comments.</h1>")
         }
         const userId = req.userId
 
@@ -153,7 +153,7 @@ router.get('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.status(401).send('<h1>You are not authorized to delete this comment or it doesnt exist</h1>')
+            return res.status(401).send("<h1>You are not authorized to delete this comment or it doesn't exist</h1>")
         }
     } 
     catch (error) {

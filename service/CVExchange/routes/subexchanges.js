@@ -117,7 +117,7 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         const subId = req.params.id
         if(!Number.isInteger(parseInt(subId))) {
             await connection.release()
-            return res.status(500).send('<h1>Stop it. Its time to stop. Really.</h1>')
+            return res.status(500).send('<h1>Stop it. Get some help.</h1>')
         }
         let updatedSubscribed
 
@@ -172,14 +172,14 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         if(req.query.page) {
             page = parseInt(req.query.page)
             if(!Number.isInteger(page)) {
-                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+                return res.status(500).send('<h1>Yea.. page ID must be a number buddy.</h1>')
             }
         }
 
         let sort = 'hot'
         let subId = req.params.id
         if(!Number.isInteger(parseInt(subId))) {
-            return res.status(500).send('<h1>Yea.. subexchange Ids have to be numbers buddy.</h1>')
+            return res.status(500).send('<h1>Yea.. sub ID must be a number buddy.</h1>')
         }
         let comments = []
         let ratings = []
@@ -258,12 +258,12 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
         if(req.query.page) {
             page = parseInt(req.query.page)
             if(!Number.isInteger(page)) {
-                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+                return res.status(500).send('<h1>Yea.. page ID must be a number buddy.</h1>')
             }
         }
         let subId = req.params.id
         if(!Number.isInteger(parseInt(subId))) {
-            return res.status(500).send('<h1>Yea.. subexchange Ids have to be numbers buddy.</h1>')
+            return res.status(500).send('<h1>Yea.. sub ID must be a number buddy.</h1>')
         }
         const offset = (page - 1) * pagelimit
         let comments = []

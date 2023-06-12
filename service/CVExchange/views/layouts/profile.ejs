@@ -41,15 +41,6 @@
             <p> <span class="fat"> <%= posts.reduce((total, post) => total + post.rating, 0) %> </span> post karma </p>
             <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
         </div>
-        <!--
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //ATTENTION: THIRD VULNERABILITY HERE!!!! (Parameter Tampering/Broken Authentication)                          // 
-        //An attacker can supply a userId as query parameter in their GET request to /user/profile/:id                 //
-        //This will cause the view engine to render the users personal information, including a flag in the form       //
-        //of the users personal note. For example, the attacker could access a profile via /user/profile/:id?userId=id //
-        //A fix would consist in simply removing the part after || inside the if-statement.                            //
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        -->
         <% if(parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.query.userId) === parseInt(req.params.id)) { %>
         <div class="self-note">
             <label for="note"> Note to Self: </label>

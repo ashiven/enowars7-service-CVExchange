@@ -101,7 +101,7 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     try {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
-            return res.status(500).send('<h1>Thats not a number in my world.</h1>')
+            return res.status(500).send("<h1>That's not a valid ID in my world.</h1>")
         }
         let ratings = []
         let sort = 'top'
@@ -203,7 +203,7 @@ router.get('/delete/:id', auth, async (req, res) => {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
             await connection.release()
-            return res.status(500).send('<h1>Cant delete imaginary posts.</h1>')
+            return res.status(500).send("<h1>Can't delete imaginary posts.</h1>")
         }
         const userId = req.userId
 
@@ -262,7 +262,7 @@ router.get('/delete/:id', auth, async (req, res) => {
             await connection.commit()
             await connection.release()
 
-            return res.status(401).send('<h1>You are not authorized to delete this post or the post doesnt exist.</h1>')
+            return res.status(401).send("<h1>You are not authorized to delete this post or the post doesn't exist.</h1>")
         }
     } 
     catch (error) {
@@ -348,7 +348,7 @@ router.get('/save/:id', auth, async (req, res) => {
         const postId = req.params.id
         if(!Number.isInteger(parseInt(postId))) {
             await connection.release()
-            return res.status(500).send('<h1>Stop it. Its time to stop. Really.</h1>')
+            return res.status(500).send('<h1>Stop it. Get some help.</h1>')
         }
         let updatedSaved
 

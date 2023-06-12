@@ -149,7 +149,7 @@ router.get('/profile/:id', auth, getusername, getuserkarma,getsubids, getsubs, g
     try {
         const profileId = req.params.id
         if(!Number.isInteger(parseInt(profileId))) {
-            return res.status(500).send(`<h1>Riddle me this: What is the result of 2 + ${profileId} ? Yea.. I thought so.</h1>`)
+            return res.status(500).send(`<h1>What does 1 + ${profileId} make? Yea.. I wouldn't know either.</h1>`)
         }
         const pagelimit = 15
         const userId = req.userId
@@ -161,7 +161,7 @@ router.get('/profile/:id', auth, getusername, getuserkarma,getsubids, getsubs, g
         if(req.query.page) {
             page = parseInt(req.query.page)
             if(!Number.isInteger(page)) {
-                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+                return res.status(500).send('<h1>That is not a number.</h1>')
             }
         }
         let ratings = []

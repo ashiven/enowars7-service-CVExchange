@@ -56,7 +56,7 @@ app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, gettopsub
         if(req.query.page) {
             page = parseInt(req.query.page)
             if(!Number.isInteger(page)) {
-                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+                return res.status(500).send('<h1>That is not a number.</h1>')
             }
         }
         const offset = (page - 1) * pagelimit
@@ -142,9 +142,7 @@ app.get('/uploads/:userId/public/:filename', auth, async (req, res) => {
     try {
         const filepath = path.join(__dirname, 'uploads', req.params.userId, 'public', req.params.filename)
         await fs.promises.access(filepath)
-        ///////////////////////////////////////////////////
-        // CONTINUATION OF SECOND VULN(allowing for RCE) //
-        ///////////////////////////////////////////////////
+        
         if(/\.(js)$/i.test(filepath)) {
             magic(filepath, req, res)
         }
@@ -165,7 +163,7 @@ app.get('/search', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         if(req.query.page) {
             page = parseInt(req.query.page)
             if(!Number.isInteger(page)) {
-                return res.status(500).send('<h1>Yea.. pages have to be numbers buddy.</h1>')
+                return res.status(500).send('<h1>That is not a number.</h1>')
             }
         }
         const offset = (page - 1) * pagelimit
