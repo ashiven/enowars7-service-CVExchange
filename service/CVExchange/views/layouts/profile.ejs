@@ -15,10 +15,14 @@
     <div class="side-profile">
         <div>
         <% if (user.profile_picture) { %>
-        <img src="/<%= user.profile_picture %>" alt="Profile picture">
+        <div class="img-div">
+            <img src="/<%= user.profile_picture %>" alt="Profile picture">
+        </div>
         <% } 
         else { %>
-        <img src="/img/default.png" alt="Profile picture">
+        <div class="img-div">
+            <img src="/img/default.png" alt="Profile picture">
+        </div>
         <% } %>
         <% if( parseInt(req.userId) === parseInt(user.id) ) { %>
         <div class="upload-buttons">
@@ -54,7 +58,7 @@
             <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>
         </div>
         <label class="cloud-label" for="mycloud">My Cloud:</label>
-        <a name="mycloud" class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" alt="cloud"></a>
+        <a name="mycloud" class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" style="margin-bottom: 10px;" alt="cloud"></a>
         <div class="upload-buttons">
             <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/private">
                 <label class="uploadbutton">

@@ -410,9 +410,18 @@ side {
     font-size: 15px;
 }
 
-.side-profile img {
+.img-div {
+    height: 210px;
+    width: 210px;
+    border-radius: 50%;
+    overflow: hidden;
+    align-self: center;
     margin-top: 35px;
     margin-bottom: 35px;
+    display: flex;
+}
+
+.side-profile img {
     align-self: center;
 }
 
