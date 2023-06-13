@@ -7,7 +7,8 @@ CREATE TABLE `basedbase`.`comments` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   `parent_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lookup_index` (`post_id`,`creator_id`,`parent_id`)
 );
 
 CREATE TABLE `basedbase`.`posts` (
@@ -21,6 +22,7 @@ CREATE TABLE `basedbase`.`posts` (
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `lookup_index` (`sub_id`,`creator_id`),
   FULLTEXT KEY `search_index` (`creator_name`,`sub_name`,`title`,`text`)
 );
 
@@ -31,7 +33,8 @@ CREATE TABLE `basedbase`.`ratings` (
   `post_id` int DEFAULT NULL,
   `rating` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lookup_index` (`user_id`,`comment_id`,`post_id`)
 );
 
 CREATE TABLE `basedbase`.`users` (
@@ -44,7 +47,8 @@ CREATE TABLE `basedbase`.`users` (
   `note` varchar(250) DEFAULT NULL,
   `my_file` varchar(250) DEFAULT NULL,
   `subscribed` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lookup_index` (`name`,`email`)
 );
 
 CREATE TABLE `basedbase`.`subs` (
@@ -56,7 +60,8 @@ CREATE TABLE `basedbase`.`subs` (
   `creator_name` varchar(45) DEFAULT NULL,
   `members` int DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `lookup_index` (`creator_id`)
 );
 
 

