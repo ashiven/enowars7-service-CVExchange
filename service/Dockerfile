@@ -10,4 +10,4 @@ COPY ./CVExchange/package.json package.json
 COPY ./CVExchange/package-lock.json package-lock.json 
 RUN npm install
 COPY ./CVExchange/ .
-CMD node app.js
+CMD JWT_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1) node app.js
