@@ -1,9 +1,11 @@
 const multer = require('multer')
 const fs = require('fs')
-const express = require('express')
-const router = express.Router()
-const { auth } = require('../middleware/auth')
+const router = require('express').Router()
 const path = require('path')
+const { auth } = require('../middleware/auth')
+
+
+// Filestorage definitions
 
 async function uploadDest (visibility, req, cb) {
     const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
@@ -57,6 +59,32 @@ const privateStorage = multer.diskStorage({
     }
 })
 
+const backupStorage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        const userDir = path.join(__dirname, '..', 'backups', Buffer.from(req.userId.toString()).toString('base64'))
+        try {
+            await fs.promises.access(userDir)
+        }
+        catch(error) { 
+            if(error.code === 'ENOENT') {
+                try {
+                    await fs.promises.mkdir(userDir)
+                }
+                catch(error) {
+                    return cb(error)
+                }
+            }
+            else {
+                return cb(error)
+            }
+        }
+        return cb(null, userDir)
+    },
+    filename: async (req, file, cb) => {
+        return cb(null, file.originalname)
+    }
+})
+
 const fileFilter = async (req, file, cb) => {
     try {
         const regex = /\.(jpg|jpeg|png)/i
@@ -89,8 +117,12 @@ const fileFilterPrivate = async (req, file, cb) => {
 
 const publicUploader = multer({ storage: publicStorage, fileFilter: fileFilter, limits: { fileSize: 1024 * 1024 * 5 } })
 const privateUploader = multer({ storage: privateStorage, fileFilter: fileFilterPrivate, limits: { fileSize: 1024 * 1024 * 5 } })
+const backupUploader = multer({ storage: backupStorage, fileFilter: fileFilterPrivate, limits: { fileSize: 1024 * 1024 * 5 } })
 const upload = publicUploader.single('profilePicture')
 const privateUpload = privateUploader.single('privateFile')
+const backupUpload = backupUploader.single('backupFile')
+
+//--------------------------------
 
 
 // Route definitions
@@ -250,36 +282,6 @@ router.post('/private', auth, async (req, res) => {
     })
 })
 
-
-const backupStorage = multer.diskStorage({
-    destination: async (req, file, cb) => {
-        const userDir = path.join(__dirname, '..', 'backups', Buffer.from(req.userId.toString()).toString('base64'))
-        try {
-            await fs.promises.access(userDir)
-        }
-        catch(error) { 
-            if(error.code === 'ENOENT') {
-                try {
-                    await fs.promises.mkdir(userDir)
-                }
-                catch(error) {
-                    return cb(error)
-                }
-            }
-            else {
-                return cb(error)
-            }
-        }
-        return cb(null, userDir)
-    },
-    filename: async (req, file, cb) => {
-        return cb(null, file.originalname)
-    }
-})
-
-const backupUploader = multer({ storage: backupStorage, fileFilter: fileFilterPrivate, limits: { fileSize: 1024 * 1024 * 5 } })
-const backupUpload = backupUploader.single('backupFile')
-
 router.post('/backup', auth, (req, res) =>{
 
     backupUpload(req, res, async (error) => {
@@ -311,7 +313,6 @@ router.get('/retrieve/:userId/:filename', auth, async (req, res) => {
 })
 
 //--------------------------------
-
 
 
 module.exports = router 

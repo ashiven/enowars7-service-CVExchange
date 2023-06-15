@@ -1,5 +1,4 @@
-const express = require('express')
-const router = express.Router()
+const router = require('express').Router()
 const jwt = require('jsonwebtoken')
 const { auth, jwtSecret } = require('../middleware/auth')
 const { getusername, getuserkarma, getsubids, getsubs, gettopsubs } = require('../middleware/other')
@@ -251,7 +250,6 @@ router.post('/editnote', auth, async (req, res) => {
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
-
 
 //--------------------------------
 

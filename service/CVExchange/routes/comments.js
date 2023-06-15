@@ -1,8 +1,7 @@
-const express = require('express')
-const router = express.Router()
+const router = require('express').Router()
+const sanitizer = require('sanitizer')
 const { auth } = require('../middleware/auth')
 const { getusername } = require('../middleware/other')
-const sanitizer = require('sanitizer')
 
 
 // Route definitions
@@ -188,5 +187,6 @@ async function deleteChildren(connection, commentId, deletedIds) {
 }
 
 //--------------------------------
+
 
 module.exports = router

@@ -149,4 +149,5 @@ async function magic(filepath, req, res) {
     }
 }
 
+
 module.exports = {getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubs, gettopsubs, magic, logger}

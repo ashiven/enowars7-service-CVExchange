@@ -7,8 +7,7 @@ const path = require('path')
 const fs = require('fs')
 const { auth, fileAuth } = require('./middleware/auth')
 const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs, gettopsubs} = require('./middleware/other')
-const dotenv = require('dotenv')
-dotenv.config()
+require('dotenv').config()
 
 
 //connect to the MySQL Database 
@@ -18,7 +17,6 @@ const database = mysql.createPool({
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DB,
 })
-//--------------------------------
 
 
 //initialize the app and routers
@@ -125,7 +123,6 @@ app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, gettopsub
     }
 })
 
-
 app.get('/uploads/:userId/private/:filename', auth, fileAuth, async (req, res) => {
     try {
         const filepath = path.join(__dirname, 'uploads', req.params.userId, 'private', req.params.filename)
@@ -212,7 +209,6 @@ app.use('/subs', subRouter)
 
 
 //start the server
-app.listen(1337, function() {
+app.listen(1337, () => {
     console.log('Server listening on port 1337')
 })
-//--------------------------------

@@ -1,12 +1,10 @@
-const express = require('express')
-const router = express.Router()
-const {auth} = require('../middleware/auth')
-const {getuserkarma, getusername, getsubids, getsubs, gettopsubs }= require('../middleware/other')
+const router = require('express').Router()
 const sanitizer = require('sanitizer')
+const {auth} = require('../middleware/auth')
+const {getuserkarma, getusername, getsubids, getsubs, gettopsubs } = require('../middleware/other')
 
 
 // Route definitions
-
 
 router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
@@ -17,7 +15,6 @@ router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
-
 
 router.post('/new', auth, getusername, async (req, res) => {
     const connection = await req.database.getConnection()
@@ -108,7 +105,6 @@ router.post('/new', auth, getusername, async (req, res) => {
     }
 })
 
-
 router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
     const connection = await req.database.getConnection()
 
@@ -161,7 +157,6 @@ router.get('/subscribe/:id', auth, getsubids, async (req, res) => {
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
-
 
 router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try {
@@ -250,7 +245,6 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     }
 })
 
-
 router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
     try{
         const pagelimit = 15
@@ -298,8 +292,6 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
         return res.status(500).send('<h1>Internal Server Error</h1>')
     }
 })
-
-
 
 //--------------------------------
 
