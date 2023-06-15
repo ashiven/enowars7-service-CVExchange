@@ -24,7 +24,7 @@
             <img src="/img/default.png" alt="Profile picture">
         </div>
         <% } %>
-        <% if( parseInt(req.userId) === parseInt(user.id) ) { %>
+        <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
         <div class="upload-buttons">
             <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/upload">
                 <label class="uploadbutton">
@@ -45,18 +45,22 @@
             <p> <span class="fat"> <%= posts.reduce((total, post) => total + post.rating, 0) %> </span> post karma </p>
             <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
         </div>
-        <% if(parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.query.userId) === parseInt(req.params.id)) { %>
         <div class="self-note">
+            <% if ( parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.query.userId) === parseInt(req.params.id) ) { %>
             <label for="note"> Note to Self: </label>
             <div id="note-text" class="note-wrap">
                 <p name="note" ><%= user.note %></p>
             </div>
+            <% } %>
+            <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
             <form class="note-edit-textarea" id="note-edit" style="display: none;" method="post" action="/user/editnote">
                 <textarea id="text" name="text" rows="7" cols="37"><%= user.note %></textarea><br>
                 <input class="uploadbutton" type="submit" value="save">
             </form>
             <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>
+            <% } %>
         </div>
+        <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
         <label class="cloud-label" for="mycloud">My Cloud:</label>
         <a name="mycloud" class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" style="margin-bottom: 10px;" alt="cloud"></a>
         <div class="upload-buttons">
