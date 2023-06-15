@@ -1,19 +1,16 @@
 require('dotenv').config()
-const jwt = require('jsonwebtoken')
 const jwtSecret = process.env.JWT_SECRET
-
+const jwt = require('jsonwebtoken')
+const { promisify } = require('util')
+const verifyAsync = promisify(jwt.verify)
 
 async function auth(req, res, next) {
-    try{
+    try {
         const token = req.cookies.jwtToken
         if(token) {
-            jwt.verify(token, jwtSecret, (error, decoded) => {
-                if(error) {
-                    res.status(401).send('<h1>Unauthenticated</h1>') 
-                }
-                req.userId = decoded.userId
-                next()
-            })
+            const decoded = await verifyAsync(token, jwtSecret)
+            req.userId = decoded.userId
+            next()
         }
         else {
             return res.status(401).send('<h1>Unauthenticated</h1>') 

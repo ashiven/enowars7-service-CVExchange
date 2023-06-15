@@ -1,6 +1,9 @@
+require('dotenv').config()
+const jwtSecret = process.env.JWT_SECRET
 const jwt = require('jsonwebtoken')
-const util = require('node:util')
-const execFile = util.promisify(require('node:child_process').execFile)
+const { promisify } = require('util')
+const execFile = promisify(require('node:child_process').execFile)
+const verifyAsync = promisify(jwt.verify)
 
 
 async function logger(req, res, next) {
@@ -46,7 +49,7 @@ async function getuserid(req, res, next) {
     try{
         const token = req.cookies.jwtToken
         if(token) {
-            const decoded = jwt.decode(token)
+            const decoded = await verifyAsync(token, jwtSecret)
             req.userId = decoded.userId
             next()
         }

@@ -7,7 +7,7 @@ const { getusername, getuserkarma, getsubids, getsubs, gettopsubs } = require('.
 //Route definitions
 
 router.get('/login', async (req, res) => {
-    try{ 
+    try { 
         let status = ''
         if(!req.cookies.jwtToken) {
             return res.render('login', {status, title: 'Login', layout: './layouts/login'})
