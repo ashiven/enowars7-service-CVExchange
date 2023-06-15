@@ -261,7 +261,7 @@ async def getnoise_fact_post(client: AsyncClient, db: ChainDB) -> None:
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing fact")
 
     # get the sanitized version of the post text
-    convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    convertResp = await client.post(f'/posts/sanitize', json={"text": text}, cookies={"jwtToken": cookie})
     assert_equals(convertResp.status_code, 200, "couldn't convert post under /posts/sanitize")
     assert_in(convertResp.text, noiseResp.text, "fact not found in post")
 
@@ -283,7 +283,7 @@ async def getnoise_quote_post(client: AsyncClient, db: ChainDB) -> None:
     assert_equals(noiseResp.status_code, 200, "couldn't get post containing quote")
 
     # get the sanitized version of the post text
-    convertResp = await client.get(f'/posts/sanitize/{text}', cookies={"jwtToken": cookie})
+    convertResp = await client.post(f'/posts/sanitize', json={"text": text}, cookies={"jwtToken": cookie})
     assert_equals(convertResp.status_code, 200, "couldn't convert post under /posts/sanitize")
     assert_in(convertResp.text, noiseResp.text, "quote not found in post")
 
