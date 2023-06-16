@@ -111,8 +111,8 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         if (post.length === 0) {
             return res.status(404).send('<h1>Post not found</h1>')
         }
-        const post_rating_query = `SELECT * FROM ratings WHERE post_id = ?`
-        const post_rating_params = [post[0].id]
+        const post_rating_query = `SELECT * FROM ratings WHERE post_id = ? AND user_id = ?`
+        const post_rating_params = [post[0].id, req.userId]
         const [post_rating] = await req.database.query(post_rating_query, post_rating_params)
         ratings = ratings.concat(post_rating)
 
