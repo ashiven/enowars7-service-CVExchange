@@ -14,21 +14,20 @@ I will be listing them here for your convenience.
 
 ### First Vulnerability
 
-If you have a look in **middleware/auth.js** you will find the first vulnerability. 
+The first vulnerability can be found in **app.js**. 
 
-What it boils down to is that we are serving everything inside of the **/uploads** directory with the line `app.use('/uploads', express.static('./uploads'))` in **app.js** .
+The webserver is esentially serving everything inside of the **/uploads** directory due to the line `app.use('/uploads', express.static('./uploads'))` .
 
-This is not good, because while we do have an authentication mechanism in place that forbids unauthorized users access to the path **/uploads/:userId/private/:filename** ,
-the previously mentioned line of code allows them to access that directory via path traversal as follows **/uploads/:userId/public/../private/:filename** .
+This is not good, because while there is an authentication mechanism in place that forbids unauthorized users from accessing the path **/uploads/:userId/private/:filename** ,
+the previously mentioned line enables them to access that directory via the following path **/uploads/:userId/public/../private/:filename** .
 
-This can be fixed quite easily by deleting the line: `app.use('/uploads', express.static('./uploads'))` inside of **app.js** .
+This can be fixed quite easily by deleting the line: `app.use('/uploads', express.static('./uploads'))` .
 
 
 ### Second Vulnerability
 
-This one is quite similar to the first vulnerability, there is a broken authentication mechanism in place. 
+This one is quite similar to the first vulnerability, as in there being a broken authentication mechanism in place. 
 
-"So what is going wrong this time around?" you may ask.
 The issue here lies in a faulty conditional statement used by the view engine to decide whether to display a users personal profile information.
 
 The first part of that statement is fine because `req.userId` is a parameter that is set by the authentication middleware and gets derived from decoding the users session-cookie.
