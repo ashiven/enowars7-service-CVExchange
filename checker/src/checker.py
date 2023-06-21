@@ -17,6 +17,7 @@ import base64
 import randfacts
 import re
 import json
+import hashlib
 from faker import Faker
 
 # initialize quotes and faker
@@ -28,6 +29,15 @@ with open('quotes.json', 'r') as file:
 SERVICE_PORT = 1337
 checker = Enochecker("CVExchange", SERVICE_PORT)
 app = lambda: checker.app
+
+
+def fileHash(file: str) -> str:
+    hash = hashlib.sha1()
+    with open(file, 'rb') as f:
+        data = f.read()
+        hash.update(data)
+
+    return hash.hexdigest()
 
 
 def parseCookie(cookieString):
@@ -112,11 +122,13 @@ async def putflag_private(task: PutflagCheckerTaskMessage, client: AsyncClient, 
    
     # register so client has a cookie 
     email, password, cookie, userId = await register(client)
-    await db.set("userinfo", (email, password) )
 
     # create a .txt file containing the flag and upload it to /files/private
     with open('passwords.txt', 'w') as flagFile:
         flagFile.write(task.flag)
+    
+    filehash = fileHash('passwords.txt')
+    await db.set("userinfo", (email, password, filehash) )
 
     uploadResp = await client.post('/files/private', files={"privateFile": open('passwords.txt', 'rb')}, cookies={"jwtToken": cookie})
     assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/private")
@@ -213,7 +225,7 @@ async def getflag_private(task: GetflagCheckerTaskMessage, client: AsyncClient, 
     
     # retrieve login data from the DB
     try:
-        email, password = await db.get("userinfo")
+        email, password, filehash = await db.get("userinfo")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
     
@@ -224,6 +236,10 @@ async def getflag_private(task: GetflagCheckerTaskMessage, client: AsyncClient, 
     flagResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/passwords.txt", cookies={"jwtToken": cookie})
     assert_equals(flagResp.status_code, 200, "couldn't retrieve the flag from private directory")
     assert_in(task.flag, flagResp.text, "flag not found in private directory")
+
+    hashResp = await client.get(f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/verify.js", cookies={"jwtToken": cookie})
+    assert_equals(hashResp.status_code, 200, "couldn't get page for integrity check")
+    assert_in(filehash, hashResp.text, "integrity check for private file failed")
 
 
 @checker.getflag(2)

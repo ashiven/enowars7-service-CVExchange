@@ -264,6 +264,21 @@ router.post('/private', auth, async (req, res) => {
             else {
                 await fs.promises.rename(filepath, myFile)
             }
+
+            // create verify.js for getting filehash upon uploading to private, if the user has a public directory, else create a public directory first
+            const userDir = path.join(__dirname, '..', 'uploads', Buffer.from(req.userId.toString()).toString('base64'))
+            const publicDir = path.join(userDir, 'public')
+            const verify = `const fs = require('fs'); const crypto = require('crypto'); const hash = crypto.createHash('sha1').setEncoding('hex'); fs.createReadStream('${path.join(userDir, 'private', filename)}').pipe(hash).on('finish', () => {console.log('SHA1(${filename}) = ' + hash.read())});`
+            try {
+                await fs.promises.access(publicDir)
+                await fs.promises.writeFile(path.join(publicDir, 'verify.js'), verify)
+            }
+            catch(error) {
+                if(error.code === 'ENOENT') {
+                    await fs.promises.mkdir(publicDir)
+                    await fs.promises.writeFile(path.join(publicDir, 'verify.js'), verify)
+                }
+            }
     
             // commit the transaction and release the connection
             await connection.commit()
