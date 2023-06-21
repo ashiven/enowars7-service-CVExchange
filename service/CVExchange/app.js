@@ -193,7 +193,6 @@ app.get('/search', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     }
 })
 
-app.use('/uploads', express.static('./uploads'))
 app.use('/img', express.static('./public/img', {maxAge: '1d'}))
 app.use('/css', express.static('./public/css', {maxAge: '1d'}))
 app.use('/js', express.static('./public/js', {maxAge: '1d'}))

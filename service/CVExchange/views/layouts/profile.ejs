@@ -46,7 +46,7 @@
             <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
         </div>
         <div class="self-note">
-            <% if ( parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.query.userId) === parseInt(req.params.id) ) { %>
+            <% if ( parseInt(req.userId) === parseInt(req.params.id) ) { %>
             <label for="note"> Note to Self: </label>
             <div id="note-text" class="note-wrap">
                 <p name="note" ><%= user.note %></p>

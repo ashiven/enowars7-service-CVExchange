@@ -87,7 +87,7 @@ const backupStorage = multer.diskStorage({
 
 const fileFilter = async (req, file, cb) => {
     try {
-        const regex = /\.(jpg|jpeg|png)/i
+        const regex = /\.(jpg|jpeg|png)$/i
         if((file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') && regex.test(file.originalname)) {
             return cb(null, true)
         }
