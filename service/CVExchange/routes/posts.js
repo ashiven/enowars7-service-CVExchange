@@ -3,129 +3,125 @@ const sanitizer = require('sanitizer')
 const { auth } = require('../middleware/auth')
 const { getusername, getuserkarma, getsubids, getsubs, gettopsubs } = require('../middleware/other')
 
-
 // Route definitions
 
 router.get('/new', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
-    try {
-        return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: ''})
-    }
-    catch(error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
+  try {
+    return res.render('newpost', { req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: '' })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
 })
 
 router.post('/new', auth, getusername, getsubids, getsubs, async (req, res) => {
-    const connection = await req.database.getConnection()
-    
-    try {
-        const title = sanitizer.escape(req.body.title)
-        const text = sanitizer.escape(req.body.text)
-        if(!title || !text || title === '' || text === '') {
-            await connection.release()
-            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
-        }
-        if(title.length < 8) {
-            await connection.release()
-            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
-        }
-        if(title.length > 400 || text.length > 4000) {
-            await connection.release()
-            return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
-        }
-        const subId = req.body.subid
-        if(!Number.isInteger(parseInt(subId))) {
-            await connection.release()
-            return res.status(500).send('<h1>Thats not a number in my world.</h1>')
-        }
-        if(!req.subscribed.includes(parseInt(subId))) {
-            await connection.release()
-            return res.status(500).send('<h1>You are not subscribed to this subexchange.</h1>')
-        }
+  const connection = await req.database.getConnection()
 
-        const name_query = `SELECT name FROM subs WHERE id = ?`
-        const name_params = [subId]
-        const [result] = await connection.query(name_query, name_params)
-        const subName = result[0].name
-        
-        const creatorId = req.userId
-        const creatorName = req.username
+  try {
+    const title = sanitizer.escape(req.body.title)
+    const text = sanitizer.escape(req.body.text)
+    if (!title || !text || title === '' || text === '') {
+      await connection.release()
+      return res.render('newpost', { req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'You need to include a title and text!' })
+    }
+    if (title.length < 8) {
+      await connection.release()
+      return res.render('newpost', { req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.' })
+    }
+    if (title.length > 400 || text.length > 4000) {
+      await connection.release()
+      return res.render('newpost', { req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.' })
+    }
+    const subId = req.body.subid
+    if (!Number.isInteger(parseInt(subId))) {
+      await connection.release()
+      return res.status(500).send('<h1>Thats not a number in my world.</h1>')
+    }
+    if (!req.subscribed.includes(parseInt(subId))) {
+      await connection.release()
+      return res.status(500).send('<h1>You are not subscribed to this subexchange.</h1>')
+    }
 
-        // start a transaction
-        await connection.beginTransaction()
+    const nameQuery = 'SELECT name FROM subs WHERE id = ?'
+    const nameParams = [subId]
+    const [result] = await connection.query(nameQuery, nameParams)
+    const subName = result[0].name
 
-        const spam_query = `SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1`
-        const spam_params = [creatorId]
-        const [spam] = await connection.query(spam_query, spam_params)
+    const creatorId = req.userId
+    const creatorName = req.username
 
-        if(spam.length > 0) {
-            //ensure that users can only create a new post every 10 seconds
-            if(Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
-                await connection.commit()
-                await connection.release()
-                return res.render('newpost', {req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please wait 10 seconds inbetween creating new posts.'})
-            }
-        }
+    // start a transaction
+    await connection.beginTransaction()
 
-        const insert_query = `INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )`
-        const insert_params = [title, text, subId, subName, creatorId, creatorName]
-        await connection.query(insert_query, insert_params)
+    const spamQuery = 'SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1'
+    const spamParams = [creatorId]
+    const [spam] = await connection.query(spamQuery, spamParams)
 
-        const postId_query = `SELECT LAST_INSERT_ID() AS id FROM posts`
-        const [results] = await connection.query(postId_query)
-        const postId = results[0].id
-
-        const rating_query = `INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())`
-        const rating_params = [creatorId, postId]
-        await connection.query(rating_query, rating_params)
-
-        // commit the transaction and release the connection
+    if (spam.length > 0) {
+      // ensure that users can only create a new post every 10 seconds
+      if (Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
         await connection.commit()
         await connection.release()
-
-        return res.redirect(`/posts/${postId}`)
-    } 
-    catch(error) {
-        // if there was an error, rollback changes and release the connection
-        await connection.rollback()
-        await connection.release()
-
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
+        return res.render('newpost', { req, subbed: req.subs, title: 'New Post', layout: './layouts/standard', status: 'Please wait 10 seconds inbetween creating new posts.' })
+      }
     }
+
+    const insertQuery = 'INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )'
+    const insertParams = [title, text, subId, subName, creatorId, creatorName]
+    await connection.query(insertQuery, insertParams)
+
+    const postIdQuery = 'SELECT LAST_INSERT_ID() AS id FROM posts'
+    const [results] = await connection.query(postIdQuery)
+    const postId = results[0].id
+
+    const ratingQuery = 'INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())'
+    const ratingParams = [creatorId, postId]
+    await connection.query(ratingQuery, ratingParams)
+
+    // commit the transaction and release the connection
+    await connection.commit()
+    await connection.release()
+
+    return res.redirect(`/posts/${postId}`)
+  } catch (error) {
+    // if there was an error, rollback changes and release the connection
+    await connection.rollback()
+    await connection.release()
+
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
 })
 
 router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
-    try {
-        const postId = req.params.id
-        if(!Number.isInteger(parseInt(postId))) {
-            return res.status(500).send("<h1>That's not a valid ID in my world.</h1>")
-        }
-        let ratings = []
-        let sort = 'top'
+  try {
+    const postId = req.params.id
+    if (!Number.isInteger(parseInt(postId))) {
+      return res.status(500).send("<h1>That's not a valid ID in my world.</h1>")
+    }
+    let ratings = []
+    let sort = 'top'
 
-        const post_query = `SELECT * FROM posts WHERE id = ?`
-        const post_params = [postId]
-        const [post] = await req.database.query(post_query, post_params)
-        if (post.length === 0) {
-            return res.status(404).send('<h1>Post not found</h1>')
-        }
-        const post_rating_query = `SELECT * FROM ratings WHERE post_id = ? AND user_id = ?`
-        const post_rating_params = [post[0].id, req.userId]
-        const [post_rating] = await req.database.query(post_rating_query, post_rating_params)
-        ratings = ratings.concat(post_rating)
+    const postQuery = 'SELECT * FROM posts WHERE id = ?'
+    const postParams = [postId]
+    const [post] = await req.database.query(postQuery, postParams)
+    if (post.length === 0) {
+      return res.status(404).send('<h1>Post not found</h1>')
+    }
+    const postRatingQuery = 'SELECT * FROM ratings WHERE post_id = ? AND user_id = ?'
+    const postRatingParams = [post[0].id, req.userId]
+    const [postRating] = await req.database.query(postRatingQuery, postRatingParams)
+    ratings = ratings.concat(postRating)
 
-        let comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC`
-        let comment_params = [postId]
+    let commentQuery = 'SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC'
+    let commentParams = [postId]
 
-        if(req.query.sort) {
-            sort = req.query.sort
-            if(sort === 'new' ) {
-                comment_query = `SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC`
-            }
-            else if(sort === 'hot') {
-                comment_query = `SELECT * FROM (
+    if (req.query.sort) {
+      sort = req.query.sort
+      if (sort === 'new') {
+        commentQuery = 'SELECT * FROM comments WHERE post_id = ? ORDER BY datetime ASC'
+      } else if (sort === 'hot') {
+        commentQuery = `SELECT * FROM (
                                     SELECT c.*, COUNT(r.id) as ratecount 
                                     FROM comments c
                                     LEFT JOIN ratings r ON c.id = r.comment_id
@@ -144,262 +140,250 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
                                     ) AND c1.post_id = ?
                                 ) AS subquery
                                 ORDER BY ratecount DESC, rating DESC`
-                comment_params = [postId, postId, postId]
-            }
-        }
-
-        let [comments] = await req.database.query(comment_query, comment_params)
-        const commentIds = comments.map(comment => comment.id)
-
-        const commentMap = {}
-        const rootComments = []
-
-        //comment map with key: commentId  value: comment
-        for(let comment of comments) {
-            comment.children = []
-            commentMap[comment.id] = comment
-        }
-
-        //fill children list for each comment and fill root comments
-        for(let comment of comments) {
-            if(comment.parent_id !== null) {
-                const parent = commentMap[comment.parent_id]
-                parent.children.push(comment)
-            }
-            else {
-                rootComments.push(comment)
-            }
-        }
-
-        //sort children by rating descending
-        for(let comment of rootComments) {
-            comment.children.sort((a, b) => b.rating - a.rating)
-        }
-
-        if(commentIds.length > 0) {
-            const comment_ratings_query = `SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?`
-            const comment_ratings_params = [commentIds, req.userId]
-            const [comment_ratings] = await req.database.query(comment_ratings_query, comment_ratings_params) 
-            ratings = ratings.concat(comment_ratings)
-        }
-
-        const sub_query = `SELECT * FROM subs WHERE id = ?`
-        const sub_params = [post[0].sub_id]
-        const [sub] = await req.database.query(sub_query, sub_params)
-
-        return res.render('post', { req, sort, sub: sub[0], post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
+        commentParams = [postId, postId, postId]
+      }
     }
-    catch (error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
+
+    const [comments] = await req.database.query(commentQuery, commentParams)
+    const commentIds = comments.map(comment => comment.id)
+
+    const commentMap = {}
+    const rootComments = []
+
+    // comment map with key: commentId  value: comment
+    for (const comment of comments) {
+      comment.children = []
+      commentMap[comment.id] = comment
     }
+
+    // fill children list for each comment and fill root comments
+    for (const comment of comments) {
+      if (comment.parent_id !== null) {
+        const parent = commentMap[comment.parent_id]
+        parent.children.push(comment)
+      } else {
+        rootComments.push(comment)
+      }
+    }
+
+    // sort children by rating descending
+    for (const comment of rootComments) {
+      comment.children.sort((a, b) => b.rating - a.rating)
+    }
+
+    if (commentIds.length > 0) {
+      const commentRatingsQuery = 'SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?'
+      const commentRatingsParams = [commentIds, req.userId]
+      const [commentRatings] = await req.database.query(commentRatingsQuery, commentRatingsParams)
+      ratings = ratings.concat(commentRatings)
+    }
+
+    const subQuery = 'SELECT * FROM subs WHERE id = ?'
+    const subParams = [post[0].sub_id]
+    const [sub] = await req.database.query(subQuery, subParams)
+
+    return res.render('post', { req, sort, sub: sub[0], post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
 })
 
 router.get('/delete/:id', auth, async (req, res) => {
-    const connection = await req.database.getConnection()
+  const connection = await req.database.getConnection()
 
-    try {
-        const postId = req.params.id
-        if(!Number.isInteger(parseInt(postId))) {
-            await connection.release()
-            return res.status(500).send("<h1>Can't delete imaginary posts.</h1>")
-        }
-        const userId = req.userId
+  try {
+    const postId = req.params.id
+    if (!Number.isInteger(parseInt(postId))) {
+      await connection.release()
+      return res.status(500).send("<h1>Can't delete imaginary posts.</h1>")
+    }
+    const userId = req.userId
 
-        // start a transaction
-        await connection.beginTransaction()
+    // start a transaction
+    await connection.beginTransaction()
 
-        const find_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
-        const find_params = [postId, userId]
-        const [results] = await connection.query(find_query, find_params)
+    const findQuery = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
+    const findParams = [postId, userId]
+    const [results] = await connection.query(findQuery, findParams)
 
-        if (results.length > 0) {
-            // first delete the post 
-            const delete_post_query = `DELETE FROM posts WHERE id = ?`
-            const delete_post_params = [postId]
-            await connection.query(delete_post_query, delete_post_params)
+    if (results.length > 0) {
+      // first delete the post
+      const deletePostQuery = 'DELETE FROM posts WHERE id = ?'
+      const deletePostParams = [postId]
+      await connection.query(deletePostQuery, deletePostParams)
 
-            // find all comments for the post
-            const search_comments_query = `SELECT * FROM comments WHERE post_id = ?`
-            const search_comments_params = [postId]
-            const [comments] = await connection.query(search_comments_query, search_comments_params)
+      // find all comments for the post
+      const searchCommentsQuery = 'SELECT * FROM comments WHERE post_id = ?'
+      const searchCommentsParams = [postId]
+      const [comments] = await connection.query(searchCommentsQuery, searchCommentsParams)
 
-            // delete the ratings for every comment
-            for(const comment of comments) {
-                const delete_ratings_query = `DELETE FROM ratings WHERE comment_id = ?`
-                const delete_ratings_params = [comment.id]
-                await connection.query(delete_ratings_query, delete_ratings_params)
-            }
+      // delete the ratings for every comment
+      for (const comment of comments) {
+        const deleteRatingsQuery = 'DELETE FROM ratings WHERE comment_id = ?'
+        const deleteRatingsParams = [comment.id]
+        await connection.query(deleteRatingsQuery, deleteRatingsParams)
+      }
 
-            // delete the comments for the post
-            const delete_comments_query = `DELETE FROM comments WHERE post_id = ?`
-            const delete_comments_params = [postId]
-            await connection.query(delete_comments_query, delete_comments_params)
+      // delete the comments for the post
+      const deleteCommentsQuery = 'DELETE FROM comments WHERE post_id = ?'
+      const deleteCommentsParams = [postId]
+      await connection.query(deleteCommentsQuery, deleteCommentsParams)
 
-            // delete the ratings for the post
-            const delete_ratings_query = `DELETE FROM ratings WHERE post_id = ?`
-            const delete_ratings_params = [postId]
-            await connection.query(delete_ratings_query, delete_ratings_params)
+      // delete the ratings for the post
+      const deleteRatingsQuery = 'DELETE FROM ratings WHERE post_id = ?'
+      const deleteRatingsParams = [postId]
+      await connection.query(deleteRatingsQuery, deleteRatingsParams)
 
-            if(req.originalUrl === `/posts/delete/${postId}`) {
-                // commit the transaction and release the connection
-                await connection.commit()
-                await connection.release()
-
-                return res.redirect('/')
-            }
-            else {
-                // commit the transaction and release the connection
-                await connection.commit()
-                await connection.release()
-
-                return res.redirect('back')
-            }
-        }
-        else {
-            // commit the transaction and release the connection
-            await connection.commit()
-            await connection.release()
-
-            return res.status(401).send("<h1>You are not authorized to delete this post or the post doesn't exist.</h1>")
-        }
-    } 
-    catch (error) {
-        // if there was an error, rollback changes and release the connection
-        await connection.rollback()
+      if (req.originalUrl === `/posts/delete/${postId}`) {
+        // commit the transaction and release the connection
+        await connection.commit()
         await connection.release()
 
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
-
-router.get('/edit/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
-    try {
-        const postId = req.params.id
-        if(!Number.isInteger(parseInt(postId))) {
-            return res.status(500).send('<h1>What are you even trying to edit?</h1>')
-        }
-        const userId = req.userId
-        
-        const query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
-        const params = [postId, userId]
-        const [results] = await req.database.query(query, params)
-
-        if (results.length > 0) {
-            return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: '' })
-        } 
-        else {
-            return res.status(404).send('<h1>Post not found</h1>')
-        }
-    } 
-    catch (error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
-
-router.post('/edit/:id', auth, async (req, res) => {
-    try {
-        const postId = req.params.id
-        if(!Number.isInteger(parseInt(postId))) {
-            return res.status(500).send(`<h1>Since when is "${postId}" a number huh?</h1>`)
-        }
-        const userId = req.userId
-
-        const post_query = `SELECT * FROM posts WHERE id = ? AND creator_id = ?`
-        const post_params = [postId, userId]
-        const [results] = await req.database.query(post_query, post_params)
-
-        if (results.length <= 0) {
-            return res.status(404).send('<h1>Post not found</h1>')
-        }
-
-        const title = sanitizer.escape(req.body.title)
-        const text = sanitizer.escape(req.body.text)
-        if(!title || !text || title === '' || text === '') {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'You need to include a title and text!'})
-        }
-        if(title.length < 8) {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.'})
-        }
-        if(title.length > 400 || text.length > 4000) {
-            return res.render('editpost', {req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.'})
-        }
-
-        const query = `UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?`
-        const params = [title, text, postId, userId]
-        await req.database.query(query, params)
-
-        return res.redirect(`/posts/${postId}`)
-    } 
-    catch (error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
-})
-
-router.get('/save/:id', auth, async (req, res) => {
-    const connection = await req.database.getConnection()
-
-    try {
-        const userId = req.userId
-        const postId = req.params.id
-        if(!Number.isInteger(parseInt(postId))) {
-            await connection.release()
-            return res.status(500).send('<h1>Stop it. Get some help.</h1>')
-        }
-        let updatedSaved
-
-        // start a transaction
-        await connection.beginTransaction()
-
-        const select_query = `SELECT saved FROM users WHERE id = ?`
-        const select_params = [userId]
-        const [savedposts] = await connection.query(select_query, select_params)
-        const savedString = savedposts[0].saved
-        const saved = savedString ? savedString.split(',') : []
-
-        if(saved.includes(postId)) {
-            updatedSaved = saved.filter((savedId) => savedId !== postId)
-        } 
-        else {
-            updatedSaved = [...saved, postId] 
-        }
-        
-        const update_query = `UPDATE users SET saved = ? WHERE id = ?`
-        const update_params = [updatedSaved.join(','), userId]
-        await connection.query(update_query, update_params)
-
+        return res.redirect('/')
+      } else {
         // commit the transaction and release the connection
         await connection.commit()
         await connection.release()
 
         return res.redirect('back')
-    }
-    catch(error) {
-        // if there was an error, rollback changes and release the connection
-        await connection.rollback()
-        await connection.release()
+      }
+    } else {
+      // commit the transaction and release the connection
+      await connection.commit()
+      await connection.release()
 
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
+      return res.status(401).send("<h1>You are not authorized to delete this post or the post doesn't exist.</h1>")
     }
+  } catch (error) {
+    // if there was an error, rollback changes and release the connection
+    await connection.rollback()
+    await connection.release()
+
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
 })
 
-//this is just an endpoint used by the checker to know how exactly the text gets sanitized
+router.get('/edit/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsubs, async (req, res) => {
+  try {
+    const postId = req.params.id
+    if (!Number.isInteger(parseInt(postId))) {
+      return res.status(500).send('<h1>What are you even trying to edit?</h1>')
+    }
+    const userId = req.userId
+
+    const query = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
+    const params = [postId, userId]
+    const [results] = await req.database.query(query, params)
+
+    if (results.length > 0) {
+      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: '' })
+    } else {
+      return res.status(404).send('<h1>Post not found</h1>')
+    }
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
+})
+
+router.post('/edit/:id', auth, async (req, res) => {
+  try {
+    const postId = req.params.id
+    if (!Number.isInteger(parseInt(postId))) {
+      return res.status(500).send(`<h1>Since when is "${postId}" a number huh?</h1>`)
+    }
+    const userId = req.userId
+
+    const postQuery = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
+    const postParams = [postId, userId]
+    const [results] = await req.database.query(postQuery, postParams)
+
+    if (results.length <= 0) {
+      return res.status(404).send('<h1>Post not found</h1>')
+    }
+
+    const title = sanitizer.escape(req.body.title)
+    const text = sanitizer.escape(req.body.text)
+    if (!title || !text || title === '' || text === '') {
+      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'You need to include a title and text!' })
+    }
+    if (title.length < 8) {
+      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.' })
+    }
+    if (title.length > 400 || text.length > 4000) {
+      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.' })
+    }
+
+    const query = 'UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?'
+    const params = [title, text, postId, userId]
+    await req.database.query(query, params)
+
+    return res.redirect(`/posts/${postId}`)
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
+})
+
+router.get('/save/:id', auth, async (req, res) => {
+  const connection = await req.database.getConnection()
+
+  try {
+    const userId = req.userId
+    const postId = req.params.id
+    if (!Number.isInteger(parseInt(postId))) {
+      await connection.release()
+      return res.status(500).send('<h1>Stop it. Get some help.</h1>')
+    }
+    let updatedSaved
+
+    // start a transaction
+    await connection.beginTransaction()
+
+    const selectQuery = 'SELECT saved FROM users WHERE id = ?'
+    const selectParams = [userId]
+    const [savedposts] = await connection.query(selectQuery, selectParams)
+    const savedString = savedposts[0].saved
+    const saved = savedString ? savedString.split(',') : []
+
+    if (saved.includes(postId)) {
+      updatedSaved = saved.filter((savedId) => savedId !== postId)
+    } else {
+      updatedSaved = [...saved, postId]
+    }
+
+    const updateQuery = 'UPDATE users SET saved = ? WHERE id = ?'
+    const updateParams = [updatedSaved.join(','), userId]
+    await connection.query(updateQuery, updateParams)
+
+    // commit the transaction and release the connection
+    await connection.commit()
+    await connection.release()
+
+    return res.redirect('back')
+  } catch (error) {
+    // if there was an error, rollback changes and release the connection
+    await connection.rollback()
+    await connection.release()
+
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
+})
+
+// this is just an endpoint used by the checker to know how exactly the text gets sanitized
 router.post('/sanitize', auth, async (req, res) => {
-    try {
-        const text = req.body.text
-        return res.send(sanitizer.escape(text).replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>'))
-    }
-    catch(error) {
-        console.error(error)
-        return res.status(500).send('<h1>Internal Server Error</h1>')
-    }
+  try {
+    const text = req.body.text
+    return res.send(sanitizer.escape(text).replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>'))
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send('<h1>Internal Server Error</h1>')
+  }
 })
 
-//--------------------------------
-
+// --------------------------------
 
 module.exports = router
