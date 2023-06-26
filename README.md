@@ -13,7 +13,7 @@
 ### First Vulnerability
 
 - The first vulnerability can be found inside of **app.js**. 
-- The webserver is serving the **/uploads** directory statically due to the line `app.use('/uploads', express.static('./uploads'))`.
+- The webserver is serving the **uploads** directory statically due to the line `app.use('/uploads', express.static('./uploads'))`.
 - This is not secure, because while there is an authentication mechanism in place that forbids unauthorized users from accessing the URI: **/uploads/:userId/private/:filename**,
 users are still able to access that directory via the URI: **/uploads/:userId/public/../private/:filename**.
 - This vulnerability can be mitigated by deleting the line: `app.use('/uploads', express.static('./uploads'))`.
@@ -38,3 +38,5 @@ users are still able to access that directory via the URI: **/uploads/:userId/pu
 - If an attacker were to look through the source code of the `multer` module, which the server uses for file uploads, they would find out that `file.mimetype` is derived from the `Content-Type` field of the HTTP-Requests body.
 - Lastly, if an attacker were to upload malicious javascript code to their public upload directory and navigate to it, the server would execute that code and display the results to the attacker.
 - This is due to the line `if (/\.(js)$/i.test(filepath)) { magic(filepath, req, res) }` inside of **app.js**, where `magic` is a function that can be found in **middleware.js**, that is responsible for file integrity checks and achieves this with child-processes.
+- This vulnerability can be exploited to read the contents of a users **backup** directory, which is otherwise not accessible to anyone besides the users themselves.
+- The intended fix would be to replace the regular expression with the following: `/\.(jpg|jpeg|png)$/i`.
