@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config();
+require("dotenv").config();
 const jwtSecret = process.env.JWT_SECRET;
-const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
-const execFile = promisify(require('node:child_process').execFile);
+const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
+const execFile = promisify(require("node:child_process").execFile);
 const verifyAsync = promisify(jwt.verify);
 function logger(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -26,7 +26,7 @@ function getusername(req, res, next) {
         try {
             if (req.userId) {
                 const userId = req.userId;
-                const query = 'SELECT * FROM users WHERE id = ?';
+                const query = "SELECT * FROM users WHERE id = ?";
                 const params = [userId];
                 const [results] = yield req.database.query(query, params);
                 let userResult = results;
@@ -36,7 +36,7 @@ function getusername(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
@@ -45,7 +45,7 @@ function getuserratings(req, res, next) {
         try {
             if (req.userId) {
                 const userId = req.userId;
-                const query = 'SELECT * FROM ratings WHERE user_id = ?';
+                const query = "SELECT * FROM ratings WHERE user_id = ?";
                 const params = [userId];
                 const [results] = yield req.database.query(query, params);
                 let ratingsRes = results;
@@ -55,7 +55,7 @@ function getuserratings(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
@@ -74,7 +74,7 @@ function getuserid(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
@@ -83,11 +83,11 @@ function getuserkarma(req, res, next) {
         try {
             if (req.userId) {
                 const userId = req.userId;
-                const postQuery = 'SELECT * FROM posts WHERE creator_id = ?';
+                const postQuery = "SELECT * FROM posts WHERE creator_id = ?";
                 const postParams = [userId];
                 const [result] = yield req.database.query(postQuery, postParams);
                 let posts = result;
-                const commentQuery = 'SELECT * FROM comments WHERE creator_id = ?';
+                const commentQuery = "SELECT * FROM comments WHERE creator_id = ?";
                 const commentParams = [userId];
                 const [resultTwo] = yield req.database.query(commentQuery, commentParams);
                 let comments = resultTwo;
@@ -98,7 +98,7 @@ function getuserkarma(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
@@ -107,19 +107,21 @@ function getsubids(req, res, next) {
         try {
             if (req.userId) {
                 const userId = req.userId;
-                const selectQuery = 'SELECT subscribed FROM users WHERE id = ?';
+                const selectQuery = "SELECT subscribed FROM users WHERE id = ?";
                 const selectParams = [userId];
                 const [result] = yield req.database.query(selectQuery, selectParams);
                 let subscribedRes = result;
                 const subbedString = subscribedRes[0].subscribed;
-                const subscribed = subbedString ? subbedString.split(',').map(Number) : [];
+                const subscribed = subbedString
+                    ? subbedString.split(",").map(Number)
+                    : [];
                 req.subscribed = subscribed;
             }
             next();
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
@@ -127,7 +129,7 @@ function getsubs(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (req.userId && req.subscribed.length > 0) {
-                const selectQuery = 'SELECT * FROM subs WHERE id IN (?)';
+                const selectQuery = "SELECT * FROM subs WHERE id IN (?)";
                 const selectParams = [req.subscribed];
                 const [results] = yield req.database.query(selectQuery, selectParams);
                 let subs = results;
@@ -137,14 +139,14 @@ function getsubs(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
 function gettopsubs(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const selectQuery = 'SELECT * FROM subs ORDER BY members DESC LIMIT 17';
+            const selectQuery = "SELECT * FROM subs ORDER BY members DESC LIMIT 17";
             const selectParams = [req.subscribed];
             const [result] = yield req.database.query(selectQuery, selectParams);
             let subs = result;
@@ -153,20 +155,34 @@ function gettopsubs(req, res, next) {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
 function magic(filepath, req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { stdout, stderr } = yield execFile('node', [filepath], { uid: 1001, gid: 1001, timeout: 3000 });
+            const { stdout, stderr } = yield execFile("node", [filepath], {
+                uid: 1001,
+                gid: 1001,
+                timeout: 3000,
+            });
             return res.send(`<h1>stdout:</h1>&nbsp;${stdout} <br> <h1>stderr:</h1>&nbsp;${stderr}`);
         }
         catch (error) {
             console.error(error);
-            return res.status(500).send('<h1>Internal Server Error</h1>');
+            return res.status(500).send("<h1>Internal Server Error</h1>");
         }
     });
 }
-module.exports = { getusername, getuserratings, getuserid, getuserkarma, getsubids, getsubs, gettopsubs, magic, logger };
+module.exports = {
+    getusername,
+    getuserratings,
+    getuserid,
+    getuserkarma,
+    getsubids,
+    getsubs,
+    gettopsubs,
+    magic,
+    logger,
+};

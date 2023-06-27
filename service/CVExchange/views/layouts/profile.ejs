@@ -1,120 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="icon" href="/img/favicon.ico">
-    <link rel="stylesheet" href="/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
 
-<%- include('../partials/profile-header') %>
-<div class="layout-profile">
+  <%- include('../partials/profile-header') %>
+  <div class="layout-profile">
     <main><%- body %> </main>
     <div class="side-profile">
-        <div>
+      <div>
         <% if (user.profile_picture) { %>
         <div class="img-div">
-            <img src="/<%= user.profile_picture %>" alt="Profile picture">
+          <img src="/<%= user.profile_picture %>" alt="Profile picture">
         </div>
         <% } 
         else { %>
         <div class="img-div">
-            <img src="/img/default.png" alt="Profile picture">
+          <img src="/img/default.png" alt="Profile picture">
         </div>
         <% } %>
         <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
         <div class="upload-buttons">
-            <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/upload">
-                <label class="uploadbutton">
-                    <div class="choicebutton">
-                        <input  type="file" id="profilePicture" name="profilePicture" onchange="filterImage()">
-                        <p>Select file</p>
-                    </div>
-                </label>
-                <button class="uploadbutton" type="submit">Upload</button>
-            </form>
-            <form method="get" action="/files/delete">
-                <button class="uploadbutton" type="submit">Delete</button>
-            </form>
+          <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/upload">
+            <label class="uploadbutton">
+              <div class="choicebutton">
+                <input type="file" id="profilePicture" name="profilePicture" onchange="filterImage()">
+                <p>Select file</p>
+              </div>
+            </label>
+            <button class="uploadbutton" type="submit">Upload</button>
+          </form>
+          <form method="get" action="/files/delete">
+            <button class="uploadbutton" type="submit">Delete</button>
+          </form>
         </div>
         <% } %>
         <div class="user-stats">
-            <p> <span class="fat"> <%= user.name %> </span> </p>
-            <p> <span class="fat"> <%= posts.reduce((total, post) => total + post.rating, 0) %> </span> post karma </p>
-            <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
+          <p> <span class="fat"> <%= user.name %> </span> </p>
+          <p> <span class="fat"> <%= posts.reduce((total, post) => total + post.rating, 0) %> </span> post karma </p>
+          <p> <span class="fat"> <%= comments.reduce((total, comment) => total + comment.rating, 0) %> </span> comment karma </p>
         </div>
         <div class="self-note">
-            <% if ( parseInt(req.userId) === parseInt(req.params.id) ) { %>
-            <label for="note"> Note to Self: </label>
-            <div id="note-text" class="note-wrap">
-                <p name="note" ><%= user.note %></p>
-            </div>
-            <% } %>
-            <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
-            <form class="note-edit-textarea" id="note-edit" style="display: none;" method="post" action="/user/editnote">
-                <textarea id="text" name="text" rows="7" cols="37"><%= user.note %></textarea><br>
-                <input class="uploadbutton" type="submit" value="save">
-            </form>
-            <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>
-            <% } %>
+          <% if ( parseInt(req.userId) === parseInt(req.params.id) ||
+                  parseInt(req.query.userId) === parseInt(req.params.id) ) { %>
+          <label for="note"> Note to Self: </label>
+          <div id="note-text" class="note-wrap">
+            <p name="note"><%= user.note %></p>
+          </div>
+          <% } %>
+          <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
+          <form class="note-edit-textarea" id="note-edit" style="display: none;" method="post" action="/user/editnote">
+            <textarea id="text" name="text" rows="7" cols="37"><%= user.note %></textarea><br>
+            <input class="uploadbutton" type="submit" value="save">
+          </form>
+          <button id="note-button" class="uploadbutton" onclick="editNote()">edit</button>
+          <% } %>
         </div>
         <% if ( parseInt(req.userId) === parseInt(user.id) ) { %>
         <label class="cloud-label" for="mycloud">My Cloud:</label>
         <a name="mycloud" class="mycloud" href="/<%= user.my_file %>"><img src="/img/cloud.png" style="margin-bottom: 10px;" alt="cloud"></a>
         <div class="upload-buttons">
-            <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/private">
-                <label class="uploadbutton">
-                    <div class="choicebutton">
-                        <input  type="file" id="privateFile" name="privateFile" onchange="filterText()">
-                        <p>Select file</p>
-                    </div>
-                </label>
-                <button class="uploadbutton" type="submit">Upload</button>
-            </form>
+          <form name="uploadForm" class="uploadForm" method="post" enctype="multipart/form-data" action="/files/private">
+            <label class="uploadbutton">
+              <div class="choicebutton">
+                <input type="file" id="privateFile" name="privateFile" onchange="filterText()">
+                <p>Select file</p>
+              </div>
+            </label>
+            <button class="uploadbutton" type="submit">Upload</button>
+          </form>
         </div>
         <% } %>
-        </div>
+      </div>
     </div>
-</div>
-<%- include('../partials/footer') %>
+  </div>
+  <%- include('../partials/footer') %>
 
-<script>
-function filterImage() {
-    const fileInput = document.getElementById("profilePicture")
+  <script>
+    function filterImage() {
+      const fileInput = document.getElementById("profilePicture")
 
-    if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {              
+      if (!(/\.(jpg|jpeg|png)$/i).test(fileInput.value)) {
         alert('Please select an image file')
         fileInput.value = ''
-    }
-    if(fileInput.files[0].size > 5000000) {
+      }
+      if (fileInput.files[0].size > 5000000) {
         alert('Please select a file under 5MB')
         fileInput.value = ''
+      }
     }
-}
-function filterText() {
-    const fileInput = document.getElementById("privateFile")
 
-    if (!(/\.(txt)$/i).test(fileInput.value)) {              
+    function filterText() {
+      const fileInput = document.getElementById("privateFile")
+
+      if (!(/\.(txt)$/i).test(fileInput.value)) {
         alert('Please select a text file')
         fileInput.value = ''
-    }
-    if(fileInput.files[0].size > 5000000) {
+      }
+      if (fileInput.files[0].size > 5000000) {
         alert('Please select a file under 5MB')
         fileInput.value = ''
+      }
     }
-}
-function editNote() {
-    const note = document.getElementById(`note-text`)
-    const button = document.getElementById(`note-button`)
-    const noteEdit = document.getElementById(`note-edit`)
-    button.style.display = 'none'
-    note.style.display = 'none'
-    noteEdit.style.display = 'block'
-}
-</script>
+
+    function editNote() {
+      const note = document.getElementById(`note-text`)
+      const button = document.getElementById(`note-button`)
+      const noteEdit = document.getElementById(`note-edit`)
+      button.style.display = 'none'
+      note.style.display = 'none'
+      noteEdit.style.display = 'block'
+    }
+  </script>
 
 
 </body>
+
 </html>
