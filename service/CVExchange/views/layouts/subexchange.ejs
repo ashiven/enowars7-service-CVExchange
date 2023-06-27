@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="icon" href="/img/favicon.ico">
-    <link rel="stylesheet" href="/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
 
 
-<%- include('../partials/sub-header') %>
-<div class="layout-frontpage">
+  <%- include('../partials/sub-header') %>
+  <div class="layout-frontpage">
 
     <main><%- body %></main>
     <div class="side-sub">
       <div class="sub-wrap">
         <div class="searchbar-sub">
           <form action="/subs/search/<%= sub.id %>" id="searchform">
-              <input type="text" name="q" placeholder="search">
+            <input type="text" name="q" placeholder="search">
           </form>
         </div>
         <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
@@ -26,31 +28,32 @@
           <div class="sub-title">
             <p> <span class="fat"> c/<%= sub.name %> </span> </p>
           </div>
-          <p>             
-            <form method="get" action="/subs/subscribe/<%= sub.id %>">
-              <button class="uploadbutton" type="submit"><%= req.subscribed.includes(parseInt(sub.id)) ? 'leave' : 'join'  %></button>
-              <%= sub.members %> members
-            </form> 
+          <p>
+          <form method="get" action="/subs/subscribe/<%= sub.id %>">
+            <button class="uploadbutton" type="submit"><%= req.subscribed.includes(parseInt(sub.id)) ? 'leave' : 'join'  %></button>
+            <%= sub.members %> members
+          </form>
           </p>
         </div>
         <div class="sub-about">
           <label for="about"> Description: </label>
           <div id="about-text" class="about-wrap">
-              <p name="about" ><%= sub.description %></p>
+            <p name="about"><%= sub.description %></p>
           </div>
         </div>
         <div class="sub-about">
           <label for="about"> About: </label>
           <div id="about-text" class="about-wrap">
-              <p name="about" ><%= sub.sidebar %></p>
+            <p name="about"><%= sub.sidebar %></p>
           </div>
         </div>
       </div>
     </div>
-    
-</div>
-<%- include('../partials/footer') %>
+
+  </div>
+  <%- include('../partials/footer') %>
 
 
 </body>
+
 </html>
