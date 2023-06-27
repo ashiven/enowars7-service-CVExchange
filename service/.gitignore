@@ -3,3 +3,4 @@
 !/CVExchange/uploads/.gitkeep
 /CVExchange/backups/*
 !/CVExchange/backups/.gitkeep
+/CVExchange/dist
