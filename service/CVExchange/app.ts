@@ -11,7 +11,7 @@ const { getuserid, getusername, getuserkarma, magic, getsubids, getsubs, gettops
 require('dotenv').config()
 
 // Types
-import {Response, NextFunction} from 'express'
+import { Response, NextFunction } from 'express'
 import * as types from './types/types'
 
 
@@ -60,7 +60,7 @@ app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, gettopsub
       }
     }
     const offset = (page - 1) * pagelimit
-    let comments = []
+    let comments: types.Comments[] = []
 
     let query = `SELECT * FROM (
                         SELECT p.*, COUNT(r.id) as ratecount 
@@ -95,13 +95,15 @@ app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, gettopsub
 
     query = query + ' LIMIT ? OFFSET ?'
     const params = [pagelimit, offset]
-    const [posts] = await req.database.query(query, params)
+    let [result] = await req.database.query(query, params)
+    const posts = result as types.Posts[]
     const postIds = posts.map((post: types.Posts) => post.id)
 
     const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)'
     const commentParams = [postIds]
     if (postIds.length > 0) {
-      [comments] = await req.database.query(commentQuery, commentParams)
+      [result] = await req.database.query(commentQuery, commentParams)
+      comments = result as types.Comments[]
     }
 
     // if a logged in user views the frontpage we render their upvotes/downvotes
@@ -157,25 +159,28 @@ app.get('/search', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
       }
     }
     const offset = (page - 1) * pagelimit
-    let comments = []
-    let ratings = []
+    let comments: types.Comments[] = []
+    let ratings: types.Ratings[] = []
 
     const search = req.query.q
     const searchQuery = 'SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) LIMIT ? OFFSET ?'
     const searchParams = [search, search, pagelimit, offset]
-    const [posts] = await req.database.query(searchQuery, searchParams)
+    const [result] = await req.database.query(searchQuery, searchParams)
+    const posts = result as types.Posts[]
     const postIds = posts.map((post: types.Posts) => post.id)
 
     const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)'
     const commentParams = [postIds]
     if (postIds.length > 0) {
-      [comments] = await req.database.query(commentQuery, commentParams)
+      const [result] = await req.database.query(commentQuery, commentParams)
+      comments = result as types.Comments[]
     }
 
     const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?'
     const ratingsParams = [postIds, req.userId]
     if (postIds.length > 0) {
-      [ratings] = await req.database.query(ratingsQuery, ratingsParams)
+      const [result] = await req.database.query(ratingsQuery, ratingsParams)
+      ratings = result as types.Ratings[]
     }
 
     return res.render('frontpage', { req, pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/search' })

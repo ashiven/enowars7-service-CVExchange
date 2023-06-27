@@ -92,12 +92,14 @@ app.get('/', getuserid, getusername, getuserkarma, getsubids, getsubs, gettopsub
         }
         query = query + ' LIMIT ? OFFSET ?';
         const params = [pagelimit, offset];
-        const [posts] = yield req.database.query(query, params);
+        let [result] = yield req.database.query(query, params);
+        const posts = result;
         const postIds = posts.map((post) => post.id);
         const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)';
         const commentParams = [postIds];
         if (postIds.length > 0) {
-            [comments] = yield req.database.query(commentQuery, commentParams);
+            [result] = yield req.database.query(commentQuery, commentParams);
+            comments = result;
         }
         // if a logged in user views the frontpage we render their upvotes/downvotes
         const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?';
@@ -158,17 +160,20 @@ app.get('/search', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
         const search = req.query.q;
         const searchQuery = 'SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) LIMIT ? OFFSET ?';
         const searchParams = [search, search, pagelimit, offset];
-        const [posts] = yield req.database.query(searchQuery, searchParams);
+        const [result] = yield req.database.query(searchQuery, searchParams);
+        const posts = result;
         const postIds = posts.map((post) => post.id);
         const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)';
         const commentParams = [postIds];
         if (postIds.length > 0) {
-            [comments] = yield req.database.query(commentQuery, commentParams);
+            const [result] = yield req.database.query(commentQuery, commentParams);
+            comments = result;
         }
         const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?';
         const ratingsParams = [postIds, req.userId];
         if (postIds.length > 0) {
-            [ratings] = yield req.database.query(ratingsQuery, ratingsParams);
+            const [result] = yield req.database.query(ratingsQuery, ratingsParams);
+            ratings = result;
         }
         return res.render('frontpage', { req, pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/search' });
     }

@@ -143,7 +143,8 @@ router.post('/upload', auth, async (req: types.RequestV2, res: Response) => {
       const findQuery = 'SELECT profile_picture FROM users WHERE id = ?'
       const findParams = [userId]
       const [results] = await connection.query(findQuery, findParams)
-      const currentPic = results[0].profile_picture
+      const picResults = results as types.Users[]
+      const currentPic = picResults[0].profile_picture
 
       const updateQuery = 'UPDATE users SET profile_picture = ? WHERE id = ?'
       const updateParams = [profilePic, userId]
@@ -186,10 +187,10 @@ router.get('/delete', auth, async (req: types.RequestV2, res: Response) => {
     const findQuery = 'SELECT profile_picture FROM users WHERE id = ?'
     const findParams = [userId]
     const [results] = await connection.query(findQuery, findParams)
-    const currentPic = results[0].profile_picture
+    const picResults = results as types.Users[]
+    const currentPic = picResults[0].profile_picture
 
     if (currentPic !== null) {
-      const currentPic = results[0].profile_picture
       await fs.promises.unlink(path.join(__dirname, '..', currentPic))
 
       const deleteQuery = 'UPDATE users SET profile_picture = NULL WHERE id = ?'
@@ -236,7 +237,8 @@ router.post('/private', auth, async (req: types.RequestV2, res: Response) => {
       const findQuery = 'SELECT my_file FROM users WHERE id = ?'
       const findParams = [userId]
       const [results] = await connection.query(findQuery, findParams)
-      const currentFile = results[0].my_file
+      const fileResults = results as types.Users[]
+      const currentFile = fileResults[0].my_file
 
       const updateQuery = 'UPDATE users SET my_file = ? WHERE id = ?'
       const updateParams = [myFile, userId]

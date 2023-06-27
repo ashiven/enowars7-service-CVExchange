@@ -23,7 +23,8 @@ async function getusername (req: types.RequestV2, res: Response, next: NextFunct
       const query = 'SELECT * FROM users WHERE id = ?'
       const params = [userId]
       const [results] = await req.database.query(query, params)
-      req.username = results[0].name
+      let userResult = results as types.Users[]
+      req.username = userResult[0].name
     }
     next()
   } catch (error) {
@@ -39,7 +40,8 @@ async function getuserratings (req: types.RequestV2, res: Response, next: NextFu
       const query = 'SELECT * FROM ratings WHERE user_id = ?'
       const params = [userId]
       const [results] = await req.database.query(query, params)
-      req.ratings = results
+      let ratingsRes = results as types.Ratings[]
+      req.ratings = ratingsRes
     }
     next()
   } catch (error) {
@@ -71,11 +73,13 @@ async function getuserkarma (req: types.RequestV2, res: Response, next: NextFunc
 
       const postQuery = 'SELECT * FROM posts WHERE creator_id = ?'
       const postParams = [userId]
-      const [posts] = await req.database.query(postQuery, postParams)
+      const [result] = await req.database.query(postQuery, postParams)
+      let posts = result as types.Posts[]
 
       const commentQuery = 'SELECT * FROM comments WHERE creator_id = ?'
       const commentParams = [userId]
-      const [comments] = await req.database.query(commentQuery, commentParams)
+      const [resultTwo] = await req.database.query(commentQuery, commentParams)
+      let comments = resultTwo as types.Comments[]
 
       req.postkarma = posts.reduce((total: number, post: types.Posts) => total + post.rating, 0)
       req.commentkarma = comments.reduce((total: number, comment: types.Comments) => total + comment.rating, 0)
@@ -94,7 +98,8 @@ async function getsubids (req: types.RequestV2, res: Response, next: NextFunctio
 
       const selectQuery = 'SELECT subscribed FROM users WHERE id = ?'
       const selectParams = [userId]
-      const [subscribedRes] = await req.database.query(selectQuery, selectParams)
+      const [result] = await req.database.query(selectQuery, selectParams)
+      let subscribedRes = result as types.Users[]
       const subbedString = subscribedRes[0].subscribed
       const subscribed = subbedString ? subbedString.split(',').map(Number) : []
 
@@ -112,7 +117,8 @@ async function getsubs (req: types.RequestV2, res: Response, next: NextFunction)
     if (req.userId && req.subscribed.length > 0) {
       const selectQuery = 'SELECT * FROM subs WHERE id IN (?)'
       const selectParams = [req.subscribed]
-      const [subs] = await req.database.query(selectQuery, selectParams)
+      const [results] = await req.database.query(selectQuery, selectParams)
+      let subs = results as types.Subs[]
 
       req.subs = subs
     }
@@ -127,7 +133,8 @@ async function gettopsubs (req: types.RequestV2, res: Response, next: NextFuncti
   try {
     const selectQuery = 'SELECT * FROM subs ORDER BY members DESC LIMIT 17'
     const selectParams = [req.subscribed]
-    const [subs] = await req.database.query(selectQuery, selectParams)
+    const [result] = await req.database.query(selectQuery, selectParams)
+    let subs = result as types.Subs[]
 
     req.topsubs = subs
     next()

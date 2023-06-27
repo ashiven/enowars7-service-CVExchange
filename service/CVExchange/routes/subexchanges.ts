@@ -62,12 +62,13 @@ router.post('/new', auth, getusername, async (req: types.RequestV2, res: Respons
 
     const spamQuery = 'SELECT * FROM subs WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1'
     const spamParams = [creatorId]
-    const [spam] = await connection.query(spamQuery, spamParams)
+    const [result] = await connection.query(spamQuery, spamParams)
+    const spam = result as types.Subs[]
 
     if (spam.length > 0) {
       // ensure that users can only create a new subexchange every 20 seconds
       const currentTime = new Date().getTime()
-      const spamTime = spam[0].datetime
+      const spamTime = spam[0].datetime.getTime()
       if (Math.floor((currentTime - spamTime / 1000)) < 20) {
         await connection.commit()
         await connection.release()
@@ -77,7 +78,8 @@ router.post('/new', auth, getusername, async (req: types.RequestV2, res: Respons
 
     const searchQuery = 'SELECT * FROM subs WHERE name = ?'
     const searchParams = [name]
-    const [searchResults] = await connection.query(searchQuery, searchParams)
+    const [resultTwo] = await connection.query(searchQuery, searchParams)
+    const searchResults = resultTwo as types.Subs[]
 
     if (searchResults.length > 0) {
       // commit the transaction and release the connection
@@ -91,8 +93,9 @@ router.post('/new', auth, getusername, async (req: types.RequestV2, res: Respons
     await connection.query(insertQuery, insertParams)
 
     const subIdQuery = 'SELECT LAST_INSERT_ID() AS id FROM subs'
-    const [results] = await connection.query(subIdQuery)
-    const subId = results[0].id
+    const [resultThree] = await connection.query(subIdQuery)
+    const subIdResult = resultThree as types.Subs[]
+    const subId = subIdResult[0].id
 
     // commit the transaction and release the connection
     await connection.commit()
@@ -177,8 +180,8 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     if (!Number.isInteger(parseInt(subId))) {
       return res.status(500).send('<h1>Yea.. sub ID must be a number buddy.</h1>')
     }
-    let comments = []
-    let ratings = []
+    let comments: types.Comments[] = []
+    let ratings: types.Ratings[] = []
 
     let params = [subId, subId, subId, pagelimit, offset]
     let query = `SELECT * FROM (
@@ -215,24 +218,28 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     }
 
     query = query + ' LIMIT ? OFFSET ?'
-    const [posts] = await req.database.query(query, params)
-    const postIds = posts.map((post: types.Posts) => post.id)
+    const [results] = await req.database.query(query, params)
+    let posts = results as types.Posts[]
+    const postIds = posts.map((post) => post.id)
 
     const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)'
     const commentParams = [postIds]
     if (postIds.length > 0) {
-      [comments] = await req.database.query(commentQuery, commentParams)
+      const [results] = await req.database.query(commentQuery, commentParams)
+      comments = results as types.Comments[]
     }
 
     const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?'
     const ratingsParams = [postIds, req.userId]
     if (postIds.length > 0) {
-      [ratings] = await req.database.query(ratingsQuery, ratingsParams)
+      const [results] = await req.database.query(ratingsQuery, ratingsParams)
+      ratings = results as types.Ratings[]
     }
 
     const subQuery = 'SELECT * FROM subs WHERE id = ?'
     const subParams = [subId]
-    const [sub] = await req.database.query(subQuery, subParams)
+    const [result] = await req.database.query(subQuery, subParams)
+    const sub = result as types.Subs[]
 
     return res.render('frontpage', { req, sub: sub[0], ratings, pagelimit, page, sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/subexchange' })
   } catch (error) {
@@ -256,30 +263,34 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
       return res.status(500).send('<h1>Yea.. sub ID must be a number buddy.</h1>')
     }
     const offset = (page - 1) * pagelimit
-    let comments = []
-    let ratings = []
+    let comments: types.Comments[] = []
+    let ratings: types.Ratings[] = []
 
     const search = req.query.q
     const searchQuery = 'SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) AND p.sub_id = ? LIMIT ? OFFSET ?'
     const searchParams = [search, search, req.params.id, pagelimit, offset]
-    const [posts] = await req.database.query(searchQuery, searchParams)
+    const [result] = await req.database.query(searchQuery, searchParams)
+    const posts = result as types.Posts[]
     const postIds = posts.map((post: types.Posts) => post.id)
 
     const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)'
     const commentParams = [postIds]
     if (postIds.length > 0) {
-      [comments] = await req.database.query(commentQuery, commentParams)
+      const [result] = await req.database.query(commentQuery, commentParams)
+      comments = result as types.Comments[]
     }
 
     const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?'
     const ratingsParams = [postIds, req.userId]
     if (postIds.length > 0) {
-      [ratings] = await req.database.query(ratingsQuery, ratingsParams)
+      const [result] = await req.database.query(ratingsQuery, ratingsParams)
+      ratings = result as types.Ratings[]
     }
 
     const subQuery = 'SELECT * FROM subs WHERE id = ?'
     const subParams = [subId]
-    const [sub] = await req.database.query(subQuery, subParams)
+    const [resultTwo] = await req.database.query(subQuery, subParams)
+    const sub = resultTwo as types.Subs[]
 
     return res.render('frontpage', { req, sub: sub[0], pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/subsearch' })
   } catch (error) {

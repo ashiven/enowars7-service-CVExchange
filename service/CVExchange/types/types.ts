@@ -3,6 +3,7 @@
  * It will be overwritten the next time types are generated.
  */
 import {Request} from 'express'
+import * as sql from 'mysql2/promise'
 
 export type Comments = {
   id: number;
@@ -11,7 +12,7 @@ export type Comments = {
   creator_id: number | null;
   creator_name: string | null;
   rating: number;
-  datetime: Date | null;
+  datetime: Date;
   parent_id: number | null;
 };
 export type Posts = {
@@ -23,7 +24,7 @@ export type Posts = {
   creator_id: number | null;
   creator_name: string | null;
   rating: number;
-  datetime: Date | null;
+  datetime: Date;
 };
 export type Ratings = {
   id: number;
@@ -31,7 +32,7 @@ export type Ratings = {
   comment_id: number | null;
   post_id: number | null;
   rating: number | null;
-  datetime: Date | null;
+  datetime: Date;
 };
 export type Subs = {
   id: number;
@@ -41,11 +42,11 @@ export type Subs = {
   creator_id: number | null;
   creator_name: string | null;
   members: number | null;
-  datetime: Date | null;
+  datetime: Date;
 };
 export type Users = {
   id: number;
-  name: string | null;
+  name: string;
   email: string | null;
   password: string | null;
   profile_picture: string | null;
@@ -57,13 +58,13 @@ export type Users = {
 
 
 export interface RequestV2 extends Request {
-  database: any,
+  database: sql.Pool,
   userId: number,
   username: string,
-  ratings: Ratings,
+  ratings: Ratings[],
   postkarma: number,
   commentkarma: number,
-  subscribed: Array<number>,
-  subs: Subs,
-  topsubs: Subs 
+  subscribed: number[],
+  subs: Subs[],
+  topsubs: Subs[]
 }

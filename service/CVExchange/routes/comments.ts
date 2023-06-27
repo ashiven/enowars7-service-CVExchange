@@ -5,6 +5,7 @@ const { auth } = require('../middleware/auth')
 const { getusername } = require('../middleware/other')
 
 // Types
+import {Connection} from 'mysql2/promise'
 import {Response} from 'express'
 import * as types from '../types/types'
 
@@ -45,12 +46,13 @@ router.post('/new', auth, getusername, async (req: types.RequestV2, res: Respons
 
     const spamQuery = 'SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1'
     const spamParams = [creatorId]
-    const [spam] = await connection.query(spamQuery, spamParams)
+    const [result] = await connection.query(spamQuery, spamParams)
+    const spam = result as types.Posts[]
 
     if (spam.length > 0) {
       // ensure that users can only post a new comment every 3 seconds
       const currentTime = new Date().getTime()
-      const spamTime = spam[0].datetime
+      const spamTime = spam[0].datetime.getTime()
       if (Math.floor((currentTime - spamTime / 1000)) < 3) {
         await connection.commit()
         await connection.release()
@@ -70,7 +72,8 @@ router.post('/new', auth, getusername, async (req: types.RequestV2, res: Respons
 
     const commentIdQuery = 'SELECT LAST_INSERT_ID() AS id FROM comments'
     const [results] = await connection.query(commentIdQuery)
-    const commentId = results[0].id
+    const commentIdResults = results as types.Comments[]
+    const commentId = commentIdResults[0].id
 
     const ratingQuery = 'INSERT INTO ratings (user_id, comment_id, rating, datetime) VALUES (?, ?, 1, NOW())'
     const ratingParams = [creatorId, commentId]
@@ -133,7 +136,8 @@ router.get('/delete/:id', auth, async (req: types.RequestV2, res: Response) => {
 
     const findQuery = 'SELECT * FROM comments WHERE id = ? AND creator_id = ?'
     const findParams = [commentId, userId]
-    const [findResults] = await connection.query(findQuery, findParams)
+    const [results] = await connection.query(findQuery, findParams)
+    const findResults = results as types.Comments[]
 
     if (findResults.length > 0) {
       const deletedIds: Array<number> = []
@@ -169,10 +173,11 @@ router.get('/delete/:id', auth, async (req: types.RequestV2, res: Response) => {
 
 // Function definitions
 
-async function deleteChildren (connection: any, commentId: number, deletedIds: Array<number>) {
+async function deleteChildren (connection: Connection, commentId: number, deletedIds: Array<number>) {
   const childQuery = 'SELECT id FROM comments WHERE parent_id = ?'
   const childParams = [commentId]
-  const [children] = await connection.query(childQuery, childParams)
+  const [result] = await connection.query(childQuery, childParams)
+  const children = result as types.Comments[]
 
   const deleteQuery = 'DELETE FROM comments WHERE id = ?'
   const deleteParams = [commentId]

@@ -148,7 +148,8 @@ router.post('/upload', auth, (req, res) => __awaiter(void 0, void 0, void 0, fun
             const findQuery = 'SELECT profile_picture FROM users WHERE id = ?';
             const findParams = [userId];
             const [results] = yield connection.query(findQuery, findParams);
-            const currentPic = results[0].profile_picture;
+            const picResults = results;
+            const currentPic = picResults[0].profile_picture;
             const updateQuery = 'UPDATE users SET profile_picture = ? WHERE id = ?';
             const updateParams = [profilePic, userId];
             yield connection.query(updateQuery, updateParams);
@@ -184,9 +185,9 @@ router.get('/delete', auth, (req, res) => __awaiter(void 0, void 0, void 0, func
         const findQuery = 'SELECT profile_picture FROM users WHERE id = ?';
         const findParams = [userId];
         const [results] = yield connection.query(findQuery, findParams);
-        const currentPic = results[0].profile_picture;
+        const picResults = results;
+        const currentPic = picResults[0].profile_picture;
         if (currentPic !== null) {
-            const currentPic = results[0].profile_picture;
             yield fs.promises.unlink(path.join(__dirname, '..', currentPic));
             const deleteQuery = 'UPDATE users SET profile_picture = NULL WHERE id = ?';
             const deleteParams = [userId];
@@ -226,7 +227,8 @@ router.post('/private', auth, (req, res) => __awaiter(void 0, void 0, void 0, fu
             const findQuery = 'SELECT my_file FROM users WHERE id = ?';
             const findParams = [userId];
             const [results] = yield connection.query(findQuery, findParams);
-            const currentFile = results[0].my_file;
+            const fileResults = results;
+            const currentFile = fileResults[0].my_file;
             const updateQuery = 'UPDATE users SET my_file = ? WHERE id = ?';
             const updateParams = [myFile, userId];
             yield connection.query(updateQuery, updateParams);

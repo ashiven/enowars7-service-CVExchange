@@ -35,9 +35,10 @@ router.post('/login', async (req: types.RequestV2, res: Response) => {
     const query = 'SELECT * FROM users WHERE email = ? AND password = ?'
     const params = [email, password]
     const [results] = await req.database.query(query, params)
+    const user = results as types.Users[]
 
-    if (results.length > 0) {
-      const userId = results[0].id
+    if (user.length > 0) {
+      const userId = user[0].id
       const token = jwt.sign({ userId }, jwtSecret)
       res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' })
       return res.redirect('/')
@@ -104,7 +105,8 @@ router.post('/register', async (req: types.RequestV2, res: Response) => {
 
     const searchQuery = 'SELECT * FROM users WHERE email = ? OR name = ?'
     const searchParams = [email, name]
-    const [searchResults] = await connection.query(searchQuery, searchParams)
+    const [result] = await connection.query(searchQuery, searchParams)
+    const searchResults = result as types.Users[]
 
     if (searchResults.length > 0) {
       // commit the transaction and release the connection
@@ -119,7 +121,8 @@ router.post('/register', async (req: types.RequestV2, res: Response) => {
 
     const loginQuery = 'SELECT * FROM users WHERE email = ? AND password = ?'
     const loginParams = [email, password]
-    const [loginResults] = await connection.query(loginQuery, loginParams)
+    const [resultTwo] = await connection.query(loginQuery, loginParams)
+    const loginResults = resultTwo as types.Users[]
 
     if (loginResults.length > 0) {
       const userId = loginResults[0].id
@@ -159,56 +162,64 @@ router.get('/profile/:id', auth, getusername, getuserkarma, getsubids, getsubs, 
       }
     }
     let ratings: Array<types.Ratings> = []
-    let commentPosts: Array<types.Comments> = []
-    let saved: Array<types.Posts> = []
+    let commentPosts: Array<types.Posts> = []
+    const saved: Array<types.Posts> = []
 
     const userQuery = 'SELECT * FROM users WHERE id = ?'
     const userParams = [profileId]
-    const [user] = await req.database.query(userQuery, userParams)
+    const [resultThree] = await req.database.query(userQuery, userParams)
+    const user = resultThree as types.Users[]
 
     const postQuery = 'SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC '
     const postParams = [profileId]
-    const [posts] = await req.database.query(postQuery, postParams)
+    const [result] = await req.database.query(postQuery, postParams)
+    const posts = result as types.Posts[]
     const postIds = posts.map((post: types.Posts) => post.id)
 
     const commentQuery = 'SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC '
     const commentParams = [profileId]
-    const [comments] = await req.database.query(commentQuery, commentParams)
+    const [resultTwo] = await req.database.query(commentQuery, commentParams)
+    const comments = resultTwo as types.Comments[]
     const commentIds = comments.map((comment: types.Comments) => comment.id)
     const commentPostIds = comments.map((comment: types.Comments) => comment.post_id)
 
     if (postIds.length > 0) {
       const postratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?'
       const postratingsParams = [postIds, userId]
-      const [postRatings] = await req.database.query(postratingsQuery, postratingsParams)
+      const [result] = await req.database.query(postratingsQuery, postratingsParams)
+      const postRatings = result as types.Ratings[]
       ratings = ratings.concat(postRatings)
     }
 
     if (commentIds.length > 0) {
       const commentRatingsQuery = 'SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?'
       const commentRatingsParams = [commentIds, userId]
-      const [commentRatings] = await req.database.query(commentRatingsQuery, commentRatingsParams)
+      const [result] = await req.database.query(commentRatingsQuery, commentRatingsParams)
+      const commentRatings = result as types.Ratings[]
       ratings = ratings.concat(commentRatings)
     }
 
     if (commentPostIds.length > 0) {
       const commentPostsQuery = 'SELECT * FROM posts WHERE id IN (?)'
       const commentPostsParams = [commentPostIds]
-      const [posts] = await req.database.query(commentPostsQuery, commentPostsParams)
+      const [result] = await req.database.query(commentPostsQuery, commentPostsParams)
+      const posts = result as types.Posts[]
       commentPosts = commentPosts.concat(posts)
     }
 
     if (tab === 'saved') {
       const selectQuery = 'SELECT saved FROM users WHERE id = ?'
       const selectParams = [userId]
-      const [savedposts] = await req.database.query(selectQuery, selectParams)
+      const [result] = await req.database.query(selectQuery, selectParams)
+      const savedposts = result as types.Users[]
       const savedString = savedposts[0].saved
       const savedIds = savedString ? savedString.split(',').map(Number) : []
 
       const savedQuery = 'SELECT * FROM posts WHERE id IN (?)'
       const savedParams = [savedIds]
       if (savedIds.length > 0) {
-        [saved] = await req.database.query(savedQuery, savedParams)
+        const [result] = await req.database.query(savedQuery, savedParams)
+        const saved = result as types.Posts[]
         const updatedSaved = savedIds.filter((id: number) => saved.some((post) => post.id === id))
         const updateQuery = 'UPDATE users SET saved = ? WHERE id = ?'
         const updateParams = [updatedSaved.join(','), userId]

@@ -5,6 +5,10 @@ const { auth } = require('../middleware/auth')
 // Types
 import {Response} from 'express'
 import * as types from '../types/types'
+import { RowDataPacket } from 'mysql2'
+interface accum extends RowDataPacket {
+  total_rating: number
+}
 
 // Route definitions
 
@@ -29,7 +33,8 @@ router.post('/ratepost', auth, async (req: types.RequestV2, res: Response) => {
 
     const searchQuery = 'SELECT * FROM ratings WHERE user_id = ? AND post_id = ?'
     const searchParams = [userId, postId]
-    const [searchResults] = await connection.query(searchQuery, searchParams)
+    const [result] = await connection.query(searchQuery, searchParams)
+    const searchResults = result as types.Ratings[]
 
     // if the user already voted on that post, update/delete their rating
     if (searchResults.length > 0) {
@@ -52,7 +57,8 @@ router.post('/ratepost', auth, async (req: types.RequestV2, res: Response) => {
     // now we accumulate the ratings of a post and update the rating entry for it
     const accQuery = 'SELECT SUM(rating) AS total_rating FROM ratings WHERE post_id = ?'
     const accParams = [postId]
-    const [accResults] = await connection.query(accQuery, accParams)
+    const [resultTwo] = await connection.query(accQuery, accParams)
+    const accResults = resultTwo as accum[]
 
     // we need an if/else in case the post has 0 votes, meaning it should receive a rating of 0
     const total = accResults[0].total_rating
@@ -102,7 +108,8 @@ router.post('/ratecomment', auth, async (req: types.RequestV2, res: Response) =>
 
     const searchQuery = 'SELECT * FROM ratings WHERE user_id = ? AND comment_id = ?'
     const searchParams = [userId, commentId]
-    const [searchResults] = await connection.query(searchQuery, searchParams)
+    const [result] = await connection.query(searchQuery, searchParams)
+    const searchResults = result as types.Ratings[]
 
     // if the user already voted on that comment, update/delete their rating
     if (searchResults.length > 0) {
@@ -125,7 +132,8 @@ router.post('/ratecomment', auth, async (req: types.RequestV2, res: Response) =>
     // now we accumulate the ratings of a comment and update the rating entry for it
     const accQuery = 'SELECT SUM(rating) AS total_rating FROM ratings WHERE comment_id = ?'
     const accParams = [commentId]
-    const [accResults] = await connection.query(accQuery, accParams)
+    const [resultTwo] = await connection.query(accQuery, accParams)
+    const accResults = resultTwo as accum[]
 
     // we need an if/else in case the comment has 0 votes, meaning it should receive a rating of 0
     const total = accResults[0].total_rating

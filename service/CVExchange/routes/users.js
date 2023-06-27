@@ -39,8 +39,9 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
         const params = [email, password];
         const [results] = yield req.database.query(query, params);
-        if (results.length > 0) {
-            const userId = results[0].id;
+        const user = results;
+        if (user.length > 0) {
+            const userId = user[0].id;
             const token = jwt.sign({ userId }, jwtSecret);
             res.cookie('jwtToken', token, { httpOnly: true, secure: true, sameSite: 'none' });
             return res.redirect('/');
@@ -105,7 +106,8 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
         yield connection.beginTransaction();
         const searchQuery = 'SELECT * FROM users WHERE email = ? OR name = ?';
         const searchParams = [email, name];
-        const [searchResults] = yield connection.query(searchQuery, searchParams);
+        const [result] = yield connection.query(searchQuery, searchParams);
+        const searchResults = result;
         if (searchResults.length > 0) {
             // commit the transaction and release the connection
             yield connection.commit();
@@ -117,7 +119,8 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
         yield connection.query(insertQuery, insertParams);
         const loginQuery = 'SELECT * FROM users WHERE email = ? AND password = ?';
         const loginParams = [email, password];
-        const [loginResults] = yield connection.query(loginQuery, loginParams);
+        const [resultTwo] = yield connection.query(loginQuery, loginParams);
+        const loginResults = resultTwo;
         if (loginResults.length > 0) {
             const userId = loginResults[0].id;
             const token = jwt.sign({ userId }, jwtSecret);
@@ -157,47 +160,55 @@ router.get('/profile/:id', auth, getusername, getuserkarma, getsubids, getsubs, 
         }
         let ratings = [];
         let commentPosts = [];
-        let saved = [];
+        const saved = [];
         const userQuery = 'SELECT * FROM users WHERE id = ?';
         const userParams = [profileId];
-        const [user] = yield req.database.query(userQuery, userParams);
+        const [resultThree] = yield req.database.query(userQuery, userParams);
+        const user = resultThree;
         const postQuery = 'SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC ';
         const postParams = [profileId];
-        const [posts] = yield req.database.query(postQuery, postParams);
+        const [result] = yield req.database.query(postQuery, postParams);
+        const posts = result;
         const postIds = posts.map((post) => post.id);
         const commentQuery = 'SELECT * FROM comments WHERE creator_id = ? ORDER BY datetime DESC ';
         const commentParams = [profileId];
-        const [comments] = yield req.database.query(commentQuery, commentParams);
+        const [resultTwo] = yield req.database.query(commentQuery, commentParams);
+        const comments = resultTwo;
         const commentIds = comments.map((comment) => comment.id);
         const commentPostIds = comments.map((comment) => comment.post_id);
         if (postIds.length > 0) {
             const postratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?';
             const postratingsParams = [postIds, userId];
-            const [postRatings] = yield req.database.query(postratingsQuery, postratingsParams);
+            const [result] = yield req.database.query(postratingsQuery, postratingsParams);
+            const postRatings = result;
             ratings = ratings.concat(postRatings);
         }
         if (commentIds.length > 0) {
             const commentRatingsQuery = 'SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?';
             const commentRatingsParams = [commentIds, userId];
-            const [commentRatings] = yield req.database.query(commentRatingsQuery, commentRatingsParams);
+            const [result] = yield req.database.query(commentRatingsQuery, commentRatingsParams);
+            const commentRatings = result;
             ratings = ratings.concat(commentRatings);
         }
         if (commentPostIds.length > 0) {
             const commentPostsQuery = 'SELECT * FROM posts WHERE id IN (?)';
             const commentPostsParams = [commentPostIds];
-            const [posts] = yield req.database.query(commentPostsQuery, commentPostsParams);
+            const [result] = yield req.database.query(commentPostsQuery, commentPostsParams);
+            const posts = result;
             commentPosts = commentPosts.concat(posts);
         }
         if (tab === 'saved') {
             const selectQuery = 'SELECT saved FROM users WHERE id = ?';
             const selectParams = [userId];
-            const [savedposts] = yield req.database.query(selectQuery, selectParams);
+            const [result] = yield req.database.query(selectQuery, selectParams);
+            const savedposts = result;
             const savedString = savedposts[0].saved;
             const savedIds = savedString ? savedString.split(',').map(Number) : [];
             const savedQuery = 'SELECT * FROM posts WHERE id IN (?)';
             const savedParams = [savedIds];
             if (savedIds.length > 0) {
-                [saved] = yield req.database.query(savedQuery, savedParams);
+                const [result] = yield req.database.query(savedQuery, savedParams);
+                const saved = result;
                 const updatedSaved = savedIds.filter((id) => saved.some((post) => post.id === id));
                 const updateQuery = 'UPDATE users SET saved = ? WHERE id = ?';
                 const updateParams = [updatedSaved.join(','), userId];

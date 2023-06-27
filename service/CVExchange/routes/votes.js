@@ -30,7 +30,8 @@ router.post('/ratepost', auth, (req, res) => __awaiter(void 0, void 0, void 0, f
         yield connection.beginTransaction();
         const searchQuery = 'SELECT * FROM ratings WHERE user_id = ? AND post_id = ?';
         const searchParams = [userId, postId];
-        const [searchResults] = yield connection.query(searchQuery, searchParams);
+        const [result] = yield connection.query(searchQuery, searchParams);
+        const searchResults = result;
         // if the user already voted on that post, update/delete their rating
         if (searchResults.length > 0) {
             // they are submitting the same rating again
@@ -53,7 +54,8 @@ router.post('/ratepost', auth, (req, res) => __awaiter(void 0, void 0, void 0, f
         // now we accumulate the ratings of a post and update the rating entry for it
         const accQuery = 'SELECT SUM(rating) AS total_rating FROM ratings WHERE post_id = ?';
         const accParams = [postId];
-        const [accResults] = yield connection.query(accQuery, accParams);
+        const [resultTwo] = yield connection.query(accQuery, accParams);
+        const accResults = resultTwo;
         // we need an if/else in case the post has 0 votes, meaning it should receive a rating of 0
         const total = accResults[0].total_rating;
         if (total !== null) {
@@ -97,7 +99,8 @@ router.post('/ratecomment', auth, (req, res) => __awaiter(void 0, void 0, void 0
         yield connection.beginTransaction();
         const searchQuery = 'SELECT * FROM ratings WHERE user_id = ? AND comment_id = ?';
         const searchParams = [userId, commentId];
-        const [searchResults] = yield connection.query(searchQuery, searchParams);
+        const [result] = yield connection.query(searchQuery, searchParams);
+        const searchResults = result;
         // if the user already voted on that comment, update/delete their rating
         if (searchResults.length > 0) {
             // they are submitting the same rating again
@@ -120,7 +123,8 @@ router.post('/ratecomment', auth, (req, res) => __awaiter(void 0, void 0, void 0
         // now we accumulate the ratings of a comment and update the rating entry for it
         const accQuery = 'SELECT SUM(rating) AS total_rating FROM ratings WHERE comment_id = ?';
         const accParams = [commentId];
-        const [accResults] = yield connection.query(accQuery, accParams);
+        const [resultTwo] = yield connection.query(accQuery, accParams);
+        const accResults = resultTwo;
         // we need an if/else in case the comment has 0 votes, meaning it should receive a rating of 0
         const total = accResults[0].total_rating;
         if (total !== null) {

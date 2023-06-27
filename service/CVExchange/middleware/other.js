@@ -29,7 +29,8 @@ function getusername(req, res, next) {
                 const query = 'SELECT * FROM users WHERE id = ?';
                 const params = [userId];
                 const [results] = yield req.database.query(query, params);
-                req.username = results[0].name;
+                let userResult = results;
+                req.username = userResult[0].name;
             }
             next();
         }
@@ -47,7 +48,8 @@ function getuserratings(req, res, next) {
                 const query = 'SELECT * FROM ratings WHERE user_id = ?';
                 const params = [userId];
                 const [results] = yield req.database.query(query, params);
-                req.ratings = results;
+                let ratingsRes = results;
+                req.ratings = ratingsRes;
             }
             next();
         }
@@ -83,10 +85,12 @@ function getuserkarma(req, res, next) {
                 const userId = req.userId;
                 const postQuery = 'SELECT * FROM posts WHERE creator_id = ?';
                 const postParams = [userId];
-                const [posts] = yield req.database.query(postQuery, postParams);
+                const [result] = yield req.database.query(postQuery, postParams);
+                let posts = result;
                 const commentQuery = 'SELECT * FROM comments WHERE creator_id = ?';
                 const commentParams = [userId];
-                const [comments] = yield req.database.query(commentQuery, commentParams);
+                const [resultTwo] = yield req.database.query(commentQuery, commentParams);
+                let comments = resultTwo;
                 req.postkarma = posts.reduce((total, post) => total + post.rating, 0);
                 req.commentkarma = comments.reduce((total, comment) => total + comment.rating, 0);
             }
@@ -105,7 +109,8 @@ function getsubids(req, res, next) {
                 const userId = req.userId;
                 const selectQuery = 'SELECT subscribed FROM users WHERE id = ?';
                 const selectParams = [userId];
-                const [subscribedRes] = yield req.database.query(selectQuery, selectParams);
+                const [result] = yield req.database.query(selectQuery, selectParams);
+                let subscribedRes = result;
                 const subbedString = subscribedRes[0].subscribed;
                 const subscribed = subbedString ? subbedString.split(',').map(Number) : [];
                 req.subscribed = subscribed;
@@ -124,7 +129,8 @@ function getsubs(req, res, next) {
             if (req.userId && req.subscribed.length > 0) {
                 const selectQuery = 'SELECT * FROM subs WHERE id IN (?)';
                 const selectParams = [req.subscribed];
-                const [subs] = yield req.database.query(selectQuery, selectParams);
+                const [results] = yield req.database.query(selectQuery, selectParams);
+                let subs = results;
                 req.subs = subs;
             }
             next();
@@ -140,7 +146,8 @@ function gettopsubs(req, res, next) {
         try {
             const selectQuery = 'SELECT * FROM subs ORDER BY members DESC LIMIT 17';
             const selectParams = [req.subscribed];
-            const [subs] = yield req.database.query(selectQuery, selectParams);
+            const [result] = yield req.database.query(selectQuery, selectParams);
+            let subs = result;
             req.topsubs = subs;
             next();
         }

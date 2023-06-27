@@ -54,7 +54,8 @@ router.post('/new', auth, getusername, getsubids, getsubs, async (req: types.Req
     const nameQuery = 'SELECT name FROM subs WHERE id = ?'
     const nameParams = [subId]
     const [result] = await connection.query(nameQuery, nameParams)
-    const subName = result[0].name
+    const subNameResult = result as types.Subs[]
+    const subName = subNameResult[0].name
 
     const creatorId = req.userId
     const creatorName = req.username
@@ -64,13 +65,14 @@ router.post('/new', auth, getusername, getsubids, getsubs, async (req: types.Req
 
     const spamQuery = 'SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1'
     const spamParams = [creatorId]
-    const [spam] = await connection.query(spamQuery, spamParams)
+    const [resultTwo] = await connection.query(spamQuery, spamParams)
+    const spam = resultTwo as types.Posts[]
 
     if (spam.length > 0) {
       // ensure that users can only create a new post every 10 seconds
 
       const currentTime = new Date().getTime()
-      const spamTime = spam[0].datetime
+      const spamTime = spam[0].datetime.getTime()
       if (Math.floor((currentTime - spamTime / 1000)) < 10) {
         await connection.commit()
         await connection.release()
@@ -84,7 +86,8 @@ router.post('/new', auth, getusername, getsubids, getsubs, async (req: types.Req
 
     const postIdQuery = 'SELECT LAST_INSERT_ID() AS id FROM posts'
     const [results] = await connection.query(postIdQuery)
-    const postId = results[0].id
+    const postIdResults = results as types.Posts[]
+    const postId = postIdResults[0].id
 
     const ratingQuery = 'INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())'
     const ratingParams = [creatorId, postId]
@@ -116,13 +119,15 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
 
     const postQuery = 'SELECT * FROM posts WHERE id = ?'
     const postParams = [postId]
-    const [post] = await req.database.query(postQuery, postParams)
+    const [result] = await req.database.query(postQuery, postParams)
+    const post = result as types.Posts[]
     if (post.length === 0) {
       return res.status(404).send('<h1>Post not found</h1>')
     }
     const postRatingQuery = 'SELECT * FROM ratings WHERE post_id = ? AND user_id = ?'
     const postRatingParams = [post[0].id, req.userId]
-    const [postRating] = await req.database.query(postRatingQuery, postRatingParams)
+    const [resultTwo] = await req.database.query(postRatingQuery, postRatingParams)
+    const postRating = resultTwo as types.Ratings[]
     ratings = ratings.concat(postRating)
 
     let commentQuery = 'SELECT * FROM comments WHERE post_id = ? ORDER BY rating DESC'
@@ -156,7 +161,8 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
       }
     }
 
-    const [comments] = await req.database.query(commentQuery, commentParams)
+    const [resultThree] = await req.database.query(commentQuery, commentParams)
+    const comments = resultThree as types.Comments[]
     const commentIds = comments.map((comment: types.Comments) => comment.id)
     
     const commentMap: map = {}
@@ -186,13 +192,15 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
     if (commentIds.length > 0) {
       const commentRatingsQuery = 'SELECT * FROM ratings WHERE comment_id IN (?) AND user_id = ?'
       const commentRatingsParams = [commentIds, req.userId]
-      const [commentRatings] = await req.database.query(commentRatingsQuery, commentRatingsParams)
+      const [resultFour] = await req.database.query(commentRatingsQuery, commentRatingsParams)
+      const commentRatings = resultFour as types.Ratings[]
       ratings = ratings.concat(commentRatings)
     }
 
     const subQuery = 'SELECT * FROM subs WHERE id = ?'
     const subParams = [post[0].sub_id]
-    const [sub] = await req.database.query(subQuery, subParams)
+    const [resultFive] = await req.database.query(subQuery, subParams)
+    const sub = resultFive as types.Subs[]
 
     return res.render('post', { req, sort, sub: sub[0], post: post[0], ratings, comments: rootComments, title: `${post[0].title}`, layout: './layouts/post' })
   } catch (error) {
@@ -218,8 +226,9 @@ router.get('/delete/:id', auth, async (req: types.RequestV2, res: Response) => {
     const findQuery = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
     const findParams = [postId, userId]
     const [results] = await connection.query(findQuery, findParams)
+    const posts = results as types.Posts[]
 
-    if (results.length > 0) {
+    if (posts.length > 0) {
       // first delete the post
       const deletePostQuery = 'DELETE FROM posts WHERE id = ?'
       const deletePostParams = [postId]
@@ -228,7 +237,8 @@ router.get('/delete/:id', auth, async (req: types.RequestV2, res: Response) => {
       // find all comments for the post
       const searchCommentsQuery = 'SELECT * FROM comments WHERE post_id = ?'
       const searchCommentsParams = [postId]
-      const [comments] = await connection.query(searchCommentsQuery, searchCommentsParams)
+      const [results] = await connection.query(searchCommentsQuery, searchCommentsParams)
+      const comments = results as types.Comments[]
 
       // delete the ratings for every comment
       for (const comment of comments) {
@@ -288,9 +298,10 @@ router.get('/edit/:id', auth, getusername, getuserkarma, getsubids, getsubs, get
     const query = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
     const params = [postId, userId]
     const [results] = await req.database.query(query, params)
+    const posts = results as types.Posts[]
 
-    if (results.length > 0) {
-      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: '' })
+    if (posts.length > 0) {
+      return res.render('editpost', { req, post: posts[0], postId, title: 'Edit Post', layout: './layouts/standard', status: '' })
     } else {
       return res.status(404).send('<h1>Post not found</h1>')
     }
@@ -311,21 +322,22 @@ router.post('/edit/:id', auth, async (req: types.RequestV2, res: Response) => {
     const postQuery = 'SELECT * FROM posts WHERE id = ? AND creator_id = ?'
     const postParams = [postId, userId]
     const [results] = await req.database.query(postQuery, postParams)
+    const posts = results as types.Posts[]
 
-    if (results.length <= 0) {
+    if (posts.length <= 0) {
       return res.status(404).send('<h1>Post not found</h1>')
     }
 
     const title = sanitizer.escape(req.body.title)
     const text = sanitizer.escape(req.body.text)
     if (!title || !text || title === '' || text === '') {
-      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'You need to include a title and text!' })
+      return res.render('editpost', { req, post: posts[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'You need to include a title and text!' })
     }
     if (title.length < 8) {
-      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.' })
+      return res.render('editpost', { req, post: posts[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please provide a title containing at least 8 characters.' })
     }
     if (title.length > 400 || text.length > 4000) {
-      return res.render('editpost', { req, post: results[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.' })
+      return res.render('editpost', { req, post: posts[0], postId, title: 'Edit Post', layout: './layouts/standard', status: 'Please limit the title to 400 characters and the body to 4000 characters.' })
     }
 
     const query = 'UPDATE posts SET title = ?, text = ? WHERE id = ? AND creator_id = ?'
@@ -356,7 +368,8 @@ router.get('/save/:id', auth, async (req: types.RequestV2, res: Response) => {
 
     const selectQuery = 'SELECT saved FROM users WHERE id = ?'
     const selectParams = [userId]
-    const [savedposts] = await connection.query(selectQuery, selectParams)
+    const [results] = await connection.query(selectQuery, selectParams)
+    const savedposts = results as types.Users[]
     const savedString = savedposts[0].saved
     const saved = savedString ? savedString.split(',') : []
 

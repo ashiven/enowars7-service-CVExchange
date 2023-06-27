@@ -63,11 +63,12 @@ router.post('/new', auth, getusername, (req, res) => __awaiter(void 0, void 0, v
         yield connection.beginTransaction();
         const spamQuery = 'SELECT * FROM subs WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1';
         const spamParams = [creatorId];
-        const [spam] = yield connection.query(spamQuery, spamParams);
+        const [result] = yield connection.query(spamQuery, spamParams);
+        const spam = result;
         if (spam.length > 0) {
             // ensure that users can only create a new subexchange every 20 seconds
             const currentTime = new Date().getTime();
-            const spamTime = spam[0].datetime;
+            const spamTime = spam[0].datetime.getTime();
             if (Math.floor((currentTime - spamTime / 1000)) < 20) {
                 yield connection.commit();
                 yield connection.release();
@@ -76,7 +77,8 @@ router.post('/new', auth, getusername, (req, res) => __awaiter(void 0, void 0, v
         }
         const searchQuery = 'SELECT * FROM subs WHERE name = ?';
         const searchParams = [name];
-        const [searchResults] = yield connection.query(searchQuery, searchParams);
+        const [resultTwo] = yield connection.query(searchQuery, searchParams);
+        const searchResults = resultTwo;
         if (searchResults.length > 0) {
             // commit the transaction and release the connection
             yield connection.commit();
@@ -87,8 +89,9 @@ router.post('/new', auth, getusername, (req, res) => __awaiter(void 0, void 0, v
         const insertParams = [name, description, sidebar, creatorId, creatorName];
         yield connection.query(insertQuery, insertParams);
         const subIdQuery = 'SELECT LAST_INSERT_ID() AS id FROM subs';
-        const [results] = yield connection.query(subIdQuery);
-        const subId = results[0].id;
+        const [resultThree] = yield connection.query(subIdQuery);
+        const subIdResult = resultThree;
+        const subId = subIdResult[0].id;
         // commit the transaction and release the connection
         yield connection.commit();
         yield connection.release();
@@ -200,21 +203,25 @@ router.get('/:id', auth, getusername, getuserkarma, getsubids, getsubs, gettopsu
             }
         }
         query = query + ' LIMIT ? OFFSET ?';
-        const [posts] = yield req.database.query(query, params);
+        const [results] = yield req.database.query(query, params);
+        let posts = results;
         const postIds = posts.map((post) => post.id);
         const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)';
         const commentParams = [postIds];
         if (postIds.length > 0) {
-            [comments] = yield req.database.query(commentQuery, commentParams);
+            const [results] = yield req.database.query(commentQuery, commentParams);
+            comments = results;
         }
         const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?';
         const ratingsParams = [postIds, req.userId];
         if (postIds.length > 0) {
-            [ratings] = yield req.database.query(ratingsQuery, ratingsParams);
+            const [results] = yield req.database.query(ratingsQuery, ratingsParams);
+            ratings = results;
         }
         const subQuery = 'SELECT * FROM subs WHERE id = ?';
         const subParams = [subId];
-        const [sub] = yield req.database.query(subQuery, subParams);
+        const [result] = yield req.database.query(subQuery, subParams);
+        const sub = result;
         return res.render('frontpage', { req, sub: sub[0], ratings, pagelimit, page, sort, posts, comments, title: 'CVExchange - Fly into nothingness', layout: './layouts/subexchange' });
     }
     catch (error) {
@@ -242,21 +249,25 @@ router.get('/search/:id', auth, getusername, getuserkarma, getsubids, getsubs, g
         const search = req.query.q;
         const searchQuery = 'SELECT p.*, MATCH (creator_name, sub_name, title, text) AGAINST (?) AS score FROM posts p WHERE MATCH (creator_name, sub_name, title, text) AGAINST (?) AND p.sub_id = ? LIMIT ? OFFSET ?';
         const searchParams = [search, search, req.params.id, pagelimit, offset];
-        const [posts] = yield req.database.query(searchQuery, searchParams);
+        const [result] = yield req.database.query(searchQuery, searchParams);
+        const posts = result;
         const postIds = posts.map((post) => post.id);
         const commentQuery = 'SELECT * FROM comments WHERE post_id IN (?)';
         const commentParams = [postIds];
         if (postIds.length > 0) {
-            [comments] = yield req.database.query(commentQuery, commentParams);
+            const [result] = yield req.database.query(commentQuery, commentParams);
+            comments = result;
         }
         const ratingsQuery = 'SELECT * FROM ratings WHERE post_id IN (?) AND user_id = ?';
         const ratingsParams = [postIds, req.userId];
         if (postIds.length > 0) {
-            [ratings] = yield req.database.query(ratingsQuery, ratingsParams);
+            const [result] = yield req.database.query(ratingsQuery, ratingsParams);
+            ratings = result;
         }
         const subQuery = 'SELECT * FROM subs WHERE id = ?';
         const subParams = [subId];
-        const [sub] = yield req.database.query(subQuery, subParams);
+        const [resultTwo] = yield req.database.query(subQuery, subParams);
+        const sub = resultTwo;
         return res.render('frontpage', { req, sub: sub[0], pagelimit, page, posts, comments, ratings, title: 'Search Results', layout: './layouts/subsearch' });
     }
     catch (error) {
