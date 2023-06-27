@@ -14,7 +14,7 @@ const {
 import { Response } from "express"
 import * as types from "../types/types"
 interface CommentsV2 extends types.Comments {
-   children: Array<types.Comments>
+   children: types.Comments[]
 }
 interface map {
    [key: number]: CommentsV2
@@ -195,7 +195,7 @@ router.get(
                .status(500)
                .send("<h1>That's not a valid ID in my world.</h1>")
          }
-         let ratings: Array<types.Ratings> = []
+         let ratings: types.Ratings[] = []
          let sort = "top"
 
          const postQuery = "SELECT * FROM posts WHERE id = ?"

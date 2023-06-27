@@ -166,7 +166,7 @@ router.get("/delete/:id", auth, async (req: types.RequestV2, res: Response) => {
       const findResults = results as types.Comments[]
 
       if (findResults.length > 0) {
-         const deletedIds: Array<number> = []
+         const deletedIds: number[] = []
          await deleteChildren(connection, parseInt(commentId), deletedIds)
 
          const deleteRatingsQuery =
@@ -207,7 +207,7 @@ router.get("/delete/:id", auth, async (req: types.RequestV2, res: Response) => {
 async function deleteChildren(
    connection: Connection,
    commentId: number,
-   deletedIds: Array<number>
+   deletedIds: number[]
 ) {
    const childQuery = "SELECT id FROM comments WHERE parent_id = ?"
    const childParams = [commentId]

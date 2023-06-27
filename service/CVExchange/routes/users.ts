@@ -232,9 +232,9 @@ router.get(
                return res.status(500).send("<h1>That is not a number.</h1>")
             }
          }
-         let ratings: Array<types.Ratings> = []
-         let commentPosts: Array<types.Posts> = []
-         const saved: Array<types.Posts> = []
+         let ratings: types.Ratings[] = []
+         let commentPosts: types.Posts[] = []
+         const saved: types.Posts[] = []
 
          const userQuery = "SELECT * FROM users WHERE id = ?"
          const userParams = [profileId]
