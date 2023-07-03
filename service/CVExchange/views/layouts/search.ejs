@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link rel="icon" href="/img/favicon.ico">
-    <link rel="stylesheet" href="/css/main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="/css/main.css">
 </head>
+
 <body>
 
-<%- include('../partials/nobutton-header') %>
-<div class="layout-frontpage">
+  <%- include('../partials/nobutton-header') %>
+  <div class="layout-frontpage">
 
     <main><%- body %></main>
-    
+
     <side>
       <div class="searchbar">
         <form action="/search" id="searchform">
-            <input type="text" name="q" placeholder="search">
+          <input type="text" name="q" placeholder="search">
         </form>
       </div>
       <div class="new-post-button login-required" onclick="location.href='/posts/new'">Submit a new text post</div>
     </side>
-    
-</div>
-<%- include('../partials/footer') %>
+
+  </div>
+  <%- include('../partials/footer') %>
 
 </body>
+
 </html>

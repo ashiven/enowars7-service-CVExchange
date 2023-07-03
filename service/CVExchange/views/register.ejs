@@ -1,7 +1,7 @@
 <div class="container">
   <form method="post" action="/user/register">
     <h3>Join CVExchange!</h3>
-    
+
     <input type="text" class="form-control" name="name" placeholder="Username" required="" autofocus="">
     <input type="email" class="form-control" name="email" placeholder="Email Address" required="">
     <input type="password" class="form-control" name="password" placeholder="Password" required="">
@@ -9,10 +9,9 @@
     <button class="btn btn-lg btn-primary btn-block" value="Sign Up" type="submit">Sign Up</button>
 
     <% if(status !== '') { %>
-      <div class="alert alert-danger" role="alert">
-          <%= status %>
-      </div>
+    <div class="alert alert-danger" role="alert">
+      <%= status %>
+    </div>
     <% } %>
   </form>
 </div>
-

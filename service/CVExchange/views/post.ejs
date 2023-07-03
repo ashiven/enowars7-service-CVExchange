@@ -1,47 +1,47 @@
 <div class="post-page">
-    <div class="post-page-voting-section">
-        <div class="upvote <%= ratings.some(r => r.post_id === post.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= post.id %>">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
-            </svg>
-        </div>
-        <div class="score"> <%= post.rating %> </div>
-        <div class="downvote <%= ratings.some(r => r.post_id === post.id && r.rating === -1) ? 'on' : '' %>" data-postid="<%= post.id %>">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
-            </svg>
-        </div>
+  <div class="post-page-voting-section">
+    <div class="upvote <%= ratings.some(r => r.post_id === post.id && r.rating === 1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+      </svg>
     </div>
-    <a href="/posts/<%= post.id %>">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-article" width="52" height="52" viewBox="0 0 24 24" stroke-width="1.5" stroke="#9e9e9e" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-          <path d="M7 8h10" />
-          <path d="M7 12h10" />
-          <path d="M7 16h10" />
-        </svg>
-    </a>
-    <div class="post-body">
-        <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
-        <p class="post-tags">submitted 
-            <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %></time> ago by 
-            <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
-            to <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
-        </p>
-        <div class="post-text">
-            <p><%- post.text.replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>')  %></p>
-        </div>
-        <ul class="post-buttons">
-            <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
-            <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
-            <% if(parseInt(req.userId) === parseInt(post.creator_id)) { %>
-            <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
-            <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
-            <% } %>
-        </ul> 
+    <div class="score"> <%= post.rating %> </div>
+    <div class="downvote <%= ratings.some(r => r.post_id === post.id && r.rating === -1) ? 'on' : '' %>" data-postid="<%= post.id %>">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+      </svg>
     </div>
+  </div>
+  <a href="/posts/<%= post.id %>">
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-article" width="52" height="52" viewBox="0 0 24 24" stroke-width="1.5" stroke="#9e9e9e" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+      <path d="M7 8h10" />
+      <path d="M7 12h10" />
+      <path d="M7 16h10" />
+    </svg>
+  </a>
+  <div class="post-body">
+    <p class="post-title"> <a class="title-link login-required" href="/posts/<%= post.id %>"><%= post.title %></a> </p>
+    <p class="post-tags">submitted
+      <time datetime="<%= post.datetime %>" class="timestamp"><%= timeSince(post.datetime) %></time> ago by
+      <a href="/user/profile/<%= post.creator_id %>" class="author login-required"><%= post.creator_name %></a>
+      to <a href="/subs/<%= post.sub_id %>" class="author login-required">c/<%= post.sub_name %></a>
+    </p>
+    <div class="post-text">
+      <p><%- post.text.replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>')  %></p>
+    </div>
+    <ul class="post-buttons">
+      <li class="comments"><a class="login-required" href="/posts/<%= post.id %>"><%= comments.filter(c => c.post_id === post.id).length %> comments</a></li>
+      <li class="save-button"><a class="login-required" href="/posts/save/<%= post.id %>">save</a></li>
+      <% if(parseInt(req.userId) === parseInt(post.creator_id)) { %>
+      <li class="edit-button"><a class="login-required" href="/posts/delete/<%= post.id %>">delete</a></li>
+      <li class="delete-button"><a class="login-required" href="/posts/edit/<%= post.id %>">edit</a></li>
+      <% } %>
+    </ul>
+  </div>
 </div>
 
 <% function timeSince(date) {
@@ -91,240 +91,239 @@
 } %>
 
 <form class="sort-form" id="sort-form" action="/posts/<%= post.id %>">
-    <label for="sort">sorted by:</label>
-    <select name="sort" id="sort">
-      <option value="top" <%= ( sort === 'top' ) ? 'selected' : '' %> >top</option>
-      <option value="hot" <%= ( sort === 'hot' ) ? 'selected' : '' %> >hot</option>
-      <option value="new" <%= ( sort === 'new' ) ? 'selected' : '' %> >new</option>
-    </select>
+  <label for="sort">sorted by:</label>
+  <select name="sort" id="sort">
+    <option value="top" <%= ( sort === 'top' ) ? 'selected' : '' %>>top</option>
+    <option value="hot" <%= ( sort === 'hot' ) ? 'selected' : '' %>>hot</option>
+    <option value="new" <%= ( sort === 'new' ) ? 'selected' : '' %>>new</option>
+  </select>
 </form>
 
 <form method="post" action="/comments/new" id="newcomment-form">
-    <input type="hidden" name="postId" value="<%= post.id %>">
-    <textarea class="comment-textarea" id="newcomment-text" name="comment" rows="7" cols="65"></textarea><br>
-    <div class="error-message" id="error-message"></div>
-    <button class="uploadbutton" type="submit">save</button>
+  <input type="hidden" name="postId" value="<%= post.id %>">
+  <textarea class="comment-textarea" id="newcomment-text" name="comment" rows="7" cols="65"></textarea><br>
+  <div class="error-message" id="error-message"></div>
+  <button class="uploadbutton" type="submit">save</button>
 </form>
 
 
 
 <div>
-    <% createThread(comments) %>
+  <% createThread(comments) %>
 </div>
 
 
 <% function createThread(comments, level = 0) { %>
-    <% comments.forEach((comment) => { %>
-        <div class="comment <%= level === 0 ? '' : 'child-comment' %>" style="margin-left: <%= level * 25 %>px;">
-            <div class="voting-section">
-                <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
-                    </svg>
-                </div>
-                <div class="downvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
-                    </svg>
-                </div>
-            </div>
-            <div class="comment-body">
-                <div class="comment-title">
-                    <a href="/user/profile/<%= comment.creator_id %>" style="color: <%= parseInt(comment.creator_id) === parseInt(post.creator_id ) ? '' : 'black' %>; font-weight:bold;"><%= comment.creator_name %></a>&nbsp;
-                    <span class="comment-score"><%= comment.rating %> <%= Math.abs(parseInt(comment.rating)) === 1 ? 'point' : 'points' %></span>&nbsp;
-                    <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
-                </div>
-                <div class="comment-text" id="comment-text-<%= comment.id %>">
-                    <%- comment.text.replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>') %>
-                </div>
-                <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
-                    <input type="hidden" name="postId" value="<%= comment.post_id %>">
-                    <textarea id="text" name="text" rows="7" cols="85"><%= comment.text %></textarea><br>
-                    <input class="uploadbutton" type="submit" value="save">
-                </form>
-                <ul class="comment-buttons">
-                    <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
-                    <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
-                    <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
-                    <% } %>
-                    <li class="reply-button"><a class="login-required" href="#" onclick="reply('<%= comment.id %>')">reply</a></li>
-                </ul>
-                <form class="comment-edit-textarea" id="comment-reply-<%= comment.id %>" style="display: none;" method="post" action="/comments/new">
-                    <input type="hidden" name="postId" value="<%= comment.post_id %>">
-                    <input type="hidden" name="parentId" value="<%= comment.id %>">
-                    <textarea id="comment" name="comment" rows="7" cols="65"></textarea><br>
-                    <input class="uploadbutton" type="submit" value="save">
-                </form>
-            </div>
-        </div>
-        <% if (comment.children.length > 0) { %>
-        <div class="child-comments">
-              <% createThread(comment.children, level + 1) %>
-        </div>
-        <% } %>
-    <% }) %>
+<% comments.forEach((comment) => { %>
+<div class="comment <%= level === 0 ? '' : 'child-comment' %>" style="margin-left: <%= level * 25 %>px;">
+  <div class="voting-section">
+    <div class="upvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === 1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M10.586 3l-6.586 6.586a2 2 0 0 0 -.434 2.18l.068 .145a2 2 0 0 0 1.78 1.089h2.586v7a2 2 0 0 0 2 2h4l.15 -.005a2 2 0 0 0 1.85 -1.995l-.001 -7h2.587a2 2 0 0 0 1.414 -3.414l-6.586 -6.586a2 2 0 0 0 -2.828 0z" stroke-width="0" fill="currentColor" />
+      </svg>
+    </div>
+    <div class="downvote-comment <%= ratings.some(r => r.comment_id === comment.id && r.rating === -1) ? 'on' : '' %>" data-commentid="<%= comment.id %>">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down-filled" width="28" height="28" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M10 2l-.15 .005a2 2 0 0 0 -1.85 1.995v6.999l-2.586 .001a2 2 0 0 0 -1.414 3.414l6.586 6.586a2 2 0 0 0 2.828 0l6.586 -6.586a2 2 0 0 0 .434 -2.18l-.068 -.145a2 2 0 0 0 -1.78 -1.089l-2.586 -.001v-6.999a2 2 0 0 0 -2 -2h-4z" stroke-width="0" fill="currentColor" />
+      </svg>
+    </div>
+  </div>
+  <div class="comment-body">
+    <div class="comment-title">
+      <a href="/user/profile/<%= comment.creator_id %>" style="color: <%= parseInt(comment.creator_id) === parseInt(post.creator_id ) ? '' : 'black' %>; font-weight:bold;"><%= comment.creator_name %></a>&nbsp;
+      <span class="comment-score"><%= comment.rating %> <%= Math.abs(parseInt(comment.rating)) === 1 ? 'point' : 'points' %></span>&nbsp;
+      <time datetime="<%= comment.datetime %>" class="timestamp"><%= timeSince(comment.datetime) %> ago</time>
+    </div>
+    <div class="comment-text" id="comment-text-<%= comment.id %>">
+      <%- comment.text.replace(/(\r\n){3,}/g, '\r\n\r\n').replace(/\r\n/g, '<br>') %>
+    </div>
+    <form class="comment-edit-textarea" id="comment-edit-<%= comment.id %>" style="display: none;" method="post" action="/comments/edit/<%= comment.id %>">
+      <input type="hidden" name="postId" value="<%= comment.post_id %>">
+      <textarea id="text" name="text" rows="7" cols="85"><%= comment.text %></textarea><br>
+      <input class="uploadbutton" type="submit" value="save">
+    </form>
+    <ul class="comment-buttons">
+      <% if(parseInt(req.userId) === parseInt(comment.creator_id)) { %>
+      <li class="delete-button"><a class="login-required" href="/comments/delete/<%= comment.id %>">delete</a></li>
+      <li class="edit-button"><a class="login-required" href="#" onclick="editComment('<%= comment.id %>')">edit</a></li>
+      <% } %>
+      <li class="reply-button"><a class="login-required" href="#" onclick="reply('<%= comment.id %>')">reply</a></li>
+    </ul>
+    <form class="comment-edit-textarea" id="comment-reply-<%= comment.id %>" style="display: none;" method="post" action="/comments/new">
+      <input type="hidden" name="postId" value="<%= comment.post_id %>">
+      <input type="hidden" name="parentId" value="<%= comment.id %>">
+      <textarea id="comment" name="comment" rows="7" cols="65"></textarea><br>
+      <input class="uploadbutton" type="submit" value="save">
+    </form>
+  </div>
+</div>
+<% if (comment.children.length > 0) { %>
+<div class="child-comments">
+  <% createThread(comment.children, level + 1) %>
+</div>
+<% } %>
+<% }) %>
 <% } %>
 
 
 <script>
-for(const btn of document.querySelectorAll('.upvote')) {
+  for (const btn of document.querySelectorAll('.upvote')) {
     btn.addEventListener('click', async (event) => {
-        event.currentTarget.classList.toggle('on')
-        const postId = btn.getAttribute('data-postid')
-        await fetch('/votes/ratepost', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                postId: postId,
-                rating: 1
-            })
+      event.currentTarget.classList.toggle('on')
+      const postId = btn.getAttribute('data-postid')
+      await fetch('/votes/ratepost', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: postId,
+          rating: 1
         })
-        location.reload()
+      })
+      location.reload()
     })
-}
-for(const btn of document.querySelectorAll('.downvote')) {
+  }
+  for (const btn of document.querySelectorAll('.downvote')) {
     btn.addEventListener('click', async (event) => {
-        event.currentTarget.classList.toggle('on')
-        const postId = btn.getAttribute('data-postid')
-        await fetch('/votes/ratepost', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                postId: postId,
-                rating: -1
-            })
+      event.currentTarget.classList.toggle('on')
+      const postId = btn.getAttribute('data-postid')
+      await fetch('/votes/ratepost', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: postId,
+          rating: -1
         })
-        location.reload()
+      })
+      location.reload()
     })
-}
-for(const btn of document.querySelectorAll('.upvote-comment')) {
+  }
+  for (const btn of document.querySelectorAll('.upvote-comment')) {
     btn.addEventListener('click', async (event) => {
-        event.currentTarget.classList.toggle('on')
-        const commentId = btn.getAttribute('data-commentid')
-        await fetch('/votes/ratecomment', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                commentId: commentId,
-                rating: 1
-            })
+      event.currentTarget.classList.toggle('on')
+      const commentId = btn.getAttribute('data-commentid')
+      await fetch('/votes/ratecomment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          commentId: commentId,
+          rating: 1
         })
-        location.reload()
+      })
+      location.reload()
     })
-}
-for(const btn of document.querySelectorAll('.downvote-comment')) {
+  }
+  for (const btn of document.querySelectorAll('.downvote-comment')) {
     btn.addEventListener('click', async (event) => {
-        event.currentTarget.classList.toggle('on')
-        const commentId = btn.getAttribute('data-commentid')
-        await fetch('/votes/ratecomment', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                commentId: commentId,
-                rating: -1
-            })
+      event.currentTarget.classList.toggle('on')
+      const commentId = btn.getAttribute('data-commentid')
+      await fetch('/votes/ratecomment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          commentId: commentId,
+          rating: -1
         })
-        location.reload()
+      })
+      location.reload()
     })
-}
+  }
 
-document.getElementById('sort').addEventListener('change', (event) => {
-        const selection = event.target.value
+  document.getElementById('sort').addEventListener('change', (event) => {
+    const selection = event.target.value
 
-        const existinginput = document.getElementById('sort')
-        if (existinginput) {
-            existinginput.remove()
-        }
-        
-        const query = document.createElement('input')
-        query.type = 'hidden'
-        query.name = 'sort'
-        query.value = selection
+    const existinginput = document.getElementById('sort')
+    if (existinginput) {
+      existinginput.remove()
+    }
 
-        const form = document.getElementById('sort-form')
-        form.appendChild(query)
-        
-        form.submit()
-})
+    const query = document.createElement('input')
+    query.type = 'hidden'
+    query.name = 'sort'
+    query.value = selection
 
-function editComment(commentId) {
+    const form = document.getElementById('sort-form')
+    form.appendChild(query)
+
+    form.submit()
+  })
+
+  function editComment(commentId) {
     const commentText = document.getElementById(`comment-text-${commentId}`)
     const commentEdit = document.getElementById(`comment-edit-${commentId}`)
     commentText.style.display = 'none'
     commentEdit.style.display = 'block'
-}
-function reply(commentId) {
+  }
+
+  function reply(commentId) {
     const commentReply = document.getElementById(`comment-reply-${commentId}`)
     commentReply.style.display = 'block'
-}
+  }
 
-document.getElementById('newcomment-form').addEventListener('submit', (event) => {
+  document.getElementById('newcomment-form').addEventListener('submit', (event) => {
     const textarea = document.getElementById('newcomment-text')
     const errorMsg = document.getElementById('error-message')
 
-    if(textarea.value.length > 500 || textarea.value.length < 1) {
-        event.preventDefault()
-        errorMsg.classList.add('show-error')
-        errorMsg.textContent = 'Your comment should contain between 1 to 500 characters.'
+    if (textarea.value.length > 500 || textarea.value.length < 1) {
+      event.preventDefault()
+      errorMsg.classList.add('show-error')
+      errorMsg.textContent = 'Your comment should contain between 1 to 500 characters.'
     }
-})
+  })
 
-function timeSince(date) {
+  function timeSince(date) {
     var seconds = Math.floor((new Date() - date) / 1000)
     var interval = seconds / 31536000
 
     if (interval > 1) {
-        return Math.floor(interval) + " years"
+      return Math.floor(interval) + " years"
     }
 
     interval = seconds / 2592000
     if (interval > 1) {
-        return Math.floor(interval) + " months"
+      return Math.floor(interval) + " months"
     }
 
     interval = seconds / 86400
     if (interval > 1) {
-        return Math.floor(interval) + " days"
+      return Math.floor(interval) + " days"
     }
 
     interval = seconds / 3600
     if (interval > 1) {
-        return Math.floor(interval) + " hours"
+      return Math.floor(interval) + " hours"
     }
 
     interval = seconds / 60
     if (interval > 1) {
-        return Math.floor(interval) + " minutes"
+      return Math.floor(interval) + " minutes"
     }
 
     return Math.floor(seconds) + " seconds"
-}
+  }
 
 
-let lastSubmit = localStorage.getItem('lastSubmit')
-document.getElementById('newcomment-form').addEventListener('submit', (event) => {
+  let lastSubmit = localStorage.getItem('lastSubmit')
+  document.getElementById('newcomment-form').addEventListener('submit', (event) => {
     const currentTime = Date.now()
     const timeDiff = currentTime - lastSubmit
     const errorMsg = document.getElementById('error-message')
 
     if (timeDiff < 3000 && lastSubmit) {
-        event.preventDefault()
-        errorMsg.classList.add('show-error')
-        errorMsg.textContent = 'Not so fast! Please wait 3 seconds inbetween comments.'
-    } 
-    else {
-        localStorage.setItem('lastSubmit', currentTime)
+      event.preventDefault()
+      errorMsg.classList.add('show-error')
+      errorMsg.textContent = 'Not so fast! Please wait 3 seconds inbetween comments.'
+    } else {
+      localStorage.setItem('lastSubmit', currentTime)
     }
-})
-
+  })
 </script>

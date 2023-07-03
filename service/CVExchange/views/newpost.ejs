@@ -6,7 +6,7 @@
       <label for="subbed">Subexchange:</label>
       <select class="form-control" name="subid" id="subid" required="">
         <% if(subbed) { for (let i = 0; i < subbed.length; i++) { %>
-          <option value="<%= subbed[i].id %>" <%= ( parseInt( req.headers.referer.split('/').pop()) === subbed[i].id || parseInt(req.query.ref) === subbed[i].id ) ? 'selected' : '' %> ><%= subbed[i].name %></option>
+        <option value="<%= subbed[i].id %>" <%= ( parseInt( req.headers.referer.split('/').pop()) === subbed[i].id || parseInt(req.query.ref) === subbed[i].id ) ? 'selected' : '' %>><%= subbed[i].name %></option>
         <% } } %>
       </select>
     </div>
@@ -23,9 +23,9 @@
 
     <button class="btn btn-lg btn-primary btn-block" value="Done!" type="submit">Done!</button>
     <% if(status !== '') { %>
-      <div class="alert alert-danger" role="alert">
-          <%= status %>
-      </div>
+    <div class="alert alert-danger" role="alert">
+      <%= status %>
+    </div>
     <% } %>
   </form>
 </div>
