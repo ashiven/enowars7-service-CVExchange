@@ -122,25 +122,19 @@ async function getsubids(req, res, next) {
       if (req.userId) {
          const userId = req.userId
 
-         hit = req.cache.get(req.userId + "SI")
+         const selectQuery = "SELECT subscribed FROM users WHERE id = ?"
+         const selectParams = [userId]
+         const [subscribedRes] = await req.database.query(
+            selectQuery,
+            selectParams
+         )
+         const subbedString = subscribedRes[0].subscribed
+         const subscribed = subbedString
+            ? subbedString.split(",").map(Number)
+            : []
 
-         if (hit == undefined) {
-            const selectQuery = "SELECT subscribed FROM users WHERE id = ?"
-            const selectParams = [userId]
-            const [subscribedRes] = await req.database.query(
-               selectQuery,
-               selectParams
-            )
-            const subbedString = subscribedRes[0].subscribed
-            const subscribed = subbedString
-               ? subbedString.split(",").map(Number)
-               : []
-
-            req.subscribed = subscribed
-            req.cache.set(req.userId + "SI", { subscribed: subscribed }, 100)
-         } else {
-            req.subscribed = hit.subscribed
-         }
+         req.subscribed = subscribed
+         req.cache.set(req.userId + "SI", { subscribed: subscribed }, 100)
       }
       next()
    } catch (error) {
