@@ -167,14 +167,14 @@ async function getsubs(req, res, next) {
 
 async function gettopsubs(req, res, next) {
    try {
-      hit = req.cache.get(req.userId + "TS")
+      hit = req.cache.get("TS")
       if (hit == undefined) {
          const selectQuery = "SELECT * FROM subs ORDER BY members DESC LIMIT 17"
          const selectParams = [req.subscribed]
          const [subs] = await req.database.query(selectQuery, selectParams)
 
          req.topsubs = subs
-         req.cache.set(req.userId + "TS", { topsubs: subs }, 100)
+         req.cache.set("TS", { topsubs: subs }, 100)
       } else {
          req.topsubs = hit.topsubs
       }
