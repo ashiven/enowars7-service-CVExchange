@@ -15,6 +15,8 @@ const {
    getsubs,
    gettopsubs,
 } = require("./middleware/other")
+const nodeCache = require("node-cache")
+const cache = new nodeCache()
 require("dotenv").config()
 
 // connect to the MySQL Database
@@ -45,6 +47,12 @@ app.use(cookieParser())
 // make DB accessible through req
 app.use((req, res, next) => {
    req.database = database
+   next()
+})
+
+// make cache accessible through req
+app.use((req, res, next) => {
+   req.cache = cache
    next()
 })
 
