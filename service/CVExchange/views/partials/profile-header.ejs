@@ -95,4 +95,11 @@ else { %>
       dropper.style.display = 'none'
     }
   })
+
+  const mySubs = document.getElementById('mysubs')
+  document.addEventListener('click', (event) => {
+    if (!dropper.contains(event.target) && event.target !== mySubs) {
+      dropper.style.display = 'none'
+    }
+  })
 </script>
