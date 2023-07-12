@@ -21,6 +21,16 @@ router.get(
    gettopsubs,
    async (req, res) => {
       try {
+         if (req.subscribed.length === 0) {
+            return res.render("newpost", {
+               req,
+               subbed: req.subs,
+               title: "New Post",
+               layout: "./layouts/standard",
+               status:
+                  "Please subscribe to at least one subexchange before creating new posts.",
+            })
+         }
          return res.render("newpost", {
             req,
             subbed: req.subs,
@@ -35,114 +45,133 @@ router.get(
    }
 )
 
-router.post("/new", auth, getusername, getsubids, getsubs, async (req, res) => {
-   const connection = await req.database.getConnection()
+router.post(
+   "/new",
+   auth,
+   getusername,
+   getsubids,
+   getsubs,
+   gettopsubs,
+   async (req, res) => {
+      const connection = await req.database.getConnection()
 
-   try {
-      const title = sanitizer.escape(req.body.title)
-      const text = sanitizer.escape(req.body.text)
-      if (!title || !text || title === "" || text === "") {
-         await connection.release()
-         return res.render("newpost", {
-            req,
-            subbed: req.subs,
-            title: "New Post",
-            layout: "./layouts/standard",
-            status: "You need to include a title and text!",
-         })
-      }
-      if (title.length < 8) {
-         await connection.release()
-         return res.render("newpost", {
-            req,
-            subbed: req.subs,
-            title: "New Post",
-            layout: "./layouts/standard",
-            status: "Please provide a title containing at least 8 characters.",
-         })
-      }
-      if (title.length > 400 || text.length > 4000) {
-         await connection.release()
-         return res.render("newpost", {
-            req,
-            subbed: req.subs,
-            title: "New Post",
-            layout: "./layouts/standard",
-            status:
-               "Please limit the title to 400 characters and the body to 4000 characters.",
-         })
-      }
-      const subId = req.body.subid
-      if (!Number.isInteger(parseInt(subId))) {
-         await connection.release()
-         return res.status(500).send("<h1>Thats not a number in my world.</h1>")
-      }
-      if (!req.subscribed.includes(parseInt(subId))) {
-         await connection.release()
-         return res
-            .status(500)
-            .send("<h1>You are not subscribed to this subexchange.</h1>")
-      }
-
-      const nameQuery = "SELECT name FROM subs WHERE id = ?"
-      const nameParams = [subId]
-      const [result] = await connection.query(nameQuery, nameParams)
-      const subName = result[0].name
-
-      const creatorId = req.userId
-      const creatorName = req.username
-
-      // start a transaction
-      await connection.beginTransaction()
-
-      const spamQuery =
-         "SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1"
-      const spamParams = [creatorId]
-      const [spam] = await connection.query(spamQuery, spamParams)
-
-      if (spam.length > 0) {
-         // ensure that users can only create a new post every 10 seconds
-         if (Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
-            await connection.commit()
+      try {
+         const title = sanitizer.escape(req.body.title)
+         const text = sanitizer.escape(req.body.text)
+         if (!title || !text || title === "" || text === "") {
             await connection.release()
             return res.render("newpost", {
                req,
                subbed: req.subs,
                title: "New Post",
                layout: "./layouts/standard",
-               status: "Please wait 10 seconds inbetween creating new posts.",
+               status: "You need to include a title and text!",
             })
          }
+         if (title.length < 8) {
+            await connection.release()
+            return res.render("newpost", {
+               req,
+               subbed: req.subs,
+               title: "New Post",
+               layout: "./layouts/standard",
+               status:
+                  "Please provide a title containing at least 8 characters.",
+            })
+         }
+         if (title.length > 400 || text.length > 4000) {
+            await connection.release()
+            return res.render("newpost", {
+               req,
+               subbed: req.subs,
+               title: "New Post",
+               layout: "./layouts/standard",
+               status:
+                  "Please limit the title to 400 characters and the body to 4000 characters.",
+            })
+         }
+         const subId = req.body.subid
+         if (!Number.isInteger(parseInt(subId))) {
+            await connection.release()
+            return res
+               .status(500)
+               .send("<h1>Thats not a number in my world.</h1>")
+         }
+         if (!req.subscribed.includes(parseInt(subId))) {
+            await connection.release()
+            return res
+               .status(500)
+               .send("<h1>You are not subscribed to this subexchange.</h1>")
+         }
+
+         const nameQuery = "SELECT name FROM subs WHERE id = ?"
+         const nameParams = [subId]
+         const [result] = await connection.query(nameQuery, nameParams)
+         const subName = result[0].name
+
+         const creatorId = req.userId
+         const creatorName = req.username
+
+         // start a transaction
+         await connection.beginTransaction()
+
+         const spamQuery =
+            "SELECT * FROM posts WHERE creator_id = ? ORDER BY datetime DESC LIMIT 1"
+         const spamParams = [creatorId]
+         const [spam] = await connection.query(spamQuery, spamParams)
+
+         if (spam.length > 0) {
+            // ensure that users can only create a new post every 10 seconds
+            if (Math.floor((new Date() - spam[0].datetime) / 1000) < 10) {
+               await connection.commit()
+               await connection.release()
+               return res.render("newpost", {
+                  req,
+                  subbed: req.subs,
+                  title: "New Post",
+                  layout: "./layouts/standard",
+                  status:
+                     "Please wait 10 seconds inbetween creating new posts.",
+               })
+            }
+         }
+
+         const insertQuery =
+            "INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )"
+         const insertParams = [
+            title,
+            text,
+            subId,
+            subName,
+            creatorId,
+            creatorName,
+         ]
+         await connection.query(insertQuery, insertParams)
+
+         const postIdQuery = "SELECT LAST_INSERT_ID() AS id FROM posts"
+         const [results] = await connection.query(postIdQuery)
+         const postId = results[0].id
+
+         const ratingQuery =
+            "INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())"
+         const ratingParams = [creatorId, postId]
+         await connection.query(ratingQuery, ratingParams)
+
+         // commit the transaction and release the connection
+         await connection.commit()
+         await connection.release()
+
+         return res.redirect(`/posts/${postId}`)
+      } catch (error) {
+         // if there was an error, rollback changes and release the connection
+         await connection.rollback()
+         await connection.release()
+
+         console.error(error)
+         return res.status(500).send("<h1>Internal Server Error</h1>")
       }
-
-      const insertQuery =
-         "INSERT INTO posts (title, text, sub_id, sub_name, rating, creator_id, creator_name, datetime) VALUES (?, ?, ?, ?, 1, ?, ?, NOW() )"
-      const insertParams = [title, text, subId, subName, creatorId, creatorName]
-      await connection.query(insertQuery, insertParams)
-
-      const postIdQuery = "SELECT LAST_INSERT_ID() AS id FROM posts"
-      const [results] = await connection.query(postIdQuery)
-      const postId = results[0].id
-
-      const ratingQuery =
-         "INSERT INTO ratings (user_id, post_id, rating, datetime) VALUES (?, ?, 1, NOW())"
-      const ratingParams = [creatorId, postId]
-      await connection.query(ratingQuery, ratingParams)
-
-      // commit the transaction and release the connection
-      await connection.commit()
-      await connection.release()
-
-      return res.redirect(`/posts/${postId}`)
-   } catch (error) {
-      // if there was an error, rollback changes and release the connection
-      await connection.rollback()
-      await connection.release()
-
-      console.error(error)
-      return res.status(500).send("<h1>Internal Server Error</h1>")
    }
-})
+)
 
 router.get(
    "/:id",

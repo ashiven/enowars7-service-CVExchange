@@ -34,7 +34,7 @@ router.get(
    }
 )
 
-router.post("/new", auth, getusername, async (req, res) => {
+router.post("/new", auth, getusername, gettopsubs, async (req, res) => {
    const connection = await req.database.getConnection()
 
    try {
