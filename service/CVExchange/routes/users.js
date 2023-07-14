@@ -163,7 +163,7 @@ router.post("/register", async (req, res) => {
       }
 
       const insertQuery =
-         "INSERT INTO users (name, email, password) VALUES (?, ?, ?)"
+         "INSERT INTO users (name, email, password, datetime) VALUES ( ?, ?, ?, NOW() )"
       const insertParams = [name, email, password]
       await connection.query(insertQuery, insertParams)
 

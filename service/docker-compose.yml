@@ -11,6 +11,9 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_DB: basedbase
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   mysql:
     build:
@@ -21,6 +24,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: basedbase
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
 
 volumes:
   cvexchange-mysql-data:
