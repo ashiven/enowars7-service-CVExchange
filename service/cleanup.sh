@@ -2,6 +2,11 @@
 
 while : 
 do
+    echo "Cleaning up backup directory"
+    find "/app/backups" -regex "/app/backups/.+" -mmin +30 -delete
+    echo "Cleaning up uploads directory"
+    find "/app/uploads" -regex "/app/uploads/.+" -mmin +30 -delete
+
     echo "Cleaning up users"
     mysql -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD -e"USE $MYSQL_DB; DELETE FROM users WHERE datetime <= DATE_SUB(NOW(), INTERVAL 30 MINUTE);"
     echo "Cleaning up subexchanges"
