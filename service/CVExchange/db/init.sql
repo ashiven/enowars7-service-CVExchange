@@ -139,3 +139,5 @@ VALUES (
   'admin',
   1
 );
+
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'secret';
