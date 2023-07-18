@@ -71,6 +71,14 @@ def getFake(type: str) -> str:
     return res[:15]
 
 
+def cookieToUserId(cookie: str) -> str:
+    c = cookie.split(".")[1]
+    dec = base64.b64decode(c.encode() + b"==").decode()
+    userId = json.loads(dec)["userId"]
+
+    return userId
+
+
 async def register(client: AsyncClient) -> tuple[str, str, str, str]:
     name, password = getFake("name"), getRandom(10)
     email = getRandom(5) + "@" + getRandom(5) + "." + getRandom(3)
@@ -92,6 +100,9 @@ async def register(client: AsyncClient) -> tuple[str, str, str, str]:
     profileLink = userClass.find("a")
     userId = profileLink["href"].split("/")[-1]
 
+    # extract userId from cookie
+    userId = cookieToUserId(cookie)
+
     return email, password, cookie, userId
 
 
@@ -102,7 +113,10 @@ async def login(email: str, password: str, client: AsyncClient) -> tuple[str, st
     assert_equals(loginResp.status_code, 302, "couldn't login with userdata")
     cookie = parseCookie(str(client.cookies))
 
-    return cookie
+    # extract userId from cookie
+    userId = cookieToUserId(cookie)
+
+    return userId, cookie
 
 
 @checker.putflag(0)
@@ -111,7 +125,7 @@ async def putflag_note(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("noteflag", (email, password, userId))
+    await db.set("noteflag", (email, password))
 
     # deposit the flag as the users personal note
     uploadResp = await client.post(
@@ -136,7 +150,7 @@ async def putflag_private(
         flagFile.write(task.flag)
 
     filehash = fileHash("passwords.txt")
-    await db.set("privateflag", (email, password, userId, filehash))
+    await db.set("privateflag", (email, password, filehash))
 
     uploadResp = await client.post(
         "/files/private",
@@ -156,7 +170,7 @@ async def putflag_backup(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("backupflag", (email, password, userId))
+    await db.set("backupflag", (email, password))
 
     # create a .txt file containing the flag and upload it to /files/backup
     with open("backup.txt", "w") as flagFile:
@@ -244,12 +258,12 @@ async def getflag_note(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId = await db.get("noteflag")
+        email, password = await db.get("noteflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
     # login with registration data from putflag(0)
-    cookie = await login(email, password, client)
+    userId, cookie = await login(email, password, client)
 
     # now that we have the userId we visit our profile page and find the flag
     flagResp = await client.get(f"/user/profile/{userId}", cookies={"jwtToken": cookie})
@@ -265,12 +279,12 @@ async def getflag_private(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId, filehash = await db.get("privateflag")
+        email, password, filehash = await db.get("privateflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
     # login with registration data from putflag(1)
-    cookie = await login(email, password, client)
+    userId, cookie = await login(email, password, client)
 
     # visit the users private upload directory to find the flag
     flagResp = await client.get(
@@ -296,12 +310,12 @@ async def getflag_backup(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId = await db.get("backupflag")
+        email, password = await db.get("backupflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
     # login with registration data from putflag(2)
-    cookie = await login(email, password, client)
+    userId, cookie = await login(email, password, client)
 
     # visit the users backup directory to retrieve the flag
     flagResp = await client.get(
