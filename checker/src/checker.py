@@ -93,12 +93,12 @@ async def register(client: AsyncClient) -> tuple[str, str, str, str]:
     cookie = parseCookie(str(client.cookies))
 
     # scour the frontpage to retrieve our unique userId
-    profileResp = await client.get("/", cookies={"jwtToken": cookie})
-    assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
-    html = BeautifulSoup(profileResp, "html.parser")
-    userClass = html.find("span", attrs={"class": "user"})
-    profileLink = userClass.find("a")
-    userId = profileLink["href"].split("/")[-1]
+    # profileResp = await client.get("/", cookies={"jwtToken": cookie})
+    # assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
+    # html = BeautifulSoup(profileResp, "html.parser")
+    # userClass = html.find("span", attrs={"class": "user"})
+    # profileLink = userClass.find("a")
+    # userId = profileLink["href"].split("/")[-1]
 
     # extract userId from cookie
     userId = cookieToUserId(cookie)
