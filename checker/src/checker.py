@@ -111,7 +111,7 @@ async def putflag_note(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("userinfo", (email, password, userId))
+    await db.set("noteflag", (email, password, userId))
 
     # deposit the flag as the users personal note
     uploadResp = await client.post(
@@ -136,7 +136,7 @@ async def putflag_private(
         flagFile.write(task.flag)
 
     filehash = fileHash("passwords.txt")
-    await db.set("userinfo", (email, password, userId, filehash))
+    await db.set("privateflag", (email, password, userId, filehash))
 
     uploadResp = await client.post(
         "/files/private",
@@ -156,7 +156,7 @@ async def putflag_backup(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("userinfo", (email, password, userId))
+    await db.set("backupflag", (email, password, userId))
 
     # create a .txt file containing the flag and upload it to /files/backup
     with open("backup.txt", "w") as flagFile:
@@ -244,7 +244,7 @@ async def getflag_note(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId = await db.get("userinfo")
+        email, password, userId = await db.get("noteflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
@@ -265,7 +265,7 @@ async def getflag_private(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId, filehash = await db.get("userinfo")
+        email, password, userId, filehash = await db.get("privateflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
@@ -296,7 +296,7 @@ async def getflag_backup(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, userId = await db.get("userinfo")
+        email, password, userId = await db.get("backupflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
