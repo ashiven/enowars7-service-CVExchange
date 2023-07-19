@@ -118,9 +118,7 @@ async def putflag_note(
     uploadResp = await client.post(
         "/user/editnote", json={"text": task.flag}, cookies={"jwtToken": cookie}
     )
-    assert_equals(
-        uploadResp.status_code, 302, "couldn't store flag under /user/editnote"
-    )
+    assert_equals(uploadResp.status_code, 302, "couldn't store flag 0")
 
     return userId
 
@@ -144,9 +142,7 @@ async def putflag_private(
         files={"privateFile": open("passwords.txt", "rb")},
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        uploadResp.status_code, 302, "couln't store flag under /files/private"
-    )
+    assert_equals(uploadResp.status_code, 302, "couln't store flag 1")
 
     return userId
 
@@ -168,7 +164,7 @@ async def putflag_backup(
         files={"backupFile": open("backup.txt", "rb")},
         cookies={"jwtToken": cookie},
     )
-    assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/backup")
+    assert_equals(uploadResp.status_code, 302, "couln't store flag 2")
 
     return userId
 
@@ -251,10 +247,8 @@ async def getflag_note(
 
     # now that we have the userId we visit our profile page and find the flag
     flagResp = await client.get(f"/user/profile/{userId}", cookies={"jwtToken": cookie})
-    assert_equals(
-        flagResp.status_code, 200, "couldn't get profile page containing the flag"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 0")
+    assert_in(task.flag, flagResp.text, "flag 0 not found")
 
 
 @checker.getflag(1)
@@ -272,17 +266,15 @@ async def getflag_private(
         f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/passwords.txt",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        flagResp.status_code, 200, "couldn't retrieve the flag from private directory"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 1")
+    assert_in(task.flag, flagResp.text, "flag 1 not found")
 
     hashResp = await client.get(
         f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/verify.js",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(hashResp.status_code, 200, "couldn't get page for integrity check")
-    assert_in(filehash, hashResp.text, "integrity check for private file failed")
+    assert_equals(hashResp.status_code, 200, "didn't get response for integrity check")
+    assert_in(filehash, hashResp.text, "integrity check failed")
 
 
 @checker.getflag(2)
@@ -300,10 +292,8 @@ async def getflag_backup(
         f"/files/retrieve/{base64.b64encode(userId.encode()).decode()}/backup.txt",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        flagResp.status_code, 200, "couldn't retrieve the flag from backup directory"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 2")
+    assert_in(task.flag, flagResp.text, "flag 2 not found")
 
 
 @checker.getnoise(0)
