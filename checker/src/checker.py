@@ -1,7 +1,7 @@
 from typing import (
     Optional,
-)  # type checking / optional parameters i.e. a function may or may not return a str
-from httpx import AsyncClient, Request  # client for http requests
+)
+from httpx import AsyncClient, Request
 from enochecker3 import (
     ChainDB,
     Enochecker,
@@ -71,6 +71,14 @@ def getFake(type: str) -> str:
     return res[:15]
 
 
+def cookieToUserId(cookie: str) -> str:
+    c = cookie.split(".")[1]
+    dec = base64.b64decode(c.encode() + b"==").decode()
+    userId = json.loads(dec)["userId"]
+
+    return str(userId)
+
+
 async def register(client: AsyncClient) -> tuple[str, str, str, str]:
     name, password = getFake("name"), getRandom(10)
     email = getRandom(5) + "@" + getRandom(5) + "." + getRandom(3)
@@ -83,14 +91,7 @@ async def register(client: AsyncClient) -> tuple[str, str, str, str]:
         f"couldn't register a new user with name: {name} under /user/register",
     )
     cookie = parseCookie(str(client.cookies))
-
-    # scour the frontpage to retrieve our unique userId
-    profileResp = await client.get("/", cookies={"jwtToken": cookie})
-    assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
-    html = BeautifulSoup(profileResp, "html.parser")
-    userClass = html.find("span", attrs={"class": "user"})
-    profileLink = userClass.find("a")
-    userId = profileLink["href"].split("/")[-1]
+    userId = cookieToUserId(cookie)
 
     return email, password, cookie, userId
 
@@ -102,15 +103,7 @@ async def login(email: str, password: str, client: AsyncClient) -> tuple[str, st
     assert_equals(loginResp.status_code, 302, "couldn't login with userdata")
     cookie = parseCookie(str(client.cookies))
 
-    # scour the frontpage to retrieve our unique userId
-    profileResp = await client.get("/", cookies={"jwtToken": cookie})
-    assert_equals(profileResp.status_code, 200, "couldn't retrieve frontpage under /")
-    html = BeautifulSoup(profileResp, "html.parser")
-    userClass = html.find("span", attrs={"class": "user"})
-    profileLink = userClass.find("a")
-    userId = profileLink["href"].split("/")[-1]
-
-    return userId, cookie
+    return cookie
 
 
 @checker.putflag(0)
@@ -119,15 +112,13 @@ async def putflag_note(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("userinfo", (email, password))
+    await db.set("noteflag", (userId, cookie))
 
     # deposit the flag as the users personal note
     uploadResp = await client.post(
         "/user/editnote", json={"text": task.flag}, cookies={"jwtToken": cookie}
     )
-    assert_equals(
-        uploadResp.status_code, 302, "couldn't store flag under /user/editnote"
-    )
+    assert_equals(uploadResp.status_code, 302, "couldn't store flag 0")
 
     return userId
 
@@ -144,16 +135,14 @@ async def putflag_private(
         flagFile.write(task.flag)
 
     filehash = fileHash("passwords.txt")
-    await db.set("userinfo", (email, password, filehash))
+    await db.set("privateflag", (userId, cookie, filehash))
 
     uploadResp = await client.post(
         "/files/private",
         files={"privateFile": open("passwords.txt", "rb")},
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        uploadResp.status_code, 302, "couln't store flag under /files/private"
-    )
+    assert_equals(uploadResp.status_code, 302, "couln't store flag 1")
 
     return userId
 
@@ -164,7 +153,7 @@ async def putflag_backup(
 ) -> str:
     # register so client has a cookie
     email, password, cookie, userId = await register(client)
-    await db.set("userinfo", (email, password))
+    await db.set("backupflag", (userId, cookie))
 
     # create a .txt file containing the flag and upload it to /files/backup
     with open("backup.txt", "w") as flagFile:
@@ -175,7 +164,7 @@ async def putflag_backup(
         files={"backupFile": open("backup.txt", "rb")},
         cookies={"jwtToken": cookie},
     )
-    assert_equals(uploadResp.status_code, 302, "couln't store flag under /files/backup")
+    assert_equals(uploadResp.status_code, 302, "couln't store flag 2")
 
     return userId
 
@@ -252,19 +241,14 @@ async def getflag_note(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password = await db.get("userinfo")
+        userId, cookie = await db.get("noteflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
 
-    # login with registration data from putflag(0)
-    userId, cookie = await login(email, password, client)
-
     # now that we have the userId we visit our profile page and find the flag
     flagResp = await client.get(f"/user/profile/{userId}", cookies={"jwtToken": cookie})
-    assert_equals(
-        flagResp.status_code, 200, "couldn't get profile page containing the flag"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 0")
+    assert_in(task.flag, flagResp.text, "flag 0 not found")
 
 
 @checker.getflag(1)
@@ -273,29 +257,24 @@ async def getflag_private(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password, filehash = await db.get("userinfo")
+        userId, cookie, filehash = await db.get("privateflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
-
-    # login with registration data from putflag(1)
-    userId, cookie = await login(email, password, client)
 
     # visit the users private upload directory to find the flag
     flagResp = await client.get(
         f"/uploads/{base64.b64encode(userId.encode()).decode()}/private/passwords.txt",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        flagResp.status_code, 200, "couldn't retrieve the flag from private directory"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 1")
+    assert_in(task.flag, flagResp.text, "flag 1 not found")
 
     hashResp = await client.get(
         f"/uploads/{base64.b64encode(userId.encode()).decode()}/public/verify.js",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(hashResp.status_code, 200, "couldn't get page for integrity check")
-    assert_in(filehash, hashResp.text, "integrity check for private file failed")
+    assert_equals(hashResp.status_code, 200, "didn't get response for integrity check")
+    assert_in(filehash, hashResp.text, "integrity check failed")
 
 
 @checker.getflag(2)
@@ -304,22 +283,17 @@ async def getflag_backup(
 ) -> None:
     # retrieve login data from the DB
     try:
-        email, password = await db.get("userinfo")
+        userId, cookie = await db.get("backupflag")
     except KeyError:
         raise MumbleException("couldn't retrieve userinfo from DB")
-
-    # login with registration data from putflag(2)
-    userId, cookie = await login(email, password, client)
 
     # visit the users backup directory to retrieve the flag
     flagResp = await client.get(
         f"/files/retrieve/{base64.b64encode(userId.encode()).decode()}/backup.txt",
         cookies={"jwtToken": cookie},
     )
-    assert_equals(
-        flagResp.status_code, 200, "couldn't retrieve the flag from backup directory"
-    )
-    assert_in(task.flag, flagResp.text, "flag not found")
+    assert_equals(flagResp.status_code, 200, "couldn't get flag 2")
+    assert_in(task.flag, flagResp.text, "flag 2 not found")
 
 
 @checker.getnoise(0)
