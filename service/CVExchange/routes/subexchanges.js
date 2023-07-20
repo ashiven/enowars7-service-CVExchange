@@ -315,6 +315,10 @@ router.get(
          const subParams = [subId]
          const [sub] = await req.database.query(subQuery, subParams)
 
+         if (sub.length === 0) {
+            return res.status(404).send("<h1>Subexchange not found.</h1>")
+         }
+
          return res.render("frontpage", {
             req,
             sub: sub[0],
