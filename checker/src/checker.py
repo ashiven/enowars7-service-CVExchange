@@ -20,6 +20,7 @@ import randfacts
 import re
 import json
 import hashlib
+import io
 from faker import Faker
 
 # initialize quotes and faker
@@ -33,11 +34,11 @@ checker = Enochecker("CVExchange", SERVICE_PORT)
 app = lambda: checker.app
 
 
-def fileHash(file: str) -> str:
+def fileHash(file: io.BytesIO) -> str:
     hash = hashlib.sha1()
-    with open(file, "rb") as f:
-        data = f.read()
-        hash.update(data)
+    file.seek(0)
+    data = file.read()
+    hash.update(data)
 
     return hash.hexdigest()
 
@@ -131,15 +132,19 @@ async def putflag_private(
     email, password, cookie, userId = await register(client)
 
     # create a .txt file containing the flag and upload it to /files/private
-    with open("passwords.txt", "w") as flagFile:
-        flagFile.write(task.flag)
+    # with open("passwords.txt", "w") as flagFile:
+    #   flagFile.write(task.flag)
 
-    filehash = fileHash("passwords.txt")
+    flagFile = io.BytesIO()
+    flagFile.write(task.flag.encode())
+    flagFile.seek(0)
+
+    filehash = fileHash(flagFile)
     await db.set("privateflag", (userId, cookie, filehash))
 
     uploadResp = await client.post(
         "/files/private",
-        files={"privateFile": open("passwords.txt", "rb")},
+        files={"privateFile": ("passwords.txt", flagFile)},
         cookies={"jwtToken": cookie},
     )
     assert_equals(uploadResp.status_code, 302, "couln't store flag 1")
@@ -156,12 +161,16 @@ async def putflag_backup(
     await db.set("backupflag", (userId, cookie))
 
     # create a .txt file containing the flag and upload it to /files/backup
-    with open("backup.txt", "w") as flagFile:
-        flagFile.write(task.flag)
+    # with open("backup.txt", "w") as flagFile:
+    #   flagFile.write(task.flag)
+
+    flagFile = io.BytesIO()
+    flagFile.write(task.flag.encode())
+    flagFile.seek(0)
 
     uploadResp = await client.post(
         "/files/backup",
-        files={"backupFile": open("backup.txt", "rb")},
+        files={"backupFile": ("backup.txt", flagFile)},
         cookies={"jwtToken": cookie},
     )
     assert_equals(uploadResp.status_code, 302, "couln't store flag 2")
