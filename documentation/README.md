@@ -49,13 +49,19 @@ app.use("/uploads", express.static("./uploads")) // <--- Vulnerable!
 -  This is not secure, because while there is an authentication mechanism in place that forbids unauthorized users from accessing the URI: **/uploads/:userId/private/:filename**,
    users are still able to access that directory via the URI: **/uploads/:userId/public/../private/:filename**.
 
-#### Recreating the Exploit
+#### Reproducing the Exploit
 
-##### TODO: Add instructions
+./vid/path_traversal.mp4
+
+In this example, we are exploiting the user with ID 151, which we received in the attack information.
+
+1. Navigate to the victim's profile page via the URI: **/user/profile/151**.
+2. Base64 encode the user ID to find out the name of the victim's upload directory: **MTUx**.
+3. Access their private file via the URI: **/uploads/MTUx/public%2F..%2Fprivate/passwords.txt**
 
 #### How to Mitigate
 
-This vulnerability can be mitigated by deleting the line: `app.use("/uploads", express.static("./uploads"))`.
+This vulnerability can be mitigated by deleting the line: `app.use("/uploads", express.static("./uploads")) `.
 
 ### Insecure Direct Object Reference on User Profiles
 
@@ -84,19 +90,23 @@ The second vulnerability can be found inside of **views/layouts/profile.ejs**.
 [...]
 ```
 
--  The second vulnerability is quite similar to the first one, as there is a broken authentication mechanism in place.
 -  The issue lies in the faulty conditional statement `if(parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.userId) === parseInt(req.query.userId))`, used by the view engine to decide whether to display a users personal note.
 -  The first part of that statement is fine, because `req.userId` is a parameter that is set by the authentication middleware and gets derived from decoding the users session cookie.
 -  The problem is in the second part, which checks for the query parameter **userId**, which anyone can easily supply.
 -  Therefore, it is possible to access a users private note through the following URI: **/user/profile/{victimId}?userId={victimId}**.
 
-#### Recreating the Exploit
+#### Reproducing the Exploit
 
-##### TODO: Add Instructions
+./vid/idor.mp4
+
+In this example, we are exploiting the user with ID 148, which we received in the attack information.
+
+1. Navigate to the victim's profile page via the URI: **/user/profile/148**.
+2. Access the victim's private note via the URI: **/user/profile/148?userId=148**.
 
 #### How to Mitigate
 
-This can be fixed by rewriting the conditional statement as follows: `if(parseInt(req.userId) === parseInt(req.params.id))`.
+A fix for this vulnerability would consist of rewriting the conditional statement as follows: `if(parseInt(req.userId) === parseInt(req.params.id))`.
 
 ### Remote Code Execution via Public File Uploads
 
@@ -180,10 +190,21 @@ async function magic(filepath, req, res) {
 [...]
 ```
 
-#### Recreating the Exploit
+#### Reproducing the Exploit
 
-##### TODO: Add Instructions
+./vid/rce.mp4
+
+In this example, we are exploiting the user with ID 300, which we received in the attack information.
+
+1. Navigate to the victim's profile page via the URI: **/user/profile/300**.
+2. Base64 encode the user ID to find out the name of the victim's backup directory: **MzAw**.
+3. Write code that will read the flag from the victim's backup directory and save it in a file named **malicious.jpg.js**.
+4. Disable Javascript in your browser to bypass client-side file filters.
+5. Upload the file **malicious.jpg.js** as your profile picture and intercept the request with Burpsuite.
+6. Change the **Content-Type** field in the body of your HTTP request to **image/jpeg**.
+7. Base64 encode your own user ID to find out the name of your upload directory: **MQ==**.
+8. Navigate to the file you have uploaded via the URI: **/uploads/MQ==/public/malicious.jpg.js** to retrieve the flag.
 
 #### How to Mitigate
 
-The intended fix would be to replace the regular expression with the following: `/\.(jpg|jpeg|png)$/i`.
+The intended fix for this vulnerability would be to replace the regular expression in the file filter with the following: `/\.(jpg|jpeg|png)$/i`.
