@@ -51,7 +51,7 @@ app.use("/uploads", express.static("./uploads")) // <--- Vulnerable!
 
 #### Reproducing the Exploit
 
-./vid/path_traversal.mp4
+https://github.com/enowars/enowars7-service-CVExchange/assets/34013062/0b6bb89e-695a-4384-b43e-d9722989c84c
 
 In this example, we are exploiting the user with ID 151, which we received in the attack information.
 
@@ -97,7 +97,7 @@ The second vulnerability can be found inside of **views/layouts/profile.ejs**.
 
 #### Reproducing the Exploit
 
-./vid/idor.mp4
+https://github.com/enowars/enowars7-service-CVExchange/assets/34013062/4216f6e5-ae3f-4b76-9e60-a507b475779c
 
 In this example, we are exploiting the user with ID 148, which we received in the attack information.
 
@@ -192,7 +192,7 @@ async function magic(filepath, req, res) {
 
 #### Reproducing the Exploit
 
-./vid/rce.mp4
+https://github.com/enowars/enowars7-service-CVExchange/assets/34013062/5aa5cd11-8e40-4b2e-b6f7-cc00fc7f067f
 
 In this example, we are exploiting the user with ID 300, which we received in the attack information.
 
