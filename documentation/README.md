@@ -3,7 +3,7 @@
 -  CVExchange is a simple Reddit clone that does not have a surrogate for link posts and private messaging.
 -  The backend of the application was built with Express.js, EJS, and a MySQL database.
 
-#### Demonstration of the service and its features.
+#### A Demonstration of the service and its features
 
 https://github.com/enowars/enowars7-service-CVExchange/assets/34013062/991b134a-8d52-4158-a9b6-1ea8fdbd2f2b
 
