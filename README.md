@@ -1,42 +1,71 @@
-## The Service 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- CVExchange is a simple Reddit clone that does not have a surrogate for link posts and private messaging.
-- The backend of the application was built with Express.js, EJS, and a MySQL database. 
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![ExpressJS](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+
+## About
+
+CVExchange is a simple Reddit clone built for the "International Information Security Contest" at TU Berlin.
+For more detailed information about the service and its vulnerabilities, please refer to the [documentation](documentation/README.md).
+
+## Getting Started
+
+### Prerequisites
+
+- Download and install the latest version of [docker](https://docs.docker.com/get-docker/).
+- Download and install the latest versions of [python](https://www.python.org/downloads/) and [pip](https://pypi.org/project/pip/).
+- Install [enochecker_test](https://pypi.org/project/enochecker-test/) via the following command:
+
+  ```bash
+  pip install --user enochecker_test
+  ```
+
+### Setup
+
+1. Clone the service to your local machine as follows:
+   ```bash
+   git clone https://github.com/enowars/enowars7-service-CVExchange.git
+   ```
+2. Navigate to the service directory.
+
+   ```bash
+   cd ./service
+   ```
+   
+3. Build and start the docker containers.
+   
+   ```bash
+   docker compose up --build --force-recreate -d
+   ```
+
+4. The service is now running and can be accessed via [http://localhost:1337](http://localhost:1337).
 
 
-## The Vulnerabilities 
+### Testing
 
-- There are three vulnerabilities hidden inside of the source code.
-- I will be listing them here, along with an intended fix for each of them. 
+If you want to test the service with the provided checker implementation, follow these steps:
 
+1. Navigate to the checker directory.
 
-### First Vulnerability
+   ```bash
+   cd ./checker
+   ```
 
-- The first vulnerability can be found inside of **app.js**. 
-- The webserver is serving the **uploads** directory statically due to the line `app.use('/uploads', express.static('./uploads'))`.
-- This is not secure, because while there is an authentication mechanism in place that forbids unauthorized users from accessing the URI: **/uploads/:userId/private/:filename**,
-users are still able to access that directory via the URI: **/uploads/:userId/public/../private/:filename**.
-- This vulnerability can be mitigated by deleting the line: `app.use('/uploads', express.static('./uploads'))`.
+2. Build and start the docker containers.
+   
+   ```bash
+   docker compose up --build --force-recreate -d
+   ```
 
+3. Run **enochecker_test**.
 
-### Second Vulnerability
-
-- The second vulnerability is quite similar to the first one, as there is a broken authentication mechanism in place.
-- The issue lies in the faulty conditional statement `if(parseInt(req.userId) === parseInt(req.params.id) || parseInt(req.userId) === parseInt(req.query.userId))`, used by the view engine to decide whether to display a users personal note.
-- The first part of that statement is fine, because `req.userId` is a parameter that is set by the authentication middleware and gets derived from decoding the users session cookie.
-- The problem is in the second part, which checks for the query parameter **userId**, which anyone can easily supply.
-- Therefore, it is possible to access a users private note through the following URI: **/user/profile/{victimId}?userId={victimId}**.
-- This can be fixed by rewriting the conditional statement as follows: `if(parseInt(req.userId) === parseInt(req.params.id))`.
+   ```bash
+   enochecker_test -a localhost -p 7331 -A host.docker.internal
+   ```
 
 
-### Third Vulnerability
+---
 
-- Upon uploading a profile picture, the server checks whether the uploaded file is an image file.
-- The vulnerability lies in the conditions the server checks to determine whether a file upload is valid.
-- The first condition is, that the filename matches the regular expression `/\.(jpg|jpeg|png)/i`, which would also match a filename like **malicious.jpg.js**.
-- The second condition a file has to fulfill is that its MIME-Type should be either `image/jpeg` or `image/png`, which is achieved via the conditonal check `file.mimetype === 'image/jpeg || file.mimetype === image/png`.
-- If an attacker were to look through the source code of the `multer` module, which the server uses for file uploads, they would find out that `file.mimetype` is derived from the `Content-Type` field of the HTTP-Requests body.
-- Lastly, if an attacker were to upload malicious javascript code to their public upload directory and navigate to it, the server would execute that code and display the results to the attacker.
-- This is due to the line `if (/\.(js)$/i.test(filepath)) { magic(filepath, req, res) }` inside of **app.js**, where `magic` is a function that can be found in **middleware.js**, that is responsible for file integrity checks and achieves this with child-processes.
-- This vulnerability can be exploited to read the contents of a users **backup** directory, which is otherwise not accessible to anyone besides the users themselves.
-- The intended fix would be to replace the regular expression with the following: `/\.(jpg|jpeg|png)$/i`.
+> GitHub [@Ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
+> Twitter [ashiven_](https://twitter.com/ashiven_)
