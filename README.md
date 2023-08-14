@@ -67,5 +67,5 @@ If you want to test the service with the provided checker implementation, follow
 
 ---
 
-> GitHub [@Ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
+> GitHub [@ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
 > Twitter [ashiven_](https://twitter.com/ashiven_)
