@@ -1,7 +1,7 @@
 ## The Service
 
--  CVExchange is a simple Reddit clone that does not have a surrogate for link posts and private messaging.
--  The backend of the application was built with Express.js, EJS, and a MySQL database.
+-  **CVExchange** is a **Reddit**-inspired content discussion and exchange platform that does not have a surrogate for link posts and private messaging.
+-  The backend of the application was built with **Express.js**, **EJS**, and a **MySQL** database.
 
 #### A Demonstration of the service and its features
 

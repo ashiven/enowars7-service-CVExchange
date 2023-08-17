@@ -6,7 +6,7 @@
 
 ## About
 
-CVExchange is a Reddit-inspired content discussion and exchange platform built for the "International Information Security Contest" at TU Berlin.
+**CVExchange** is a **Reddit**-inspired content discussion and exchange platform built for the "International Information Security Contest" at TU Berlin.
 For more detailed information about the service and its vulnerabilities, please refer to the [documentation](documentation/README.md).
 
 ## Getting Started
@@ -67,5 +67,5 @@ If you want to test the service with the provided checker implementation, follow
 
 ---
 
-> GitHub [@Ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
+> GitHub [@ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
 > Twitter [ashiven_](https://twitter.com/ashiven_)
