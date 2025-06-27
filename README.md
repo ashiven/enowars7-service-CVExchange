@@ -1,8 +1,16 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<div align="center">
+
+[![GitHub License](https://img.shields.io/github/license/ashiven/enowars7-service-CVExchange)](https://github.com/ashiven/enowars7-service-CVExchange/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/ashiven/enowars7-service-CVExchange)](https://github.com/ashiven/enowars7-service-CVExchange/releases)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ashiven/enowars7-service-CVExchange)](https://github.com/ashiven/enowars7-service-CVExchange/issues)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/ashiven/enowars7-service-CVExchange)](https://github.com/ashiven/enowars7-service-CVExchange/pulls)
+![GitHub Repo stars](https://img.shields.io/github/stars/ashiven/enowars7-service-CVExchange)
 
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![ExpressJS](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
 ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+
+</div>
 
 ## About
 
