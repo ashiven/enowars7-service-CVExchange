@@ -21,8 +21,8 @@ For more detailed information about the service and its vulnerabilities, please 
 
 ### Prerequisites
 
-- Download and install the latest version of [docker](https://docs.docker.com/get-docker/).
-- Download and install the latest versions of [python](https://www.python.org/downloads/) and [pip](https://pypi.org/project/pip/).
+- Download and install the latest version of [Docker](https://docs.docker.com/get-docker/).
+- Download and install the latest versions of [Python](https://www.python.org/downloads/) and [Pip](https://pypi.org/project/pip/).
 - Install [enochecker_test](https://pypi.org/project/enochecker-test/) via the following command:
 
   ```bash
