@@ -74,7 +74,7 @@ app.get(
          if (req.query.page) {
             page = parseInt(req.query.page)
             if (!Number.isInteger(page)) {
-               return res.status(500).send("<h1>That is not a number.</h1>")
+               return res.status(500).send("<h1>Invalid Page ID.</h1>")
             }
          }
          const offset = (page - 1) * pagelimit
@@ -220,7 +220,7 @@ app.get(
          if (req.query.page) {
             page = parseInt(req.query.page)
             if (!Number.isInteger(page)) {
-               return res.status(500).send("<h1>That is not a number.</h1>")
+               return res.status(500).send("<h1>Invalid Page ID.</h1>")
             }
          }
          const offset = (page - 1) * pagelimit
