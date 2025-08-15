@@ -178,7 +178,7 @@ router.get("/subscribe/:id", auth, getsubids, async (req, res) => {
       const subId = req.params.id
       if (!Number.isInteger(parseInt(subId))) {
          await connection.release()
-         return res.status(500).send("<h1>Stop it. Get some help.</h1>")
+         return res.status(500).send("<h1>Invalid Sub ID.</h1>")
       }
       let updatedSubscribed
 
@@ -244,7 +244,7 @@ router.get(
             if (!Number.isInteger(page)) {
                return res
                   .status(500)
-                  .send("<h1>Yea.. page ID must be a number buddy.</h1>")
+                  .send("<h1>Invalid Page ID.</h1>")
             }
          }
 
@@ -253,7 +253,7 @@ router.get(
          if (!Number.isInteger(parseInt(subId))) {
             return res
                .status(500)
-               .send("<h1>Yea.. sub ID must be a number buddy.</h1>")
+               .send("<h1>Invalid Sub ID.</h1>")
          }
          let comments = []
          let ratings = []
@@ -355,14 +355,14 @@ router.get(
             if (!Number.isInteger(page)) {
                return res
                   .status(500)
-                  .send("<h1>Yea.. page ID must be a number buddy.</h1>")
+                  .send("<h1>Invalid Page ID.</h1>")
             }
          }
          const subId = req.params.id
          if (!Number.isInteger(parseInt(subId))) {
             return res
                .status(500)
-               .send("<h1>Yea.. sub ID must be a number buddy.</h1>")
+               .send("<h1>Invalid Sub ID.</h1>")
          }
          const offset = (page - 1) * pagelimit
          let comments = []
