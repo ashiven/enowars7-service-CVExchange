@@ -208,7 +208,7 @@ router.get(
             return res
                .status(500)
                .send(
-                  `<h1>What does 1 + ${profileId} make? Yea.. I wouldn't know either.</h1>`
+                  `<h1>Invalid Profile ID.</h1>`
                )
          }
          const pagelimit = 15
@@ -221,7 +221,7 @@ router.get(
          if (req.query.page) {
             page = parseInt(req.query.page)
             if (!Number.isInteger(page)) {
-               return res.status(500).send("<h1>That is not a number.</h1>")
+               return res.status(500).send("<h1>Invalid Page ID.</h1>")
             }
          }
          let ratings = []
