@@ -26,7 +26,7 @@ For more detailed information about the service and its vulnerabilities, please 
 - Install [enochecker_test](https://pypi.org/project/enochecker-test/) via the following command:
 
   ```bash
-  pip install --user enochecker_test
+  pip install enochecker_test
   ```
 
 ### Setup
