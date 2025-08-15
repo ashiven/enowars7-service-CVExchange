@@ -187,7 +187,7 @@ router.get(
          if (!Number.isInteger(parseInt(postId))) {
             return res
                .status(500)
-               .send("<h1>That's not a valid ID in my world.</h1>")
+               .send("<h1>Invalid Post ID.</h1>")
          }
          let ratings = []
          let sort = "top"
@@ -309,7 +309,7 @@ router.get("/delete/:id", auth, async (req, res) => {
       const postId = req.params.id
       if (!Number.isInteger(parseInt(postId))) {
          await connection.release()
-         return res.status(500).send("<h1>Can't delete imaginary posts.</h1>")
+         return res.status(500).send("<h1>Invalid Post ID.</h1>")
       }
       const userId = req.userId
 
@@ -400,7 +400,7 @@ router.get(
          if (!Number.isInteger(parseInt(postId))) {
             return res
                .status(500)
-               .send("<h1>What are you even trying to edit?</h1>")
+               .send("<h1>Invalid Post ID.</h1>")
          }
          const userId = req.userId
 
@@ -433,7 +433,7 @@ router.post("/edit/:id", auth, async (req, res) => {
       if (!Number.isInteger(parseInt(postId))) {
          return res
             .status(500)
-            .send(`<h1>Since when is "${postId}" a number huh?</h1>`)
+            .send(`<h1>Invalid Post ID.</h1>`)
       }
       const userId = req.userId
 
@@ -499,7 +499,7 @@ router.get("/save/:id", auth, async (req, res) => {
       const postId = req.params.id
       if (!Number.isInteger(parseInt(postId))) {
          await connection.release()
-         return res.status(500).send("<h1>Stop it. Get some help.</h1>")
+         return res.status(500).send("<h1>Invalid Post ID.</h1>")
       }
       let updatedSaved
 
